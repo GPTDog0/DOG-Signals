@@ -1,50 +1,89 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Signals</title>
-  <style>
-    body { background:#0f172a; color:white; font-family:Arial; display:flex; justify-content:center; align-items:center; height:100vh; }
-    .card { background:#1e293b; padding:30px; border-radius:16px; text-align:center; width:90%; max-width:400px; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Signals</title>
+<style>
+body { font-family: Arial; background:#0f172a; color:white; margin:0; padding:0; }
+.container { max-width:900px; margin:20px auto; padding:20px; background:#1e293b; border-radius:16px; }
+h2 { text-align:center; color:#38bdf8; }
+.table { width:100%; border-collapse: collapse; margin-top:20px; }
+.table th, .table td { padding:10px; border:1px solid #334155; text-align:center; }
+.signal-positive { color:#22c55e; font-weight:bold; }
+.signal-negative { color:#ef4444; font-weight:bold; }
+.signal-neutral { color:#facc15; font-weight:bold; }
+canvas { background:#0f172a; border-radius:16px; }
+</style>
 </head>
 <body>
-  <div class="card" id="content">
-    <h2>Проверка доступа...</h2>
-  </div>
+<div class="container">
+<h2>🔥 Сигналы Pocket Option</h2>
 
-  <script>
-    const API_URL = "https://ТВОЙ_ДОМЕН_НА_RENDER";
+<table class="table">
+<thead>
+<tr>
+<th>Валюта</th>
+<th>Таймфрейм</th>
+<th>Таймер</th>
+<th>Точка входа</th>
+<th>Окончание</th>
+</tr>
+</thead>
+<tbody id="signals-body">
+<!-- Здесь добавим сигналы через JS -->
+</tbody>
+</table>
 
-    async function checkAccess() {
-      const userId = localStorage.getItem("user_id");
-      if(!userId){
-        document.getElementById("content").innerHTML = `
-          <h2>⛔ Доступ запрещён</h2>
-          <p>Вы не указали свой ID.</p>
-          <a href="./index.html" style="color:#38bdf8;">Вернуться на главную</a>
-        `;
-        return;
-      }
+<h2>📈 График EUR/USD</h2>
+<canvas id="chart" width="800" height="400"></canvas>
+</div>
 
-      const res = await fetch(`${API_URL}/check/${userId}`);
-      const data = await res.json();
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Пример сигналов
+const signals = [
+    {pair:"EUR/USD", tf:"1m", timer:"00:45", entry:"1.0932", result:"+", status:"signal-positive"},
+    {pair:"GBP/USD", tf:"3m", timer:"02:15", entry:"1.2720", result:"-", status:"signal-negative"},
+    {pair:"USD/JPY", tf:"5m", timer:"04:50", entry:"145.60", result:"↺", status:"signal-neutral"},
+];
 
-      if(data.approved){
-        document.getElementById("content").innerHTML = `
-          <h2>🔥 Сигналы Pocket Option</h2>
-          <p>Доступ открыт. Следите за обновлениями!</p>
-        `;
-      } else {
-        document.getElementById("content").innerHTML = `
-          <h2>⛔ Доступ запрещён</h2>
-          <p>Ваш ID ещё не одобрен. Ожидайте подтверждения.</p>
-        `;
-      }
+// Заполняем таблицу
+const tbody = document.getElementById("signals-body");
+signals.forEach(s => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+        <td>${s.pair}</td>
+        <td>${s.tf}</td>
+        <td>${s.timer}</td>
+        <td>${s.entry}</td>
+        <td class="${s.status}">${s.result}</td>
+    `;
+    tbody.appendChild(tr);
+});
+
+// Пример графика
+const ctx = document.getElementById("chart").getContext("2d");
+const chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: ["10:00","10:01","10:02","10:03","10:04","10:05"],
+        datasets: [{
+            label: "EUR/USD",
+            data: [1.0925,1.0928,1.0930,1.0932,1.0931,1.0933],
+            borderColor: '#38bdf8',
+            backgroundColor: 'rgba(56, 223, 248, 0.2)',
+            tension: 0.3
+        }]
+    },
+    options: {
+        scales: {
+            x: { grid:{color:'#334155'} },
+            y: { grid:{color:'#334155'} }
+        },
+        plugins: { legend:{display:true, labels:{color:'white'}} }
     }
-
-    checkAccess();
-  </script>
+});
+</script>
 </body>
 </html>
