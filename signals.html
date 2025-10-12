@@ -11,17 +11,23 @@ h2 { color:#38bdf8; }
 select, button { padding:10px; margin:10px; border-radius:8px; border:none; font-size:16px; cursor:pointer; }
 button { background:#3b82f6; color:white; font-weight:bold; }
 button:hover { background:#2563eb; }
+button:disabled { background:#64748b; cursor:not-allowed; }
 .signal-box { margin-top:20px; padding:15px; border-radius:12px; background:#334155; font-size:18px; }
 .signal-positive { color:#22c55e; font-weight:bold; }
 .signal-negative { color:#ef4444; font-weight:bold; }
 .signal-neutral { color:#facc15; font-weight:bold; }
+
+/* Адаптация графика для мобильных */
+#tv_chart_container { width: 100%; max-width:1000px; height:400px; margin:auto; }
+@media (max-width:768px){
+  #tv_chart_container { height:300px; }
+}
 </style>
 </head>
 <body>
 <div class="container">
 <h2>🔥 Сигналы Pocket Option</h2>
 
-<!-- Выбор валютной пары и таймфрейма -->
 <select id="pairSelect">
 <option>EUR/USD</option>
 <option>GBP/USD</option>
@@ -48,7 +54,7 @@ button:hover { background:#2563eb; }
 </div>
 
 <h2>📈 График</h2>
-<div id="tv_chart_container" style="height:400px;"></div>
+<div id="tv_chart_container"></div>
 </div>
 
 <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
@@ -73,13 +79,18 @@ const resetSignalBtn = document.getElementById("resetSignalBtn");
 
 function startSignal(signal){
     currentSignal = signal;
+
+    // Блокируем выбор и кнопку получения сигнала
+    getSignalBtn.disabled = true;
+    pairSelect.disabled = true;
+    tfSelect.disabled = true;
+
     const pair = pairSelect.value;
     const tf = tfSelect.value;
     const endTime = Date.now() + signal.duration*1000;
 
     function updateTimer(){
         const remaining = Math.max(0, Math.ceil((endTime - Date.now())/1000));
-        let resultText = "...";
         if(remaining <= 0){
             clearInterval(timerInterval);
             const results = ["+","-","↺"];
@@ -88,11 +99,11 @@ function startSignal(signal){
             signalDisplay.innerHTML = `<p>Пара: ${pair} | TF: ${tf}</p>
                                        <p>Точка входа: ${signal.entry}</p>
                                        <p>Результат: <span class="${className}">${r}</span></p>`;
-            return;
+        } else {
+            signalDisplay.innerHTML = `<p>Пара: ${pair} | TF: ${tf}</p>
+                                       <p>Точка входа: ${signal.entry}</p>
+                                       <p>Таймер: 00:${remaining<10?'0':''+remaining}</p>`;
         }
-        signalDisplay.innerHTML = `<p>Пара: ${pair} | TF: ${tf}</p>
-                                   <p>Точка входа: ${signal.entry}</p>
-                                   <p>Таймер: 00:${remaining<10?'0':''+remaining}</p>`;
     }
 
     updateTimer();
@@ -107,10 +118,16 @@ getSignalBtn.addEventListener("click", ()=>{
     loadTradingView();
 });
 
-// Сброс сигнала
+// Кнопка сброса сигнала
 resetSignalBtn.addEventListener("click", ()=>{
     if(timerInterval) clearInterval(timerInterval);
     signalDisplay.innerHTML = "<p>Сигнал появится здесь</p>";
+    currentSignal = null;
+
+    // Разблокируем элементы
+    getSignalBtn.disabled = false;
+    pairSelect.disabled = false;
+    tfSelect.disabled = false;
 });
 
 // TradingView Widget
@@ -135,9 +152,9 @@ function loadTradingView(){
     });
 }
 
-// Обновление графика при смене пары или таймфрейма
-pairSelect.addEventListener("change", loadTradingView);
-tfSelect.addEventListener("change", loadTradingView);
+// Обновление графика при смене пары или таймфрейма (только если нет активного сигнала)
+pairSelect.addEventListener("change", ()=>{ if(!currentSignal) loadTradingView(); });
+tfSelect.addEventListener("change", ()=>{ if(!currentSignal) loadTradingView(); });
 
 // Инициализация
 loadTradingView();
