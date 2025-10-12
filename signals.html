@@ -5,29 +5,46 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Signals</title>
   <style>
-    body {
-      background: #0f172a;
-      color: white;
-      font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    .card {
-      background: #1e293b;
-      padding: 30px;
-      border-radius: 16px;
-      text-align: center;
-      width: 90%;
-      max-width: 400px;
-    }
+    body { background:#0f172a; color:white; font-family:Arial; display:flex; justify-content:center; align-items:center; height:100vh; }
+    .card { background:#1e293b; padding:30px; border-radius:16px; text-align:center; width:90%; max-width:400px; }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h2>🔥 Сигналы Pocket Option</h2>
-    <p>Доступ открыт. Следите за обновлениями сигналов!</p>
+  <div class="card" id="content">
+    <h2>Проверка доступа...</h2>
   </div>
+
+  <script>
+    const API_URL = "https://ТВОЙ_ДОМЕН_НА_RENDER";
+
+    async function checkAccess() {
+      const userId = localStorage.getItem("user_id");
+      if(!userId){
+        document.getElementById("content").innerHTML = `
+          <h2>⛔ Доступ запрещён</h2>
+          <p>Вы не указали свой ID.</p>
+          <a href="./index.html" style="color:#38bdf8;">Вернуться на главную</a>
+        `;
+        return;
+      }
+
+      const res = await fetch(`${API_URL}/check/${userId}`);
+      const data = await res.json();
+
+      if(data.approved){
+        document.getElementById("content").innerHTML = `
+          <h2>🔥 Сигналы Pocket Option</h2>
+          <p>Доступ открыт. Следите за обновлениями!</p>
+        `;
+      } else {
+        document.getElementById("content").innerHTML = `
+          <h2>⛔ Доступ запрещён</h2>
+          <p>Ваш ID ещё не одобрен. Ожидайте подтверждения.</p>
+        `;
+      }
+    }
+
+    checkAccess();
+  </script>
 </body>
 </html>
