@@ -3,11 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Signals</title>
+<title>Pocket Option Signals</title>
 <style>
 body { font-family: Arial; background:#0f172a; color:white; margin:0; padding:0; }
-.container { max-width:900px; margin:20px auto; padding:20px; background:#1e293b; border-radius:16px; }
+.container { max-width:1000px; margin:20px auto; padding:20px; background:#1e293b; border-radius:16px; }
 h2 { text-align:center; color:#38bdf8; }
+select { padding:8px; margin:10px; border-radius:8px; border:none; font-size:16px; }
 .table { width:100%; border-collapse: collapse; margin-top:20px; }
 .table th, .table td { padding:10px; border:1px solid #334155; text-align:center; }
 .signal-positive { color:#22c55e; font-weight:bold; }
@@ -20,6 +21,26 @@ canvas { background:#0f172a; border-radius:16px; }
 <div class="container">
 <h2>🔥 Сигналы Pocket Option</h2>
 
+<!-- Выбор валютной пары и таймфрейма -->
+<div style="text-align:center;">
+<select id="pairSelect">
+<option>EUR/USD</option>
+<option>GBP/USD</option>
+<option>USD/JPY</option>
+<option>AUD/USD</option>
+<option>USD/CAD</option>
+<option>NZD/USD</option>
+<option>CHF/JPY</option>
+<option>EUR/GBP</option>
+</select>
+
+<select id="tfSelect">
+<option>1m</option>
+<option>3m</option>
+<option>5m</option>
+</select>
+</div>
+
 <table class="table">
 <thead>
 <tr>
@@ -30,60 +51,89 @@ canvas { background:#0f172a; border-radius:16px; }
 <th>Окончание</th>
 </tr>
 </thead>
-<tbody id="signals-body">
-<!-- Здесь добавим сигналы через JS -->
-</tbody>
+<tbody id="signals-body"></tbody>
 </table>
 
-<h2>📈 График EUR/USD</h2>
-<canvas id="chart" width="800" height="400"></canvas>
+<h2>📈 График</h2>
+<div id="tv_chart_container" style="height:400px;"></div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- TradingView Widget -->
+<script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+
 <script>
-// Пример сигналов
-const signals = [
-    {pair:"EUR/USD", tf:"1m", timer:"00:45", entry:"1.0932", result:"+", status:"signal-positive"},
-    {pair:"GBP/USD", tf:"3m", timer:"02:15", entry:"1.2720", result:"-", status:"signal-negative"},
-    {pair:"USD/JPY", tf:"5m", timer:"04:50", entry:"145.60", result:"↺", status:"signal-neutral"},
-];
+// Пример демо-сигнала
+let currentSignal = {
+    pair: "EUR/USD",
+    tf: "1m",
+    entry: "1.0932",
+    duration: 60, // сек
+    result: null
+};
 
-// Заполняем таблицу
-const tbody = document.getElementById("signals-body");
-signals.forEach(s => {
+const signalsBody = document.getElementById("signals-body");
+const pairSelect = document.getElementById("pairSelect");
+const tfSelect = document.getElementById("tfSelect");
+
+function startSignal(){
+    signalsBody.innerHTML = "";
+    currentSignal.pair = pairSelect.value;
+    currentSignal.tf = tfSelect.value;
+    currentSignal.result = null;
+    currentSignal.endTime = Date.now() + currentSignal.duration*1000;
+
     const tr = document.createElement("tr");
+    const timerCell = document.createElement("td");
     tr.innerHTML = `
-        <td>${s.pair}</td>
-        <td>${s.tf}</td>
-        <td>${s.timer}</td>
-        <td>${s.entry}</td>
-        <td class="${s.status}">${s.result}</td>
+        <td>${currentSignal.pair}</td>
+        <td>${currentSignal.tf}</td>
     `;
-    tbody.appendChild(tr);
-});
+    tr.appendChild(timerCell);
+    tr.innerHTML += `<td>${currentSignal.entry}</td><td class="signal-neutral">...</td>`;
+    signalsBody.appendChild(tr);
 
-// Пример графика
-const ctx = document.getElementById("chart").getContext("2d");
-const chart = new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: ["10:00","10:01","10:02","10:03","10:04","10:05"],
-        datasets: [{
-            label: "EUR/USD",
-            data: [1.0925,1.0928,1.0930,1.0932,1.0931,1.0933],
-            borderColor: '#38bdf8',
-            backgroundColor: 'rgba(56, 223, 248, 0.2)',
-            tension: 0.3
-        }]
-    },
-    options: {
-        scales: {
-            x: { grid:{color:'#334155'} },
-            y: { grid:{color:'#334155'} }
-        },
-        plugins: { legend:{display:true, labels:{color:'white'}} }
-    }
-});
+    // Таймер обновления
+    const interval = setInterval(()=>{
+        const remaining = Math.max(0, Math.ceil((currentSignal.endTime - Date.now())/1000));
+        timerCell.textContent = `00:${remaining<10?'0':''}${remaining}`;
+        if(remaining<=0){
+            clearInterval(interval);
+            // Пример случайного результата
+            const res = ["+","-","↺"];
+            const r = res[Math.floor(Math.random()*res.length)];
+            tr.children[4].textContent = r;
+            tr.children[4].className = r=="+"?"signal-positive":r=="-"?"signal-negative":"signal-neutral";
+        }
+    }, 1000);
+}
+
+// Запуск сигнала при изменении пары или tf
+pairSelect.addEventListener("change", startSignal);
+tfSelect.addEventListener("change", startSignal);
+
+// Инициализация TradingView
+function loadTradingView(){
+    new TradingView.widget({
+      "container_id": "tv_chart_container",
+      "symbol": currentSignal.pair.replace("/",""),
+      "interval": currentSignal.tf,
+      "timezone": "Etc/UTC",
+      "theme": "dark",
+      "style": "1",
+      "locale": "ru",
+      "toolbar_bg": "#1e293b",
+      "enable_publishing": false,
+      "hide_side_toolbar": false,
+      "allow_symbol_change": true,
+      "save_image": false
+    });
+}
+
+pairSelect.addEventListener("change", loadTradingView);
+tfSelect.addEventListener("change", loadTradingView);
+
+startSignal();
+loadTradingView();
 </script>
 </body>
 </html>
