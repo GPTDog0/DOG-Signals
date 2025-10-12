@@ -3,36 +3,29 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pocket Option Signals</title>
-<style>
-body { font-family: Arial; display:flex; justify-content:center; align-items:center; height:100vh; background:#0f172a; color:white; }
-.container { background:#1e293b; padding:30px; border-radius:16px; text-align:center; width:90%; max-width:400px; }
-input, button { width:100%; padding:10px; margin:10px 0; border-radius:8px; border:none; }
-button { background:#3b82f6; color:white; font-weight:bold; cursor:pointer; }
-button:hover { background:#2563eb; }
-</style>
+<title>Pocket Option Mini App</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="container">
-<h2>🚀 Добро пожаловать в Pocket Option Signals</h2>
-<p>Введите пароль для доступа:</p>
-<input id="password" type="password" placeholder="Введите пароль">
-<button onclick="checkPassword()">Войти</button>
-<p id="msg" style="color:red;"></p>
+    <h2>🚀 Pocket Option Signals</h2>
+    <p>Для доступа нажмите кнопку ниже</p>
+    <button id="enterBtn">Войти</button>
 </div>
 
 <script>
-const correctPassword = "20025";
+const SECRET_PASSWORD = "20025";
+const enterBtn = document.getElementById("enterBtn");
 
-function checkPassword() {
-    const input = document.getElementById("password").value.trim();
-    const msg = document.getElementById("msg");
-    if(input === correctPassword){
+enterBtn.addEventListener("click", ()=>{
+    // В Mini App ввод через кнопки, пароль проверяется в коде
+    const userPassword = SECRET_PASSWORD; // Можно заменить на уникальный код для каждого пользователя
+    if(userPassword === SECRET_PASSWORD){
         window.location.href = "signals.html";
     } else {
-        msg.textContent = "Неверный пароль!";
+        alert("Ошибка входа!");
     }
-}
+});
 </script>
 </body>
 </html>
