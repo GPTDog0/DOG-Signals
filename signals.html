@@ -40,10 +40,11 @@ select, button {
 select:focus, button:focus { outline: none; box-shadow: 0 0 15px #ff0000aa; }
 select:disabled, button:disabled { opacity: 0.6; cursor: not-allowed; }
 button:hover:not(:disabled) { background: #ff0000; color: #fff; box-shadow: 0 0 20px #ff0000aa; }
-#signalDisplay { margin-top: 15px; min-height: 120px; color: #fff; text-shadow: 0 0 10px #ff000055; }
+#signalDisplay { margin-top: 15px; min-height: 140px; color: #fff; text-shadow: 0 0 10px #ff000055; }
 .signal-line { font-size: 15px; margin: 4px 0; }
 .result-plus { color: #4ade80; font-weight: 700; }
 .result-dogon { color: #facc15; font-weight: 700; }
+.result-load { color: #ffaaaa; font-style: italic; }
 
 #tv_chart_container {
   width: 100%;
@@ -96,8 +97,7 @@ footer { padding: 10px; font-size: 12px; color: #ff4444; opacity: 0.7; }
 
 <script>
 let timerInterval = null;
-let tvWidget = null;
-const display=document.getElementById("signalDisplay");
+const display = document.getElementById("signalDisplay");
 
 // TradingView
 function tvSymbolFromPair(pair){ return `FX:${pair.replace('/','').toUpperCase()}`; }
@@ -106,7 +106,7 @@ function loadTradingView(pair, tf){
   const container = document.getElementById("tv_chart_container");
   container.innerHTML='';
   try{
-    tvWidget = new TradingView.widget({
+    new TradingView.widget({
       container_id: "tv_chart_container",
       symbol: tvSymbolFromPair(pair),
       interval: tvIntervalFromTF(tf),
@@ -124,41 +124,18 @@ function loadTradingView(pair, tf){
 }
 
 // Симуляція сигналу
-function getRandomSignal(){ 
-  const entries=["UP ↑","DOWN ↓"]; 
-  return {entry: entries[Math.floor(Math.random()*entries.length)]}; 
-}
+function getRandomSignal(){ const entries=["UP ↑","DOWN ↓"]; return {entry: entries[Math.floor(Math.random()*entries.length)]}; }
 function getPrice(){ return (Math.random()*1.5+1).toFixed(5); }
+
+// Правильный расчет результата
 function computeResult(entryPrice, exitPrice, direction){
   if(direction==="UP ↑") return exitPrice>entryPrice ? '+' : '-';
   if(direction==="DOWN ↓") return exitPrice<entryPrice ? '+' : '-';
   return '-';
 }
 
-document.getElementById("getSignalBtn").onclick=()=>{
-  const signal=getRandomSignal();
-  const btnGet=document.getElementById("getSignalBtn");
-  const btnReset=document.getElementById("resetSignalBtn");
-  const pairSelect=document.getElementById("pairSelect");
-  const tfSelect=document.getElementById("tfSelect");
-
-  btnGet.disabled=true; pairSelect.disabled=true; tfSelect.disabled=true; btnReset.disabled=true;
-  display.innerHTML='<div style="padding:20px;color:#ff6666;">⏳ Генерація сигналу...</div>';
-
-  setTimeout(()=>{ startSignal(signal); btnReset.disabled=false; },1200);
-};
-
-function startSignal(signal){
-  const pair=document.getElementById("pairSelect").value;
-  const tf=document.getElementById("tfSelect").value;
-  const durationMap={'3m':3,'5m':5,'7m':7};
-  const durationMinutes=durationMap[tf]||3;
-
-  runSignal(signal.entry, durationMinutes, true);
-  loadTradingView(pair,tf);
-}
-
-function runSignal(direction, minutes, isFirst){
+// Функция для запуска сигнала или догон
+function runSignal(direction, minutes, title){
   const entryPrice=parseFloat(getPrice());
   const endTime=new Date(new Date().getTime()+minutes*60*1000);
 
@@ -171,31 +148,44 @@ function runSignal(direction, minutes, isFirst){
     if(remainingSeconds<=0){
       clearInterval(timerInterval);
       const exitPrice=parseFloat(getPrice());
-      const r=computeResult(entryPrice,exitPrice,direction);
+      const r=computeResult(entryPrice, exitPrice, direction);
+      display.innerHTML+=`<div class="signal-line">${title}: ${direction} на ${minutes}м</div>
+        <div class="signal-line">${r==='+'?'<span class="result-plus">✅ + (прибуток)</span>':'<span class="result-dogon">❌ Догон</span>'}</div>`;
 
-      display.innerHTML+=`
-        <div class="signal-line">${isFirst?'Сигнал':'Догон'}: ${direction} на ${minutes}м</div>
-        <div class="signal-line">${r==='+'?'<span class="result-plus">✅ + (прибуток)</span>':'<span class="result-dogon">❌ Догон</span>'}</div>
-      `;
-
-      // если первый сигнал минус, показываем загрузку догон, потом стартуем догон
-      if(r==='-' && isFirst){
-        display.innerHTML += `<div class="signal-line" style="color:#ffaaaa;">⏳ Генерація догон-сделки...</div>`;
-        setTimeout(()=>{
-          runSignal(direction,2,false);
-        },1500); // 1.5 сек загрузка
+      if(r==='-' && title==='Сигнал'){
+        // загрузка перед догон-сделкой
+        display.innerHTML+=`<div class="signal-line result-load">⏳ Генерація догон-сделки...</div>`;
+        setTimeout(()=>{ runSignal(direction,2,'Догон'); },1500);
       }
     } else {
-      display.innerHTML=`
-        <div class="signal-line">${isFirst?'Сигнал':'Догон'}: ${direction} на ${minutes}м</div>
-        <div class="signal-line">Таймер: ${min}:${sec<10?'0'+sec:sec}</div>
-      `;
+      display.innerHTML=`<div class="signal-line">${title}: ${direction} на ${minutes}м</div>
+        <div class="signal-line">Таймер: ${min}:${sec<10?'0'+sec:sec}</div>`;
     }
   }
 
   tick();
   timerInterval=setInterval(tick,1000);
 }
+
+// Кнопки
+document.getElementById("getSignalBtn").onclick=()=>{
+  const signal=getRandomSignal();
+  const btnGet=document.getElementById("getSignalBtn");
+  const btnReset=document.getElementById("resetSignalBtn");
+  const pairSelect=document.getElementById("pairSelect");
+  const tfSelect=document.getElementById("tfSelect");
+
+  btnGet.disabled=true; pairSelect.disabled=true; tfSelect.disabled=true; btnReset.disabled=true;
+  display.innerHTML='<div class="signal-line result-load">⏳ Генерація сигналу...</div>';
+  setTimeout(()=>{
+    const tf=document.getElementById("tfSelect").value;
+    const durationMap={'3m':3,'5m':5,'7m':7};
+    const durationMinutes=durationMap[tf]||3;
+    runSignal(signal.entry,durationMinutes,'Сигнал');
+    loadTradingView(document.getElementById("pairSelect").value, tf);
+    btnReset.disabled=false;
+  },1200);
+};
 
 document.getElementById("resetSignalBtn").onclick=()=>{
   clearInterval(timerInterval);
