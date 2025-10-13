@@ -11,7 +11,7 @@
     color: #f4f4f4;
     text-align: center;
     margin: 0;
-    padding: 0;
+    padding: 0 5px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -79,16 +79,45 @@
   .result-minus { color: #ef4444; font-weight: 700; }
   .result-ret { color: #facc15; font-weight: 700; }
 
+  /* === 📊 TradingView Chart === */
   #tv_chart_container {
-    width: 95%;
-    max-width: 380px;
-    height: 250px;
-    margin: 20px auto 15px;
-    border-radius: 10px;
+    width: 100%;
+    max-width: 420px;
+    height: 280px;
+    margin: 15px auto 20px;
+    border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 0 25px #ff000033;
     background: #0a0000;
     border: 1px solid #330000;
+    transition: all 0.3s ease;
+  }
+
+  /* 📱 Мобильная адаптация */
+  @media (max-width: 480px) {
+    #tv_chart_container {
+      width: 96%;
+      height: 250px;
+      margin: 10px auto;
+      border-radius: 10px;
+    }
+
+    body {
+      padding: 0 4px;
+    }
+
+    button, select {
+      width: 90%;
+      max-width: 320px;
+    }
+  }
+
+  /* 🖥 Планшеты и ПК */
+  @media (min-width: 768px) {
+    #tv_chart_container {
+      max-width: 500px;
+      height: 300px;
+    }
   }
 
   footer {
