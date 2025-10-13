@@ -3,47 +3,42 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Вход к боту</title>
+<title>Вход к DOG Signals</title>
+<link rel="stylesheet" href="style.css">
 <style>
-  body { font-family: Arial, sans-serif; background:#111; color:#fff; text-align:center; padding:50px; }
-  input { padding:10px; border-radius:5px; border:none; width:200px; margin-top:10px; }
-  button { padding:10px 20px; border:none; border-radius:5px; background:#ff2e2e; color:#fff; cursor:pointer; margin-top:10px; }
-  #loginDiv, #codeDiv { margin-top:20px; }
+  /* Минимальные стили для входа */
+  #loginDiv { text-align:center; margin-top:50px; }
+  #loginDiv input { padding:10px; border-radius:5px; border:none; width:200px; margin-top:10px; }
+  #loginDiv button { padding:10px 20px; border:none; border-radius:5px; background:#ff2e2e; color:#fff; cursor:pointer; margin-top:10px; }
+  #status { margin-top:15px; color:#fff; }
 </style>
 </head>
 <body>
 
-<h1>🐶 DOG BOT</h1>
+<h1>🐶 DOG SIGNALS</h1>
 
 <div id="loginDiv">
-  <button id="loginBtn">Войти</button>
-</div>
-
-<div id="codeDiv" style="display:none;">
-  <p>Напишите <strong>@gptdog_tr</strong> в Telegram и введите код, чтобы получить доступ:</p>
+  <p>Введите код, чтобы получить доступ к сигналам:</p>
   <input type="text" id="codeInput" placeholder="Введите код">
   <br>
-  <button id="submitCodeBtn">Отправить</button>
-  <p id="status" style="margin-top:15px;"></p>
+  <button id="loginBtn">Войти</button>
+  <p id="status"></p>
 </div>
 
+<script src="script.js"></script>
 <script>
 const loginBtn = document.getElementById('loginBtn');
-const codeDiv = document.getElementById('codeDiv');
-const loginDiv = document.getElementById('loginDiv');
-const submitBtn = document.getElementById('submitCodeBtn');
+const codeInput = document.getElementById('codeInput');
 const status = document.getElementById('status');
 
 loginBtn.onclick = () => {
-  loginDiv.style.display = 'none';
-  codeDiv.style.display = 'block';
-};
-
-submitBtn.onclick = () => {
-  const code = document.getElementById('codeInput').value.trim();
+  const code = codeInput.value.trim();
   if(code === '20025') {
     status.style.color = '#4ade80';
-    status.innerText = '✅ Доступ открыт! Теперь вы можете использовать бота.';
+    status.innerText = '✅ Доступ открыт! Перенаправление...';
+    setTimeout(() => {
+      window.location.href = 'signals.html'; // переход на сигналы
+    }, 1000);
   } else {
     status.style.color = '#ef4444';
     status.innerText = '❌ Неверный код. Попробуйте снова.';
