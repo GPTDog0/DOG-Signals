@@ -1,27 +1,55 @@
-<input type="text" id="uidInput" placeholder="Введите UID">
-<input type="text" id="refInput" placeholder="Введите реферальный токен">
-<button id="submitBtn">Отправить</button>
-<div id="status"></div>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Вход к боту</title>
+<style>
+  body { font-family: Arial, sans-serif; background:#111; color:#fff; text-align:center; padding:50px; }
+  input { padding:10px; border-radius:5px; border:none; width:200px; margin-top:10px; }
+  button { padding:10px 20px; border:none; border-radius:5px; background:#ff2e2e; color:#fff; cursor:pointer; margin-top:10px; }
+  #loginDiv, #codeDiv { margin-top:20px; }
+</style>
+</head>
+<body>
+
+<h1>🐶 DOG BOT</h1>
+
+<div id="loginDiv">
+  <button id="loginBtn">Войти</button>
+</div>
+
+<div id="codeDiv" style="display:none;">
+  <p>Напишите <strong>@gptdog_tr</strong> в Telegram и введите код, чтобы получить доступ:</p>
+  <input type="text" id="codeInput" placeholder="Введите код">
+  <br>
+  <button id="submitCodeBtn">Отправить</button>
+  <p id="status" style="margin-top:15px;"></p>
+</div>
 
 <script>
-const API_URL = "https://your-vercel-project.vercel.app/api/check-uid";
+const loginBtn = document.getElementById('loginBtn');
+const codeDiv = document.getElementById('codeDiv');
+const loginDiv = document.getElementById('loginDiv');
+const submitBtn = document.getElementById('submitCodeBtn');
+const status = document.getElementById('status');
 
-document.getElementById("submitBtn").onclick = async () => {
-  const uid = document.getElementById("uidInput").value.trim();
-  const ref = document.getElementById("refInput").value.trim();
+loginBtn.onclick = () => {
+  loginDiv.style.display = 'none';
+  codeDiv.style.display = 'block';
+};
 
-  const res = await fetch(API_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ uid, ref })
-  });
-
-  const data = await res.json();
-  document.getElementById("status").innerText = `Статус: ${data.status}\n${data.message || ''}`;
-
-  if (data.status === 'approved') {
-    // показать бота / открыть интерфейс сигналов
-    alert('Доступ к боту открыт!');
+submitBtn.onclick = () => {
+  const code = document.getElementById('codeInput').value.trim();
+  if(code === '20025') {
+    status.style.color = '#4ade80';
+    status.innerText = '✅ Доступ открыт! Теперь вы можете использовать бота.';
+  } else {
+    status.style.color = '#ef4444';
+    status.innerText = '❌ Неверный код. Попробуйте снова.';
   }
 };
 </script>
+
+</body>
+</html>
