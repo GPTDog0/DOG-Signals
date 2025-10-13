@@ -3,48 +3,125 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Вход к DOG Signals</title>
+<title>🐶 DOG SIGNALS</title>
 <link rel="stylesheet" href="style.css">
 <style>
-  /* Минимальные стили для входа */
-  #loginDiv { text-align:center; margin-top:50px; }
-  #loginDiv input { padding:10px; border-radius:5px; border:none; width:200px; margin-top:10px; }
-  #loginDiv button { padding:10px 20px; border:none; border-radius:5px; background:#ff2e2e; color:#fff; cursor:pointer; margin-top:10px; }
-  #status { margin-top:15px; color:#fff; }
+/* ===== Общие стили ===== */
+body {
+  font-family: "Inter", sans-serif;
+  background: radial-gradient(circle at center, #180000 0%, #000 90%);
+  color: #f4f4f4;
+  text-align: center;
+  margin: 0;
+  padding: 0 5px;
+}
+
+h1 { color:#ff2e2e; margin-top:20px; font-size:24px; }
+
+input, button {
+  border-radius:10px;
+  border:none;
+  padding:12px;
+  font-size:16px;
+  margin:10px 0;
+}
+
+button {
+  background:#ff2e2e;
+  color:#fff;
+  cursor:pointer;
+  width:90%;
+  max-width:320px;
+}
+
+button:hover { background:#ff4444; }
+
+/* ===== Вход ===== */
+#loginDiv { margin-top:50px; }
+
+/* ===== Сигналы ===== */
+#signals { display:none; margin-top:20px; }
+
+#tv_chart_container {
+  width:100%;
+  max-width:420px;
+  height:300px;
+  margin:15px auto;
+  border-radius:12px;
+  overflow-x:auto;
+  -webkit-overflow-scrolling: touch;
+  background:#0a0000;
+  border:1px solid #330000;
+  box-shadow:0 0 25px #ff000033;
+}
+
+#signalDisplay {
+  font-size:16px;
+  min-height:100px;
+  margin-top:10px;
+  word-wrap:break-word;
+  text-shadow: 0 0 10px #ff000055;
+}
+
+/* ===== Мобильная адаптация ===== */
+@media(max-width:480px) {
+  #tv_chart_container { height:250px; border-radius:10px; }
+  #signalDisplay { font-size:18px; }
+  button, input { width:90%; font-size:16px; padding:12px; }
+}
 </style>
 </head>
 <body>
 
 <h1>🐶 DOG SIGNALS</h1>
 
+<!-- ===== Вход ===== -->
 <div id="loginDiv">
-  <p>Введите код, чтобы получить доступ к сигналам:</p>
+  <p>Напишите <strong>@gptdog_tr</strong> в Telegram и введите код:</p>
   <input type="text" id="codeInput" placeholder="Введите код">
   <br>
   <button id="loginBtn">Войти</button>
   <p id="status"></p>
 </div>
 
+<!-- ===== Сигналы ===== -->
+<div id="signals">
+  <div id="tv_chart_container"></div>
+  <div id="signalDisplay"></div>
+  <button id="getSignalBtn">🔥 Получить сигнал</button>
+  <button id="resetSignalBtn" disabled>Скинуть сигнал</button>
+</div>
+
 <script src="script.js"></script>
+<script src="https://s3.tradingview.com/tv.js"></script>
 <script>
+// ===== Логика входа =====
 const loginBtn = document.getElementById('loginBtn');
 const codeInput = document.getElementById('codeInput');
 const status = document.getElementById('status');
+const loginDiv = document.getElementById('loginDiv');
+const signalsDiv = document.getElementById('signals');
 
 loginBtn.onclick = () => {
   const code = codeInput.value.trim();
   if(code === '20025') {
     status.style.color = '#4ade80';
-    status.innerText = '✅ Доступ открыт! Перенаправление...';
-    setTimeout(() => {
-      window.location.href = 'signals.html'; // переход на сигналы
-    }, 1000);
+    status.innerText = '✅ Доступ открыт! Загружаем сигналы...';
+    setTimeout(()=>{
+      loginDiv.style.display = 'none';
+      signalsDiv.style.display = 'block';
+    }, 800);
   } else {
     status.style.color = '#ef4444';
     status.innerText = '❌ Неверный код. Попробуйте снова.';
   }
 };
-</script>
 
+// ===== Твой существующий JS для сигналов =====
+// Здесь будет логика из script.js: генерация сигналов, таймеры, график TradingView
+// Например:
+// document.getElementById("getSignalBtn").onclick = function() { ... }
+// document.getElementById("resetSignalBtn").onclick = function() { ... }
+</script>
 </body>
 </html>
