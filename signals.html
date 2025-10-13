@@ -44,24 +44,24 @@
   .signal-line { font-size: 15px; margin: 4px 0; }
   .result-plus { color: #4ade80; font-weight: 700; }
   .result-dogon { color: #facc15; font-weight: 700; }
+
   #tv_chart_container {
     width: 100%;
-    max-width: 420px;
-    height: 280px;
+    max-width: 600px;
+    height: 350px;
     margin: 15px auto 20px;
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 0 25px #ff000033;
     background: #0a0000;
     border: 1px solid #330000;
-    transition: all 0.3s ease;
   }
+
   @media (max-width: 480px) {
-    #tv_chart_container { width: 96%; height: 250px; margin: 10px auto; border-radius: 10px; }
+    #tv_chart_container { width: 96%; height: 300px; margin: 10px auto; border-radius: 10px; }
     body { padding: 0 4px; }
     button, select { width: 90%; max-width: 320px; }
   }
-  @media (min-width: 768px) { #tv_chart_container { max-width: 500px; height: 300px; } }
   footer { padding: 10px; font-size: 12px; color: #ff4444; opacity: 0.7; }
 </style>
 <script src="https://s3.tradingview.com/tv.js"></script>
@@ -98,12 +98,12 @@
 let timerInterval = null;
 let tvWidget = null;
 
-// Пара для TV
+// Конвертуємо пару в символ TradingView
 function tvSymbolFromPair(pair){ return `FX:${pair.replace('/','').toUpperCase()}`; }
 function tvIntervalFromTF(tf){ const map={'3m':'3','5m':'5','7m':'7'}; return map[tf]||'3'; }
 
-// Графік
-function loadTradingView(pair,tf){
+// Завантажуємо графік
+function loadTradingView(pair, tf){
   const container = document.getElementById("tv_chart_container");
   container.innerHTML='';
   try{
@@ -115,14 +115,16 @@ function loadTradingView(pair,tf){
       theme:"dark",
       style:"1",
       locale:"ru",
-      allow_symbol_change:false,
-      hide_side_toolbar:false,
+      allow_symbol_change:true,    // можно менять
+      hide_side_toolbar:false,     // боковая панель
       withdateranges:false,
       enable_publishing:false,
       hide_legend:true,
-      hide_top_toolbar:true
+      hide_top_toolbar:false       // верхняя панель
     });
-  }catch(e){ container.innerHTML='<div style="padding:12px;color:#ffaaaa">Помилка завантаження графіка</div>'; }
+  }catch(e){
+    container.innerHTML='<div style="padding:12px;color:#ffaaaa">Помилка завантаження графіка</div>';
+  }
 }
 
 // Симуляція сигналу
@@ -149,13 +151,9 @@ document.getElementById("getSignalBtn").onclick=()=>{
   const tfSelect=document.getElementById("tfSelect");
 
   btnGet.disabled=true; pairSelect.disabled=true; tfSelect.disabled=true; btnReset.disabled=true;
-
   document.getElementById("signalDisplay").innerHTML='<div style="padding:20px;color:#ff6666;">⏳ Генерація сигналу...</div>';
 
-  setTimeout(()=>{
-    startSignal(signal);
-    btnReset.disabled=false;
-  },1200);
+  setTimeout(()=>{ startSignal(signal); btnReset.disabled=false; },1200);
 };
 
 function startSignal(signal){
@@ -163,18 +161,24 @@ function startSignal(signal){
   const tf=document.getElementById("tfSelect").value;
   const display=document.getElementById("signalDisplay");
 
-  // Бот фіксує ціну входу
+  // Фіксуємо час початку і кінця
+  const startTime=new Date();
+  const durationMap={'3m':3,'5m':5,'7m':7};
+  const durationMinutes=durationMap[tf]||3;
+  const endTime=new Date(startTime.getTime()+durationMinutes*60*1000);
+
+  // Фіксуємо ціну входу
   const entryPrice=parseFloat(getPrice());
 
-  const durationMap={'3m':180,'5m':300,'7m':420};
-  const duration=durationMap[tf]||180;
-  const endTime=Date.now()+duration*1000;
-
   function tick(){
-    const remaining=Math.max(0,Math.ceil((endTime-Date.now())/1000));
-    if(remaining<=0){
+    const now=new Date();
+    const remainingSeconds=Math.max(0,Math.ceil((endTime-now)/1000));
+    const minutes=Math.floor(remainingSeconds/60);
+    const seconds=remainingSeconds%60;
+
+    if(remainingSeconds<=0){
       clearInterval(timerInterval);
-      const exitPrice=parseFloat(getPrice()); // Бот отримує ціну виходу
+      const exitPrice=parseFloat(getPrice()); // фіксація ціни виходу
       const r=computeResult(entryPrice,exitPrice,signal.entry);
       display.innerHTML=`
         <div class="signal-line">Пара: ${pair} · TF: ${tf}</div>
@@ -185,7 +189,7 @@ function startSignal(signal){
       display.innerHTML=`
         <div class="signal-line">Пара: ${pair} · TF: ${tf}</div>
         <div class="signal-line">Сигнал: ${signal.entry}</div>
-        <div class="signal-line">Таймер: 00:${remaining<10?'0'+remaining:remaining}</div>
+        <div class="signal-line">Таймер: ${minutes}:${seconds<10?'0'+seconds:seconds}</div>
       `;
     }
   }
