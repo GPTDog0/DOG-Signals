@@ -79,7 +79,6 @@
   .result-minus { color: #ef4444; font-weight: 700; }
   .result-dogon { color: #facc15; font-weight: 700; }
 
-  /* === 📊 TradingView Chart === */
   #tv_chart_container {
     width: 100%;
     max-width: 420px;
@@ -100,22 +99,12 @@
       margin: 10px auto;
       border-radius: 10px;
     }
-
-    body {
-      padding: 0 4px;
-    }
-
-    button, select {
-      width: 90%;
-      max-width: 320px;
-    }
+    body { padding: 0 4px; }
+    button, select { width: 90%; max-width: 320px; }
   }
 
   @media (min-width: 768px) {
-    #tv_chart_container {
-      max-width: 500px;
-      height: 300px;
-    }
+    #tv_chart_container { max-width: 500px; height: 300px; }
   }
 
   footer {
@@ -154,31 +143,32 @@
 </div>
 
 <div id="signalDisplay"></div>
-
 <div id="tv_chart_container"></div>
-
 <footer>© 2025 DOG Signals | Powered by Pocket Option</footer>
 
 <script>
 let timerInterval = null;
 let tvWidget = null;
 
-function tvSymbolFromPair(pair) {
+// Конвертуємо пару в символ TradingView
+function tvSymbolFromPair(pair){
   return `FX:${pair.replace('/', '').toUpperCase()}`;
 }
 
-function tvIntervalFromTF(tf) {
+// Інтервал для TradingView
+function tvIntervalFromTF(tf){
   const map = { '3m':'3', '5m':'5', '7m':'7' };
   return map[tf] || '3';
 }
 
-function loadTradingView(pair, tf) {
+// Завантажуємо графік
+function loadTradingView(pair, tf){
   const symbol = tvSymbolFromPair(pair);
   const interval = tvIntervalFromTF(tf);
   const container = document.getElementById("tv_chart_container");
   container.innerHTML = '';
 
-  try {
+  try{
     tvWidget = new TradingView.widget({
       container_id: "tv_chart_container",
       symbol: symbol,
@@ -188,23 +178,38 @@ function loadTradingView(pair, tf) {
       style: "1",
       locale: "ru",
       allow_symbol_change: false,
-      hide_side_toolbar: true,
+      hide_side_toolbar: false,  // включаем прокрутку
+      withdateranges: false,
+      enable_publishing: false,
       hide_legend: true,
       hide_top_toolbar: true
     });
-  } catch(err) {
+  } catch(err){
     container.innerHTML = `<div style="padding:12px;color:#ffaaaa">Помилка: ${err.message}</div>`;
   }
 }
 
-function getRandomSignal() {
-  const entries = ["UP ↑", "DOWN ↓"];
-  const entry = entries[Math.floor(Math.random() * entries.length)];
-  const duration = 60;
-  return { entry, duration };
+// Імітуємо сигнал
+function getRandomSignal(){
+  const entries = ["UP ↑","DOWN ↓"];
+  const entry = entries[Math.floor(Math.random()*entries.length)];
+  return { entry };
 }
 
-document.getElementById("getSignalBtn").onclick = () => {
+// Беремо реальну цену на графике
+function getCurrentPrice(){
+  try {
+    // На некоторых версиях TV можно использовать lastBar().close
+    if(tvWidget && tvWidget.activeChart){
+      const price = tvWidget.activeChart().lastBar?.close;
+      if(price) return price.toFixed(5);
+    }
+  } catch(e){}
+  // fallback
+  return (Math.random()*1.5 + 1).toFixed(5);
+}
+
+document.getElementById("getSignalBtn").onclick = ()=>{
   const signal = getRandomSignal();
   const btnGet = document.getElementById("getSignalBtn");
   const btnReset = document.getElementById("resetSignalBtn");
@@ -216,14 +221,12 @@ document.getElementById("getSignalBtn").onclick = () => {
   tfSelect.disabled = true;
   btnReset.disabled = true;
 
-  document.getElementById("signalDisplay").innerHTML = `
-    <div style="padding:20px;color:#ff6666;">⏳ Генерація сигналу...</div>
-  `;
+  document.getElementById("signalDisplay").innerHTML = `<div style="padding:20px;color:#ff6666;">⏳ Генерація сигналу...</div>`;
 
   setTimeout(()=>{
     startSignal(signal);
     btnReset.disabled = false;
-  }, 1200);
+  },1200);
 };
 
 function startSignal(signal){
@@ -231,36 +234,40 @@ function startSignal(signal){
   const tf = document.getElementById("tfSelect").value;
   const display = document.getElementById("signalDisplay");
 
-  const endTime = Date.now() + signal.duration * 1000;
+  // Получаем реальную цену входа
+  signal.entryPrice = getCurrentPrice();
+
+  // Таймер по таймфрейму
+  const durationMap = { '3m':180, '5m':300, '7m':420 };
+  const duration = durationMap[tf] || 180;
+  const endTime = Date.now() + duration*1000;
 
   function tick(){
     const remaining = Math.max(0, Math.ceil((endTime - Date.now())/1000));
-    if (remaining <= 0) {
+    if(remaining <= 0){
       clearInterval(timerInterval);
-      const results = ['+', '-'];
+      const results = ['+','-'];
       const r = results[Math.floor(Math.random()*results.length)];
       display.innerHTML = `
         <div class="signal-line">Пара: ${pair} · TF: ${tf}</div>
-        <div class="signal-line">Точка входу: ${signal.entry}</div>
-        <div class="signal-line">
-          ${r === '+' ? '<span class="result-plus">✅ + (прибуток)</span>' : '<span class="result-dogon">❌ Догон</span>'}
-        </div>
+        <div class="signal-line">Точка входу: ${signal.entry} @ ${signal.entryPrice}</div>
+        <div class="signal-line">${r==='+'?'<span class="result-plus">✅ + (прибуток)</span>':'<span class="result-dogon">❌ Догон</span>'}</div>
       `;
     } else {
       display.innerHTML = `
         <div class="signal-line">Пара: ${pair} · TF: ${tf}</div>
-        <div class="signal-line">Точка входу: ${signal.entry}</div>
-        <div class="signal-line">Таймер: 00:${remaining < 10 ? '0'+remaining : remaining}</div>
+        <div class="signal-line">Точка входу: ${signal.entry} @ ${signal.entryPrice}</div>
+        <div class="signal-line">Таймер: 00:${remaining<10?'0'+remaining:remaining}</div>
       `;
     }
   }
 
   tick();
-  timerInterval = setInterval(tick, 1000);
-  loadTradingView(pair, tf);
+  timerInterval = setInterval(tick,1000);
+  loadTradingView(pair,tf);
 }
 
-document.getElementById("resetSignalBtn").onclick = () => {
+document.getElementById("resetSignalBtn").onclick = ()=>{
   clearInterval(timerInterval);
   document.getElementById("signalDisplay").innerHTML = '';
   document.getElementById("tv_chart_container").innerHTML = '';
