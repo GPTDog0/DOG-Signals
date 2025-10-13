@@ -1,242 +1,263 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Pocket Option — Signals</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DOG Signals | Pocket Option</title>
 <style>
-  /* Стиль страницы + фон */
-  html,body{height:100%;margin:0;font-family:Arial,Helvetica,sans-serif;background:#071124;}
-  body{
-    background: url('trader_background.jpg') no-repeat center center fixed;
-    background-size: cover;
-    -webkit-font-smoothing:antialiased;
-    -moz-osx-font-smoothing:grayscale;
-    color:#e6eef8;
+  body {
+    font-family: "Inter", sans-serif;
+    background: radial-gradient(circle at center, #0a0f1a 0%, #000 100%);
+    color: #e2e8f0;
+    text-align: center;
+    margin: 0;
+    padding: 0;
   }
 
-  /* Контейнер */
-  .wrap{
-    max-width:430px;
-    margin:14px auto;
-    padding:14px;
-    background: rgba(6,10,20,0.78); /* полупрозрачный, чтобы фон просвечивал */
-    border-radius:14px;
-    box-shadow: 0 8px 30px rgba(2,6,23,0.6);
-    text-align:center;
+  h1 {
+    color: #22d3ee;
+    font-weight: 700;
+    font-size: 22px;
+    margin: 20px 0;
   }
 
-  h1{font-size:18px;margin:6px 0 12px;color:#8fe0ff;letter-spacing:0.4px;}
-
-  /* селекты и кнопки */
-  .controls {display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:10px;}
-  select{
-    appearance:none;
-    -webkit-appearance:none;
-    -moz-appearance:none;
-    padding:8px 10px;border-radius:8px;border:none;background:#0f1724;color:#e6eef8;font-size:14px;
-  }
-  button{
-    padding:10px 14px;border-radius:10px;border:none;background:#0ea5e9;color:#041022;font-weight:700;
-    cursor:pointer;font-size:15px;
-  }
-  button:hover{filter:brightness(1.06)}
-  button:disabled{background:#445566;cursor:not-allowed;color:#bcd2e6}
-
-  /* Блок сигнала */
-  .signal-box{
-    margin-top:12px;padding:12px;border-radius:10px;background:linear-gradient(180deg, rgba(12,16,24,0.5), rgba(10,14,20,0.6));
-    min-height:86px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  }
-  .signal-line{font-size:15px;margin:6px 0}
-  .tmr{font-weight:700;color:#dbeafe}
-  .entry{font-weight:700;color:#f0f9ff}
-  .result-plus{color:#22c55e;font-weight:800}
-  .result-minus{color:#ef4444;font-weight:800}
-  .result-ret{color:#facc15;font-weight:800}
-
-  /* График — компактный и центрирован */
-  #tv_chart_container{
-    width:100%;
-    height:250px;
-    margin-top:12px;
-    display:none; /* появится только после загрузки сигнала */
-    border-radius:10px;
-    overflow:hidden;
-    background:#081224;
-  }
-  @media (min-width:431px){
-    #tv_chart_container{height:300px}
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-top: 10px;
   }
 
-  /* Лоадер — картинка собаки по центру */
-  .loader-dog{width:110px;height:110px;object-fit:contain;display:block;margin:6px auto;border-radius:12px}
+  select, button {
+    background: #1e293b;
+    border: 1px solid #334155;
+    color: #e2e8f0;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 15px;
+    width: 220px;
+    transition: all 0.3s ease;
+  }
 
-  /* .small help text */
-  .hint{font-size:12px;color:#9fb8cf;margin-top:8px}
+  select:disabled, button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  button:hover {
+    background: #22d3ee;
+    color: #000;
+  }
+
+  #tv_chart_container {
+    width: 95%;
+    max-width: 360px;
+    height: 280px;
+    margin: 15px auto;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(45, 212, 191, 0.2);
+    display: none;
+  }
+
+  #signalDisplay {
+    margin-top: 10px;
+    min-height: 80px;
+  }
+
+  .signal-line {
+    font-size: 15px;
+    margin: 4px 0;
+  }
+
+  .result-plus { color: #4ade80; font-weight: 700; }
+  .result-minus { color: #ef4444; font-weight: 700; }
+  .result-ret { color: #eab308; font-weight: 700; }
 </style>
+<script src="https://s3.tradingview.com/tv.js"></script>
 </head>
 <body>
-  <div class="wrap" role="main">
-    <h1>🔥 Pocket Option — Сигналы</h1>
 
-    <div class="controls" aria-hidden="false">
-      <select id="pairSelect" aria-label="Выбор пары">
-        <option>EUR/USD</option><option>GBP/USD</option><option>USD/JPY</option>
-        <option>AUD/USD</option><option>USD/CAD</option><option>NZD/USD</option>
-        <option>CHF/JPY</option><option>EUR/GBP</option><option>EUR/JPY</option>
-        <option>GBP/JPY</option><option>AUD/JPY</option><option>CAD/JPY</option>
-        <option>NZD/JPY</option><option>GBP/CHF</option><option>EUR/CHF</option>
-      </select>
+<h1>🐶 DOG Signals</h1>
+<div class="container">
+  <select id="pairSelect">
+    <option>EUR/USD</option>
+    <option>GBP/USD</option>
+    <option>USD/JPY</option>
+    <option>USD/CHF</option>
+    <option>AUD/USD</option>
+    <option>NZD/USD</option>
+    <option>EUR/JPY</option>
+    <option>GBP/JPY</option>
+    <option>EUR/GBP</option>
+  </select>
 
-      <select id="tfSelect" aria-label="Выбор таймфрейма">
-        <option>1m</option><option>3m</option><option>5m</option>
-      </select>
+  <select id="tfSelect">
+    <option value="1m">1M</option>
+    <option value="3m">3M</option>
+    <option value="5m">5M</option>
+  </select>
+
+  <button id="getSignalBtn">Отримати сигнал</button>
+  <button id="resetSignalBtn" disabled>Скинути сигнал</button>
+</div>
+
+<div id="signalDisplay"></div>
+<div id="tv_chart_container"></div>
+
+<script>
+let timerInterval = null;
+let tvWidget = null;
+let currentSignal = null;
+
+// допоміжна функція: правильний символ для TradingView
+function tvSymbolFromPair(pair) {
+  const clean = pair.replace('/', '').toUpperCase();
+  return `FX:${clean}`;
+}
+
+// допоміжна функція: таймфрейм для TradingView
+function tvIntervalFromTF(tf) {
+  const map = { '1m':'1', '3m':'3', '5m':'5', '1':'1','3':'3','5':'5' };
+  return map[tf] || '1';
+}
+
+// показує анімацію свічок
+function showCandleLoader(){
+  signalDisplay.innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:15px 0">
+      <svg width="120" height="60" viewBox="0 0 120 60" xmlns="http://www.w3.org/2000/svg">
+        <g fill="none" stroke="#2dd4bf" stroke-width="1.5">
+          <rect x="6" y="20" width="10" height="20" fill="#0f1724">
+            <animate attributeName="y" values="20;15;20" dur="0.8s" repeatCount="indefinite"/>
+          </rect>
+          <rect x="26" y="10" width="10" height="30" fill="#059669">
+            <animate attributeName="y" values="10;12;10" dur="0.8s" repeatCount="indefinite"/>
+          </rect>
+          <rect x="46" y="18" width="10" height="22" fill="#ef4444">
+            <animate attributeName="y" values="18;14;18" dur="0.8s" repeatCount="indefinite"/>
+          </rect>
+          <rect x="66" y="6" width="10" height="34" fill="#059669">
+            <animate attributeName="y" values="6;10;6" dur="0.8s" repeatCount="indefinite"/>
+          </rect>
+          <rect x="86" y="14" width="10" height="26" fill="#ef4444">
+            <animate attributeName="y" values="14;16;14" dur="0.8s" repeatCount="indefinite"/>
+          </rect>
+        </g>
+      </svg>
+      <div style="color:#cfeefd;font-size:14px">Генерація сигналу…</div>
     </div>
+  `;
+}
 
-    <div style="display:flex;gap:8px;justify-content:center;">
-      <button id="getSignalBtn">Получить сигнал</button>
-      <button id="resetSignalBtn">Сбросить сигнал</button>
-    </div>
+// Завантаження TradingView графіка
+function loadTradingView(pair, tf) {
+  const symbol = tvSymbolFromPair(pair);
+  const interval = tvIntervalFromTF(tf);
+  const chartContainer = document.getElementById("tv_chart_container");
+  chartContainer.style.display = 'block';
+  chartContainer.innerHTML = '';
 
-    <div class="signal-box" id="signalDisplay" aria-live="polite">
-      <div id="signalPlaceholder"><p style="margin:0;color:#aacdde">Сигнал появится здесь</p></div>
-    </div>
-
-    <div id="tv_chart_container" aria-hidden="true"></div>
-
-    <div class="hint">График появится после получения сигнала. На телефоне он уменьшен и центрирован.</div>
-  </div>
-
-  <!-- TradingView widget -->
-  <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-
-  <script>
-  /* demo-signal база */
-  const demoSignals = [
-    {entry:"1.0932", duration:40},
-    {entry:"1.2720", duration:70},
-    {entry:"145.60", duration:50},
-    {entry:"0.7125", duration:60},
-    {entry:"1.3350", duration:45}
-  ];
-
-  let currentSignal = null;
-  let timerInterval = null;
-  let tvWidget = null;
-
-  const pairSelect = document.getElementById('pairSelect');
-  const tfSelect = document.getElementById('tfSelect');
-  const getSignalBtn = document.getElementById('getSignalBtn');
-  const resetSignalBtn = document.getElementById('resetSignalBtn');
-  const signalDisplay = document.getElementById('signalDisplay');
-  const signalPlaceholder = document.getElementById('signalPlaceholder');
-  const chartContainer = document.getElementById('tv_chart_container');
-
-  /* Загружает TradingView виджет для выбранной пары/TF */
-  function loadTradingView(pair, tf){
-    chartContainer.style.display = 'block';
-    chartContainer.setAttribute('aria-hidden','false');
-    try{ if(tvWidget && tvWidget.remove) tvWidget.remove(); } catch(e){}
+  try {
     tvWidget = new TradingView.widget({
       container_id: "tv_chart_container",
-      symbol: pair.replace('/',''),
-      interval: tf,
+      symbol: symbol,
+      interval: interval,
       timezone: "Etc/UTC",
       theme: "dark",
       style: "1",
       locale: "ru",
-      toolbar_bg: "#0b1220",
-      enable_publishing: false,
-      hide_side_toolbar: false,
-      allow_symbol_change: true,
-      save_image: false
+      allow_symbol_change: false,
+      withdateranges: false,
+      hide_side_toolbar: true
     });
-  }
 
-  /* Показ "загрузки" — картинка собаки */
-  function showDogLoader(){
-    signalDisplay.innerHTML = '';
-    const img = document.createElement('img');
-    img.src = 'dog_loader.png';           // <-- положи dog_loader.png рядом с singl.html
-    img.alt = 'Загрузка сигнала';
-    img.className = 'loader-dog';
-    signalDisplay.appendChild(img);
-  }
-
-  /* Начало сигнала: блокируем контролы, показываем loader, потом график и таймер */
-  function startSignal(signal){
-    currentSignal = signal;
-
-    // блокируем элементы
-    getSignalBtn.disabled = true;
-    pairSelect.disabled = true;
-    tfSelect.disabled = true;
-
-    // показываем картинку-дог вместо обычного кружка
-    showDogLoader();
-    chartContainer.style.display = 'none';
-
-    // имитируем загрузку (1.1 сек)
     setTimeout(()=>{
-      const pair = pairSelect.value;
-      const tf = tfSelect.value;
-      const endTime = Date.now() + signal.duration*1000;
-
-      function tick(){
-        const remaining = Math.max(0, Math.ceil((endTime - Date.now())/1000));
-        if(remaining <= 0){
-          clearInterval(timerInterval);
-          // случайный результат
-          const results = ['+','-','↺'];
-          const r = results[Math.floor(Math.random()*results.length)];
-          const span = document.createElement('span');
-          if(r === '+'){ span.className='result-plus'; span.textContent = '+ (профит)'; }
-          else if(r === '-'){ span.className='result-minus'; span.textContent = '- (лосс)'; }
-          else { span.className='result-ret'; span.textContent = '↺ (возврат)'; }
-
-          signalDisplay.innerHTML = '';
-          const p1 = document.createElement('div'); p1.className='signal-line'; p1.textContent = `Пара: ${pair} · TF: ${tf}`;
-          const p2 = document.createElement('div'); p2.className='signal-line entry'; p2.textContent = `Точка входа: ${signal.entry}`;
-          const p3 = document.createElement('div'); p3.className='signal-line'; p3.appendChild(span);
-
-          signalDisplay.appendChild(p1); signalDisplay.appendChild(p2); signalDisplay.appendChild(p3);
-        } else {
-          signalDisplay.innerHTML = '';
-          const p1 = document.createElement('div'); p1.className='signal-line'; p1.textContent = `Пара: ${pair} · TF: ${tf}`;
-          const p2 = document.createElement('div'); p2.className='signal-line entry'; p2.textContent = `Точка входа: ${signal.entry}`;
-          const p3 = document.createElement('div'); p3.className='signal-line tmr'; p3.textContent = `Таймер: 00:${remaining < 10 ? '0' + remaining : remaining}`;
-          signalDisplay.appendChild(p1); signalDisplay.appendChild(p2); signalDisplay.appendChild(p3);
-        }
+      if (chartContainer.innerHTML.trim() === '') {
+        chartContainer.innerHTML = '<div style="padding:12px;color:#ffcccc">Помилка завантаження графіка. Спробуйте іншу пару.</div>';
       }
+    }, 6000);
 
-      tick();
-      timerInterval = setInterval(tick, 1000);
+  } catch(err) {
+    chartContainer.innerHTML = `<div style="padding:12px;color:#ffcccc">Помилка: ${err.message}</div>`;
+    console.error(err);
+  }
+}
 
-      // Показать график (после того, как загрузка закончилась)
-      loadTradingView(pair, tf);
-    }, 1100);
+// створення випадкового сигналу
+function getRandomSignal() {
+  const entries = ["UP ↑", "DOWN ↓"];
+  const entry = entries[Math.floor(Math.random() * entries.length)];
+  const duration = 60; // 60 секунд
+  return { entry, duration };
+}
+
+// кнопка отримати сигнал
+document.getElementById("getSignalBtn").onclick = () => {
+  const signal = getRandomSignal();
+  const pair = document.getElementById("pairSelect").value;
+  const tf = document.getElementById("tfSelect").value;
+  const getSignalBtn = document.getElementById("getSignalBtn");
+  const resetBtn = document.getElementById("resetSignalBtn");
+
+  getSignalBtn.disabled = true;
+  document.getElementById("pairSelect").disabled = true;
+  document.getElementById("tfSelect").disabled = true;
+  resetBtn.disabled = true;
+
+  showCandleLoader();
+  document.getElementById("tv_chart_container").style.display = 'none';
+
+  setTimeout(()=>{
+    startSignal(signal);
+    resetBtn.disabled = false;
+  }, 1200);
+};
+
+function startSignal(signal){
+  const pair = document.getElementById("pairSelect").value;
+  const tf = document.getElementById("tfSelect").value;
+  const signalDisplay = document.getElementById("signalDisplay");
+
+  const endTime = Date.now() + signal.duration * 1000;
+  function tick(){
+    const remaining = Math.max(0, Math.ceil((endTime - Date.now())/1000));
+    if (remaining <= 0) {
+      clearInterval(timerInterval);
+      const results = ['+','-','↺'];
+      const r = results[Math.floor(Math.random()*results.length)];
+      signalDisplay.innerHTML = `
+        <div class="signal-line">Пара: ${pair} · TF: ${tf}</div>
+        <div class="signal-line entry">Точка входу: ${signal.entry}</div>
+        <div class="signal-line">
+          ${r === '+' ? '<span class="result-plus">+ (прибуток)</span>' : r === '-' ? '<span class="result-minus">− (збиток)</span>' : '<span class="result-ret">↺ (повернення)</span>'}
+        </div>
+      `;
+    } else {
+      signalDisplay.innerHTML = `
+        <div class="signal-line">Пара: ${pair} · TF: ${tf}</div>
+        <div class="signal-line entry">Точка входу: ${signal.entry}</div>
+        <div class="signal-line tmr">Таймер: 00:${remaining < 10 ? '0'+remaining : remaining}</div>
+      `;
+    }
   }
 
-  /* Кнопки */
-  getSignalBtn.addEventListener('click', ()=>{
-    if(timerInterval){ clearInterval(timerInterval); timerInterval = null; }
-    const rand = demoSignals[Math.floor(Math.random()*demoSignals.length)];
-    startSignal(rand);
-  });
+  tick();
+  timerInterval = setInterval(tick, 1000);
+  loadTradingView(pair, tf);
+}
 
-  resetSignalBtn.addEventListener('click', ()=>{
-    if(timerInterval){ clearInterval(timerInterval); timerInterval = null; }
-    signalDisplay.innerHTML = '<div id="signalPlaceholder"><p style="margin:0;color:#aacdde">Сигнал появится здесь</p></div>';
-    chartContainer.style.display = 'none';
-    currentSignal = null;
-    getSignalBtn.disabled = false;
-    pairSelect.disabled = false;
-    tfSelect.disabled = false;
-  });
-
-  // Инициализация (скрытый график до сигнала)
-  chartContainer.style.display = 'none';
-  </script>
+// скидання сигналу
+document.getElementById("resetSignalBtn").onclick = () => {
+  clearInterval(timerInterval);
+  document.getElementById("signalDisplay").innerHTML = '';
+  document.getElementById("tv_chart_container").style.display = 'none';
+  document.getElementById("getSignalBtn").disabled = false;
+  document.getElementById("pairSelect").disabled = false;
+  document.getElementById("tfSelect").disabled = false;
+  document.getElementById("resetSignalBtn").disabled = true;
+};
+</script>
 </body>
 </html>
