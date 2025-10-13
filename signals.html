@@ -40,7 +40,7 @@ select, button {
 select:focus, button:focus { outline: none; box-shadow: 0 0 15px #ff0000aa; }
 select:disabled, button:disabled { opacity: 0.6; cursor: not-allowed; }
 button:hover:not(:disabled) { background: #ff0000; color: #fff; box-shadow: 0 0 20px #ff0000aa; }
-#signalDisplay { margin-top: 15px; min-height: 90px; color: #fff; text-shadow: 0 0 10px #ff000055; }
+#signalDisplay { margin-top: 15px; min-height: 120px; color: #fff; text-shadow: 0 0 10px #ff000055; }
 .signal-line { font-size: 15px; margin: 4px 0; }
 .result-plus { color: #4ade80; font-weight: 700; }
 .result-dogon { color: #facc15; font-weight: 700; }
@@ -178,9 +178,12 @@ function runSignal(direction, minutes, isFirst){
         <div class="signal-line">${r==='+'?'<span class="result-plus">✅ + (прибуток)</span>':'<span class="result-dogon">❌ Догон</span>'}</div>
       `;
 
+      // если первый сигнал минус, показываем загрузку догон, потом стартуем догон
       if(r==='-' && isFirst){
-        // стартуем догон на 2 минуты в том же направлении
-        runSignal(direction,2,false);
+        display.innerHTML += `<div class="signal-line" style="color:#ffaaaa;">⏳ Генерація догон-сделки...</div>`;
+        setTimeout(()=>{
+          runSignal(direction,2,false);
+        },1500); // 1.5 сек загрузка
       }
     } else {
       display.innerHTML=`
