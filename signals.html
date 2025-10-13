@@ -17,7 +17,6 @@
     justify-content: space-between;
     min-height: 100vh;
   }
-
   h1 {
     color: #ff2e2e;
     font-weight: 800;
@@ -26,15 +25,7 @@
     text-shadow: 0 0 10px #ff0000aa;
     letter-spacing: 1px;
   }
-
-  .container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    margin-top: 10px;
-  }
-
+  .container { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 10px; }
   select, button {
     background: linear-gradient(180deg, #1a0000 0%, #000 100%);
     border: 1px solid #ff0000;
@@ -46,39 +37,13 @@
     transition: all 0.3s ease;
     box-shadow: 0 0 10px #ff000055;
   }
-
-  select:focus, button:focus {
-    outline: none;
-    box-shadow: 0 0 15px #ff0000aa;
-  }
-
-  select:disabled, button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-
-  button:hover:not(:disabled) {
-    background: #ff0000;
-    color: #fff;
-    box-shadow: 0 0 20px #ff0000aa;
-  }
-
-  #signalDisplay {
-    margin-top: 15px;
-    min-height: 90px;
-    color: #fff;
-    text-shadow: 0 0 10px #ff000055;
-  }
-
-  .signal-line {
-    font-size: 15px;
-    margin: 4px 0;
-  }
-
+  select:focus, button:focus { outline: none; box-shadow: 0 0 15px #ff0000aa; }
+  select:disabled, button:disabled { opacity: 0.6; cursor: not-allowed; }
+  button:hover:not(:disabled) { background: #ff0000; color: #fff; box-shadow: 0 0 20px #ff0000aa; }
+  #signalDisplay { margin-top: 15px; min-height: 90px; color: #fff; text-shadow: 0 0 10px #ff000055; }
+  .signal-line { font-size: 15px; margin: 4px 0; }
   .result-plus { color: #4ade80; font-weight: 700; }
-  .result-minus { color: #ef4444; font-weight: 700; }
   .result-dogon { color: #facc15; font-weight: 700; }
-
   #tv_chart_container {
     width: 100%;
     max-width: 420px;
@@ -91,28 +56,13 @@
     border: 1px solid #330000;
     transition: all 0.3s ease;
   }
-
   @media (max-width: 480px) {
-    #tv_chart_container {
-      width: 96%;
-      height: 250px;
-      margin: 10px auto;
-      border-radius: 10px;
-    }
+    #tv_chart_container { width: 96%; height: 250px; margin: 10px auto; border-radius: 10px; }
     body { padding: 0 4px; }
     button, select { width: 90%; max-width: 320px; }
   }
-
-  @media (min-width: 768px) {
-    #tv_chart_container { max-width: 500px; height: 300px; }
-  }
-
-  footer {
-    padding: 10px;
-    font-size: 12px;
-    color: #ff4444;
-    opacity: 0.7;
-  }
+  @media (min-width: 768px) { #tv_chart_container { max-width: 500px; height: 300px; } }
+  footer { padding: 10px; font-size: 12px; color: #ff4444; opacity: 0.7; }
 </style>
 <script src="https://s3.tradingview.com/tv.js"></script>
 </head>
@@ -131,13 +81,11 @@
     <option>GBP/JPY</option>
     <option>EUR/GBP</option>
   </select>
-
   <select id="tfSelect">
     <option value="3m">3M</option>
     <option value="5m">5M</option>
     <option value="7m">7M</option>
   </select>
-
   <button id="getSignalBtn">🔥 Отримати сигнал</button>
   <button id="resetSignalBtn" disabled>Скинути сигнал</button>
 </div>
@@ -150,131 +98,111 @@
 let timerInterval = null;
 let tvWidget = null;
 
-// Конвертуємо пару в символ TradingView
-function tvSymbolFromPair(pair){
-  return `FX:${pair.replace('/', '').toUpperCase()}`;
-}
+// Пара для TV
+function tvSymbolFromPair(pair){ return `FX:${pair.replace('/','').toUpperCase()}`; }
+function tvIntervalFromTF(tf){ const map={'3m':'3','5m':'5','7m':'7'}; return map[tf]||'3'; }
 
-// Інтервал для TradingView
-function tvIntervalFromTF(tf){
-  const map = { '3m':'3', '5m':'5', '7m':'7' };
-  return map[tf] || '3';
-}
-
-// Завантажуємо графік
-function loadTradingView(pair, tf){
-  const symbol = tvSymbolFromPair(pair);
-  const interval = tvIntervalFromTF(tf);
+// Графік
+function loadTradingView(pair,tf){
   const container = document.getElementById("tv_chart_container");
-  container.innerHTML = '';
-
+  container.innerHTML='';
   try{
     tvWidget = new TradingView.widget({
       container_id: "tv_chart_container",
-      symbol: symbol,
-      interval: interval,
-      timezone: "Etc/UTC",
-      theme: "dark",
-      style: "1",
-      locale: "ru",
-      allow_symbol_change: false,
-      hide_side_toolbar: false,  // включаем прокрутку
-      withdateranges: false,
-      enable_publishing: false,
-      hide_legend: true,
-      hide_top_toolbar: true
+      symbol: tvSymbolFromPair(pair),
+      interval: tvIntervalFromTF(tf),
+      timezone:"Etc/UTC",
+      theme:"dark",
+      style:"1",
+      locale:"ru",
+      allow_symbol_change:false,
+      hide_side_toolbar:false,
+      withdateranges:false,
+      enable_publishing:false,
+      hide_legend:true,
+      hide_top_toolbar:true
     });
-  } catch(err){
-    container.innerHTML = `<div style="padding:12px;color:#ffaaaa">Помилка: ${err.message}</div>`;
-  }
+  }catch(e){ container.innerHTML='<div style="padding:12px;color:#ffaaaa">Помилка завантаження графіка</div>'; }
 }
 
-// Імітуємо сигнал
-function getRandomSignal(){
-  const entries = ["UP ↑","DOWN ↓"];
-  const entry = entries[Math.floor(Math.random()*entries.length)];
-  return { entry };
+// Симуляція сигналу
+function getRandomSignal(){ 
+  const entries=["UP ↑","DOWN ↓"]; 
+  return {entry: entries[Math.floor(Math.random()*entries.length)]}; 
 }
 
-// Беремо реальну цену на графике
-function getCurrentPrice(){
-  try {
-    // На некоторых версиях TV можно использовать lastBar().close
-    if(tvWidget && tvWidget.activeChart){
-      const price = tvWidget.activeChart().lastBar?.close;
-      if(price) return price.toFixed(5);
-    }
-  } catch(e){}
-  // fallback
-  return (Math.random()*1.5 + 1).toFixed(5);
+// Імітація ціни для бота
+function getPrice(){ return (Math.random()*1.5+1).toFixed(5); }
+
+// Обчислюємо результат
+function computeResult(entryPrice, exitPrice, direction){
+  if(direction==="UP ↑") return exitPrice>entryPrice ? '+' : '-';
+  if(direction==="DOWN ↓") return exitPrice<entryPrice ? '+' : '-';
+  return '-';
 }
 
-document.getElementById("getSignalBtn").onclick = ()=>{
-  const signal = getRandomSignal();
-  const btnGet = document.getElementById("getSignalBtn");
-  const btnReset = document.getElementById("resetSignalBtn");
-  const pairSelect = document.getElementById("pairSelect");
-  const tfSelect = document.getElementById("tfSelect");
+document.getElementById("getSignalBtn").onclick=()=>{
+  const signal=getRandomSignal();
+  const btnGet=document.getElementById("getSignalBtn");
+  const btnReset=document.getElementById("resetSignalBtn");
+  const pairSelect=document.getElementById("pairSelect");
+  const tfSelect=document.getElementById("tfSelect");
 
-  btnGet.disabled = true;
-  pairSelect.disabled = true;
-  tfSelect.disabled = true;
-  btnReset.disabled = true;
+  btnGet.disabled=true; pairSelect.disabled=true; tfSelect.disabled=true; btnReset.disabled=true;
 
-  document.getElementById("signalDisplay").innerHTML = `<div style="padding:20px;color:#ff6666;">⏳ Генерація сигналу...</div>`;
+  document.getElementById("signalDisplay").innerHTML='<div style="padding:20px;color:#ff6666;">⏳ Генерація сигналу...</div>';
 
   setTimeout(()=>{
     startSignal(signal);
-    btnReset.disabled = false;
+    btnReset.disabled=false;
   },1200);
 };
 
 function startSignal(signal){
-  const pair = document.getElementById("pairSelect").value;
-  const tf = document.getElementById("tfSelect").value;
-  const display = document.getElementById("signalDisplay");
+  const pair=document.getElementById("pairSelect").value;
+  const tf=document.getElementById("tfSelect").value;
+  const display=document.getElementById("signalDisplay");
 
-  // Получаем реальную цену входа
-  signal.entryPrice = getCurrentPrice();
+  // Бот фіксує ціну входу
+  const entryPrice=parseFloat(getPrice());
 
-  // Таймер по таймфрейму
-  const durationMap = { '3m':180, '5m':300, '7m':420 };
-  const duration = durationMap[tf] || 180;
-  const endTime = Date.now() + duration*1000;
+  const durationMap={'3m':180,'5m':300,'7m':420};
+  const duration=durationMap[tf]||180;
+  const endTime=Date.now()+duration*1000;
 
   function tick(){
-    const remaining = Math.max(0, Math.ceil((endTime - Date.now())/1000));
-    if(remaining <= 0){
+    const remaining=Math.max(0,Math.ceil((endTime-Date.now())/1000));
+    if(remaining<=0){
       clearInterval(timerInterval);
-      const results = ['+','-'];
-      const r = results[Math.floor(Math.random()*results.length)];
-      display.innerHTML = `
+      const exitPrice=parseFloat(getPrice()); // Бот отримує ціну виходу
+      const r=computeResult(entryPrice,exitPrice,signal.entry);
+      display.innerHTML=`
         <div class="signal-line">Пара: ${pair} · TF: ${tf}</div>
-        <div class="signal-line">Точка входу: ${signal.entry} @ ${signal.entryPrice}</div>
+        <div class="signal-line">Сигнал: ${signal.entry}</div>
         <div class="signal-line">${r==='+'?'<span class="result-plus">✅ + (прибуток)</span>':'<span class="result-dogon">❌ Догон</span>'}</div>
       `;
     } else {
-      display.innerHTML = `
+      display.innerHTML=`
         <div class="signal-line">Пара: ${pair} · TF: ${tf}</div>
-        <div class="signal-line">Точка входу: ${signal.entry} @ ${signal.entryPrice}</div>
+        <div class="signal-line">Сигнал: ${signal.entry}</div>
         <div class="signal-line">Таймер: 00:${remaining<10?'0'+remaining:remaining}</div>
       `;
     }
   }
 
   tick();
-  timerInterval = setInterval(tick,1000);
+  timerInterval=setInterval(tick,1000);
   loadTradingView(pair,tf);
 }
 
-document.getElementById("resetSignalBtn").onclick = ()=>{
+document.getElementById("resetSignalBtn").onclick=()=>{
   clearInterval(timerInterval);
-  document.getElementById("signalDisplay").innerHTML = '';
-  document.getElementById("tv_chart_container").innerHTML = '';
-  document.getElementById("getSignalBtn").disabled = false;
-  document.getElementById("pairSelect").disabled = false;
-  document.getElementById("tfSelect").disabled = false;
-  document.getElementById("resetSignalBtn").disabled = true;
+  document.getElementById("signalDisplay").innerHTML='';
+  document.getElementById("tv_chart_container").innerHTML='';
+  document.getElementById("getSignalBtn").disabled=false;
+  document.getElementById("pairSelect").disabled=false;
+  document.getElementById("tfSelect").disabled=false;
+  document.getElementById("resetSignalBtn").disabled=true;
 };
 </script>
 </body>
