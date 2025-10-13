@@ -6,7 +6,6 @@
 <title>🐶 DOG SIGNALS</title>
 <link rel="stylesheet" href="style.css">
 <style>
-/* ===== Общие стили ===== */
 body {
   font-family: "Inter", sans-serif;
   background: radial-gradient(circle at center, #180000 0%, #000 90%);
@@ -18,7 +17,10 @@ body {
 
 h1 { color:#ff2e2e; margin-top:20px; font-size:24px; }
 
-input, button {
+/* ===== Вход ===== */
+#loginDiv { margin-top:50px; }
+
+input, select, button {
   border-radius:10px;
   border:none;
   padding:12px;
@@ -35,9 +37,6 @@ button {
 }
 
 button:hover { background:#ff4444; }
-
-/* ===== Вход ===== */
-#loginDiv { margin-top:50px; }
 
 /* ===== Сигналы ===== */
 #signals { display:none; margin-top:20px; }
@@ -63,11 +62,25 @@ button:hover { background:#ff4444; }
   text-shadow: 0 0 10px #ff000055;
 }
 
+/* ===== Контролы ===== */
+.controls { display:flex; flex-direction:column; align-items:center; gap:8px; margin-bottom:12px; }
+
+select {
+  width:90%;
+  max-width:320px;
+  padding:12px;
+  font-size:16px;
+  border-radius:10px;
+  border:none;
+  background: #1a0000;
+  color: #ffcccc;
+}
+
 /* ===== Мобильная адаптация ===== */
 @media(max-width:480px) {
   #tv_chart_container { height:250px; border-radius:10px; }
   #signalDisplay { font-size:18px; }
-  button, input { width:90%; font-size:16px; padding:12px; }
+  button, input, select { width:90%; font-size:16px; padding:12px; }
 }
 </style>
 </head>
@@ -88,6 +101,29 @@ button:hover { background:#ff4444; }
 <div id="signals">
   <div id="tv_chart_container"></div>
   <div id="signalDisplay"></div>
+
+  <div class="controls">
+    <select id="pairSelect">
+      <option>EUR/USD</option>
+      <option>GBP/USD</option>
+      <option>USD/JPY</option>
+      <option>USD/CHF</option>
+      <option>AUD/USD</option>
+      <option>NZD/USD</option>
+      <option>EUR/JPY</option>
+      <option>GBP/JPY</option>
+      <option>EUR/GBP</option>
+    </select>
+
+    <select id="tfSelect">
+      <option value="1m">1M</option>
+      <option value="3m">3M</option>
+      <option value="5m">5M</option>
+      <option value="15s">15s</option>
+      <option value="5s">5s</option>
+    </select>
+  </div>
+
   <button id="getSignalBtn">🔥 Получить сигнал</button>
   <button id="resetSignalBtn" disabled>Скинуть сигнал</button>
 </div>
@@ -116,12 +152,6 @@ loginBtn.onclick = () => {
     status.innerText = '❌ Неверный код. Попробуйте снова.';
   }
 };
-
-// ===== Твой существующий JS для сигналов =====
-// Здесь будет логика из script.js: генерация сигналов, таймеры, график TradingView
-// Например:
-// document.getElementById("getSignalBtn").onclick = function() { ... }
-// document.getElementById("resetSignalBtn").onclick = function() { ... }
 </script>
 </body>
 </html>
