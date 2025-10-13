@@ -3,29 +3,25 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DOG Signals | Pocket Option</title>
+<title>DOG Signals | Вхід по ID</title>
 <style>
 body {
   font-family: "Inter", sans-serif;
   background: radial-gradient(circle at center, #180000 0%, #000 90%);
   color: #f4f4f4;
-  text-align: center;
-  margin: 0;
-  padding: 0 5px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  min-height: 100vh;
+  margin: 0; padding: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  height: 100vh;
 }
 h1 {
   color: #ff2e2e;
   font-weight: 800;
-  font-size: 24px;
-  margin: 20px 0 10px;
-  text-shadow: 0 0 10px #ff0000aa;
+  font-size: 26px;
+  margin-bottom: 10px;
+  text-shadow: 0 0 12px #ff0000aa;
 }
-.container { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 10px; }
-select, button {
+input, button {
   background: linear-gradient(180deg, #1a0000 0%, #000 100%);
   border: 1px solid #ff0000;
   color: #ffcccc;
@@ -33,84 +29,113 @@ select, button {
   border-radius: 8px;
   font-size: 15px;
   width: 220px;
-  transition: all 0.3s ease;
+  text-align: center;
   box-shadow: 0 0 10px #ff000055;
+  margin: 6px 0;
 }
-select:focus, button:focus { outline: none; box-shadow: 0 0 15px #ff0000aa; }
-select:disabled, button:disabled { opacity: 0.6; cursor: not-allowed; }
-button:hover:not(:disabled) { background: #ff0000; color: #fff; box-shadow: 0 0 20px #ff0000aa; }
-#signalDisplay { margin-top: 15px; min-height: 140px; color: #fff; text-shadow: 0 0 10px #ff000055; }
+button:hover { background: #ff0000; color: #fff; box-shadow: 0 0 15px #ff0000aa; }
+#loginBox, #mainApp { display: none; text-align: center; }
+#loginBox.active, #mainApp.active { display: block; }
+
+#signalDisplay { margin-top: 15px; min-height: 140px; }
 .signal-line { font-size: 15px; margin: 4px 0; }
 .result-plus { color: #4ade80; font-weight: 700; }
 .result-dogon { color: #facc15; font-weight: 700; }
 .result-load { color: #ffaaaa; font-style: italic; }
 
 #tv_chart_container {
-  width: 100%;
-  max-width: 600px;
-  height: 350px;
-  margin: 15px auto 20px;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 0 25px #ff000033;
-  background: #0a0000;
-  border: 1px solid #330000;
+  width: 100%; max-width: 600px; height: 350px;
+  margin: 15px auto 20px; border-radius: 12px;
+  overflow: hidden; box-shadow: 0 0 25px #ff000033;
+  background: #0a0000; border: 1px solid #330000;
 }
-
-@media (max-width: 480px) {
-  #tv_chart_container { width: 96%; height: 300px; margin: 10px auto; border-radius: 10px; }
-  button, select { width: 90%; max-width: 320px; }
-}
-footer { padding: 10px; font-size: 12px; color: #ff4444; opacity: 0.7; }
+footer { font-size: 12px; color: #ff4444; opacity: 0.7; padding: 8px; }
 </style>
 <script src="https://s3.tradingview.com/tv.js"></script>
 </head>
 <body>
 
-<h1>🐶 DOG SIGNALS</h1>
-<div class="container">
-  <select id="pairSelect">
-    <option>EUR/USD</option>
-    <option>GBP/USD</option>
-    <option>USD/JPY</option>
-    <option>USD/CHF</option>
-    <option>AUD/USD</option>
-    <option>NZD/USD</option>
-    <option>EUR/JPY</option>
-    <option>GBP/JPY</option>
-    <option>EUR/GBP</option>
-  </select>
-
-  <select id="tfSelect">
-    <option value="5s">5S</option>
-    <option value="15s">15S</option>
-    <option value="3m">3M</option>
-    <option value="5m">5M</option>
-    <option value="7m">7M</option>
-  </select>
-
-  <button id="getSignalBtn">🔥 Отримати сигнал</button>
-  <button id="resetSignalBtn" disabled>Скинути сигнал</button>
+<!-- 🧩 ВХІД -->
+<div id="loginBox" class="active">
+  <h1>🐶 DOG SIGNALS</h1>
+  <p>Введіть ваш ID для входу:</p>
+  <input type="text" id="userId" placeholder="Ваш ID">
+  <button id="sendIdBtn">Відправити</button>
+  <div id="loginStatus" style="margin-top:10px;color:#ffaaaa;"></div>
 </div>
 
-<div id="signalDisplay"></div>
-<div id="tv_chart_container"></div>
-<footer>© 2025 DOG Signals | Powered by Pocket Option</footer>
+<!-- 💹 ОСНОВНИЙ ІНТЕРФЕЙС -->
+<div id="mainApp">
+  <h1>🐶 DOG SIGNALS</h1>
+  <div class="container">
+    <select id="pairSelect">
+      <option>EUR/USD</option>
+      <option>GBP/USD</option>
+      <option>USD/JPY</option>
+      <option>USD/CHF</option>
+      <option>AUD/USD</option>
+      <option>NZD/USD</option>
+      <option>EUR/JPY</option>
+      <option>GBP/JPY</option>
+      <option>EUR/GBP</option>
+    </select>
+
+    <select id="tfSelect">
+      <option value="5s">5S</option>
+      <option value="15s">15S</option>
+      <option value="3m">3M</option>
+      <option value="5m">5M</option>
+      <option value="7m">7M</option>
+    </select>
+
+    <button id="getSignalBtn">🔥 Отримати сигнал</button>
+    <button id="resetSignalBtn" disabled>Скинути сигнал</button>
+  </div>
+
+  <div id="signalDisplay"></div>
+  <div id="tv_chart_container"></div>
+  <footer>© 2025 DOG Signals | Powered by Pocket Option</footer>
+</div>
 
 <script>
-let timerInterval=null;
-const display=document.getElementById("signalDisplay");
+let timerInterval = null;
+const display = document.getElementById("signalDisplay");
 
-// TradingView
+// === 💡 Логін по ID ===
+document.getElementById("sendIdBtn").onclick = () => {
+  const id = document.getElementById("userId").value.trim();
+  const status = document.getElementById("loginStatus");
+
+  if (!id) {
+    status.innerHTML = "⚠️ Введіть ваш ID!";
+    return;
+  }
+
+  // Симулюємо відправку ID на перевірку
+  status.innerHTML = "⏳ ID відправлено на перевірку...";
+  
+  // Тут в майбутньому буде реальна перевірка через Telegram / базу
+  setTimeout(() => {
+    // Імітація "схвалення"
+    const approved = true;
+
+    if (approved) {
+      localStorage.setItem("dog_user_id", id);
+      document.getElementById("loginBox").classList.remove("active");
+      document.getElementById("mainApp").classList.add("active");
+    } else {
+      status.innerHTML = "❌ Ваш ID відхилено адміністратором.";
+    }
+  }, 2000);
+};
+
+// === 📊 Графік ===
 function tvSymbolFromPair(pair){ return `FX:${pair.replace('/','').toUpperCase()}`; }
-function tvIntervalFromTF(tf){
-  const map={'5s':'1','15s':'1','3m':'3','5m':'5','7m':'7'};
-  return map[tf]||'1';
-}
+function tvIntervalFromTF(tf){ const map={'5s':'1','15s':'1','3m':'3','5m':'5','7m':'7'}; return map[tf]||'1'; }
 function loadTradingView(pair, tf){
-  const container=document.getElementById("tv_chart_container");
+  const container = document.getElementById("tv_chart_container");
   container.innerHTML='';
-  try{
+  try {
     new TradingView.widget({
       container_id:"tv_chart_container",
       symbol:tvSymbolFromPair(pair),
@@ -125,41 +150,35 @@ function loadTradingView(pair, tf){
       withdateranges:false,
       enable_publishing:false
     });
-  }catch(e){
+  } catch(e) {
     container.innerHTML='<div style="padding:12px;color:#ffaaaa">Помилка завантаження графіка</div>';
   }
 }
 
-// Симуляція сигналу
+// === 🎯 Логіка сигналів ===
 function getRandomSignal(){ const entries=["UP ↑","DOWN ↓"]; return {entry:entries[Math.floor(Math.random()*entries.length)]}; }
 function getPrice(){ return (Math.random()*1.5+1).toFixed(5); }
-
-// Логіка результату
 function computeResult(entryPrice, exitPrice, direction){
   if(direction==="UP ↑") return exitPrice>entryPrice ? '+' : '-';
   if(direction==="DOWN ↓") return exitPrice<entryPrice ? '+' : '-';
   return '-';
 }
-
-// Сигнал або догон
 function runSignal(direction, seconds, title){
   const entryPrice=parseFloat(getPrice());
   const endTime=new Date(Date.now()+seconds*1000);
-
   function tick(){
     const now=new Date();
     const remaining=Math.max(0,Math.ceil((endTime-now)/1000));
     const min=Math.floor(remaining/60);
     const sec=remaining%60;
-
     if(remaining<=0){
       clearInterval(timerInterval);
       const exitPrice=parseFloat(getPrice());
       const r=computeResult(entryPrice,exitPrice,direction);
-      display.innerHTML+=`<div class="signal-line">${title}: ${direction} ${seconds>=60?Math.round(seconds/60)+'м':seconds+'с'}</div>
+      display.innerHTML+=`<div class="signal-line">${title}: ${direction}</div>
         <div class="signal-line">${r==='+'?'<span class="result-plus">✅ + (прибуток)</span>':'<span class="result-dogon">❌ Догон</span>'}</div>`;
       if(r==='-' && title==='Сигнал'){
-        display.innerHTML+=`<div class="signal-line result-load">⏳ Генерація догон-сделки...</div>`;
+        display.innerHTML+=`<div class="signal-line result-load">⏳ Генерація догон...</div>`;
         setTimeout(()=>{ runSignal(direction,120,'Догон'); },1500);
       }
     } else {
@@ -167,32 +186,26 @@ function runSignal(direction, seconds, title){
         <div class="signal-line">Таймер: ${min}:${sec<10?'0'+sec:sec}</div>`;
     }
   }
-
-  tick();
-  timerInterval=setInterval(tick,1000);
+  tick(); timerInterval=setInterval(tick,1000);
 }
 
-// Кнопки
+// === 🔘 Кнопки ===
 document.getElementById("getSignalBtn").onclick=()=>{
   const signal=getRandomSignal();
   const btnGet=document.getElementById("getSignalBtn");
   const btnReset=document.getElementById("resetSignalBtn");
   const pairSelect=document.getElementById("pairSelect");
   const tfSelect=document.getElementById("tfSelect");
-
   btnGet.disabled=true; pairSelect.disabled=true; tfSelect.disabled=true; btnReset.disabled=true;
   display.innerHTML='<div class="signal-line result-load">⏳ Генерація сигналу...</div>';
-
   setTimeout(()=>{
     const tf=tfSelect.value;
-    const durationMap={'5s':5,'15s':15,'3m':180,'5m':300,'7m':420};
-    const duration=durationMap[tf]||180;
-    runSignal(signal.entry,duration,'Сигнал');
+    const map={'5s':5,'15s':15,'3m':180,'5m':300,'7m':420};
+    runSignal(signal.entry,map[tf],'Сигнал');
     loadTradingView(pairSelect.value, tf);
     btnReset.disabled=false;
   },1000);
 };
-
 document.getElementById("resetSignalBtn").onclick=()=>{
   clearInterval(timerInterval);
   display.innerHTML='';
