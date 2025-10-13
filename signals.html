@@ -77,48 +77,46 @@
 
   .result-plus { color: #4ade80; font-weight: 700; }
   .result-minus { color: #ef4444; font-weight: 700; }
-  .result-ret { color: #facc15; font-weight: 700; }
+  .result-dogon { color: #facc15; font-weight: 700; }
 
- /* === 📊 TradingView Chart === */
-#tv_chart_container {
-  width: 100%;
-  max-width: 440px;
-  height: 360px; /* ↑ увеличено с 280px */
-  margin: 15px auto 25px;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 0 25px #ff000033;
-  background: #0a0000;
-  border: 1px solid #330000;
-  transition: all 0.3s ease;
-}
-
-/* 📱 Мобильная адаптация */
-@media (max-width: 480px) {
+  /* === 📊 TradingView Chart === */
   #tv_chart_container {
-    width: 96%;
-    height: 320px; /* ↑ увеличено с 250px */
-    margin: 12px auto;
-    border-radius: 10px;
+    width: 100%;
+    max-width: 420px;
+    height: 280px;
+    margin: 15px auto 20px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 0 25px #ff000033;
+    background: #0a0000;
+    border: 1px solid #330000;
+    transition: all 0.3s ease;
   }
 
-  body {
-    padding: 0 4px;
+  @media (max-width: 480px) {
+    #tv_chart_container {
+      width: 96%;
+      height: 250px;
+      margin: 10px auto;
+      border-radius: 10px;
+    }
+
+    body {
+      padding: 0 4px;
+    }
+
+    button, select {
+      width: 90%;
+      max-width: 320px;
+    }
   }
 
-  button, select {
-    width: 90%;
-    max-width: 320px;
+  @media (min-width: 768px) {
+    #tv_chart_container {
+      max-width: 500px;
+      height: 300px;
+    }
   }
-}
-
-/* 🖥 Планшеты и ПК */
-@media (min-width: 768px) {
-  #tv_chart_container {
-    max-width: 520px;
-    height: 400px; /* ↑ увеличено с 300px */
-  }
-}
 
   footer {
     padding: 10px;
@@ -131,59 +129,54 @@
 </head>
 <body>
 
-  <h1>🐶 DOG SIGNALS</h1>
-  <div class="container">
-    <select id="pairSelect">
-      <option>EUR/USD</option>
-      <option>GBP/USD</option>
-      <option>USD/JPY</option>
-      <option>USD/CHF</option>
-      <option>AUD/USD</option>
-      <option>NZD/USD</option>
-      <option>EUR/JPY</option>
-      <option>GBP/JPY</option>
-      <option>EUR/GBP</option>
-    </select>
+<h1>🐶 DOG SIGNALS</h1>
+<div class="container">
+  <select id="pairSelect">
+    <option>EUR/USD</option>
+    <option>GBP/USD</option>
+    <option>USD/JPY</option>
+    <option>USD/CHF</option>
+    <option>AUD/USD</option>
+    <option>NZD/USD</option>
+    <option>EUR/JPY</option>
+    <option>GBP/JPY</option>
+    <option>EUR/GBP</option>
+  </select>
 
-    <select id="tfSelect">
-      <option value="1m">1M</option>
-      <option value="3m">3M</option>
-      <option value="5m">5M</option>
-    </select>
+  <select id="tfSelect">
+    <option value="3m">3M</option>
+    <option value="5m">5M</option>
+    <option value="7m">7M</option>
+  </select>
 
-    <button id="getSignalBtn">🔥 Отримати сигнал</button>
-    <button id="resetSignalBtn" disabled>Скинути сигнал</button>
-  </div>
+  <button id="getSignalBtn">🔥 Отримати сигнал</button>
+  <button id="resetSignalBtn" disabled>Скинути сигнал</button>
+</div>
 
-  <div id="signalDisplay"></div>
+<div id="signalDisplay"></div>
 
-  <div id="tv_chart_container"></div>
+<div id="tv_chart_container"></div>
 
-  <footer>© 2025 DOG Signals | Powered by Pocket Option</footer>
+<footer>© 2025 DOG Signals | Powered by Pocket Option</footer>
 
 <script>
 let timerInterval = null;
 let tvWidget = null;
 
-// конвертуємо пару в символ для TradingView
 function tvSymbolFromPair(pair) {
-  const clean = pair.replace('/', '').toUpperCase();
-  return `FX:${clean}`;
+  return `FX:${pair.replace('/', '').toUpperCase()}`;
 }
 
-// інтервал для TradingView
 function tvIntervalFromTF(tf) {
-  const map = { '1m':'1', '3m':'3', '5m':'5' };
-  return map[tf] || '1';
+  const map = { '3m':'3', '5m':'5', '7m':'7' };
+  return map[tf] || '3';
 }
 
-// показує графік знизу
 function loadTradingView(pair, tf) {
   const symbol = tvSymbolFromPair(pair);
   const interval = tvIntervalFromTF(tf);
-  const chartContainer = document.getElementById("tv_chart_container");
-  chartContainer.innerHTML = '';
-  chartContainer.style.display = 'block';
+  const container = document.getElementById("tv_chart_container");
+  container.innerHTML = '';
 
   try {
     tvWidget = new TradingView.widget({
@@ -195,21 +188,15 @@ function loadTradingView(pair, tf) {
       style: "1",
       locale: "ru",
       allow_symbol_change: false,
-      withdateranges: false,
-      hide_side_toolbar: true
+      hide_side_toolbar: true,
+      hide_legend: true,
+      hide_top_toolbar: true
     });
-
-    setTimeout(()=>{
-      if (chartContainer.innerHTML.trim() === '') {
-        chartContainer.innerHTML = '<div style="padding:12px;color:#ffaaaa">⚠️ Не вдалося завантажити графік. Спробуйте іншу пару.</div>';
-      }
-    }, 6000);
   } catch(err) {
-    chartContainer.innerHTML = `<div style="padding:12px;color:#ffaaaa">Помилка: ${err.message}</div>`;
+    container.innerHTML = `<div style="padding:12px;color:#ffaaaa">Помилка: ${err.message}</div>`;
   }
 }
 
-// випадковий сигнал
 function getRandomSignal() {
   const entries = ["UP ↑", "DOWN ↓"];
   const entry = entries[Math.floor(Math.random() * entries.length)];
@@ -219,15 +206,15 @@ function getRandomSignal() {
 
 document.getElementById("getSignalBtn").onclick = () => {
   const signal = getRandomSignal();
-  const getSignalBtn = document.getElementById("getSignalBtn");
-  const resetBtn = document.getElementById("resetSignalBtn");
+  const btnGet = document.getElementById("getSignalBtn");
+  const btnReset = document.getElementById("resetSignalBtn");
   const pairSelect = document.getElementById("pairSelect");
   const tfSelect = document.getElementById("tfSelect");
 
-  getSignalBtn.disabled = true;
-  resetBtn.disabled = true;
+  btnGet.disabled = true;
   pairSelect.disabled = true;
   tfSelect.disabled = true;
+  btnReset.disabled = true;
 
   document.getElementById("signalDisplay").innerHTML = `
     <div style="padding:20px;color:#ff6666;">⏳ Генерація сигналу...</div>
@@ -235,31 +222,32 @@ document.getElementById("getSignalBtn").onclick = () => {
 
   setTimeout(()=>{
     startSignal(signal);
-    resetBtn.disabled = false;
+    btnReset.disabled = false;
   }, 1200);
 };
 
 function startSignal(signal){
   const pair = document.getElementById("pairSelect").value;
   const tf = document.getElementById("tfSelect").value;
-  const signalDisplay = document.getElementById("signalDisplay");
+  const display = document.getElementById("signalDisplay");
 
   const endTime = Date.now() + signal.duration * 1000;
+
   function tick(){
     const remaining = Math.max(0, Math.ceil((endTime - Date.now())/1000));
     if (remaining <= 0) {
       clearInterval(timerInterval);
-      const results = ['+','-','↺'];
+      const results = ['+', '-'];
       const r = results[Math.floor(Math.random()*results.length)];
-      signalDisplay.innerHTML = `
+      display.innerHTML = `
         <div class="signal-line">Пара: ${pair} · TF: ${tf}</div>
         <div class="signal-line">Точка входу: ${signal.entry}</div>
         <div class="signal-line">
-          ${r === '+' ? '<span class="result-plus">✅ + (прибуток)</span>' : r === '-' ? '<span class="result-minus">❌ − (збиток)</span>' : '<span class="result-ret">↺ (повернення)</span>'}
+          ${r === '+' ? '<span class="result-plus">✅ + (прибуток)</span>' : '<span class="result-dogon">❌ Догон</span>'}
         </div>
       `;
     } else {
-      signalDisplay.innerHTML = `
+      display.innerHTML = `
         <div class="signal-line">Пара: ${pair} · TF: ${tf}</div>
         <div class="signal-line">Точка входу: ${signal.entry}</div>
         <div class="signal-line">Таймер: 00:${remaining < 10 ? '0'+remaining : remaining}</div>
