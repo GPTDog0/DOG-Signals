@@ -128,10 +128,9 @@ select {
   <button id="resetSignalBtn" disabled>Скинуть сигнал</button>
 </div>
 
-<script src="script.js"></script>
 <script src="https://s3.tradingview.com/tv.js"></script>
 <script>
-// ===== Логика входа =====
+// ===== Вход =====
 const loginBtn = document.getElementById('loginBtn');
 const codeInput = document.getElementById('codeInput');
 const status = document.getElementById('status');
@@ -152,6 +151,112 @@ loginBtn.onclick = () => {
     status.innerText = '❌ Неверный код. Попробуйте снова.';
   }
 };
+
+// ===== Сигналы =====
+let timerInterval = null;
+let tvWidget = null;
+
+// Конвертация пары в символ TradingView
+function tvSymbolFromPair(pair) {
+  return `FX:${pair.replace('/','').toUpperCase()}`;
+}
+
+// Интервал для TradingView
+function tvIntervalFromTF(tf) {
+  const map = { '1m':'1', '3m':'3', '5m':'5', '15s':'15S', '5s':'5S' };
+  return map[tf] || '1';
+}
+
+// Показ графика
+function loadTradingView(pair, tf) {
+  const symbol = tvSymbolFromPair(pair);
+  const interval = tvIntervalFromTF(tf);
+  const container = document.getElementById("tv_chart_container");
+  container.innerHTML = '';
+  try {
+    tvWidget = new TradingView.widget({
+      container_id: "tv_chart_container",
+      symbol: symbol,
+      interval: interval,
+      timezone: "Etc/UTC",
+      theme: "dark",
+      style: "1",
+      locale: "ru",
+      allow_symbol_change: false,
+      hide_top_toolbar:true,
+      hide_legend:true,
+      enable_publishing:false,
+      withdateranges:false,
+      hide_side_toolbar:true
+    });
+  } catch(e){ container.innerHTML = '⚠️ Не удалось загрузить график'; }
+}
+
+// Генерация случайного сигнала
+function getRandomSignal() {
+  const entries = ["UP ↑", "DOWN ↓"];
+  const entry = entries[Math.floor(Math.random()*entries.length)];
+  return { entry, duration:60 };
+}
+
+// ===== Кнопки =====
+document.getElementById("getSignalBtn").onclick = () => {
+  const signal = getRandomSignal();
+  const pair = document.getElementById("pairSelect").value;
+  const tf = document.getElementById("tfSelect").value;
+  const display = document.getElementById("signalDisplay");
+
+  document.getElementById("getSignalBtn").disabled = true;
+  document.getElementById("resetSignalBtn").disabled = false;
+  document.getElementById("pairSelect").disabled = true;
+  document.getElementById("tfSelect").disabled = true;
+
+  display.innerHTML = '⏳ Генерация сигнала...';
+
+  setTimeout(()=>{
+    startSignal(signal, pair, tf);
+  }, 1000);
+};
+
+document.getElementById("resetSignalBtn").onclick = () => {
+  clearInterval(timerInterval);
+  document.getElementById("signalDisplay").innerHTML = '';
+  document.getElementById("tv_chart_container").innerHTML = '';
+  document.getElementById("getSignalBtn").disabled = false;
+  document.getElementById("pairSelect").disabled = false;
+  document.getElementById("tfSelect").disabled = false;
+  document.getElementById("resetSignalBtn").disabled = true;
+};
+
+// ===== Таймер сигнала =====
+function startSignal(signal, pair, tf) {
+  const display = document.getElementById("signalDisplay");
+  const endTime = Date.now() + signal.duration*1000;
+
+  function tick() {
+    const remaining = Math.max(0, Math.ceil((endTime - Date.now())/1000));
+    if(remaining <=0){
+      clearInterval(timerInterval);
+      const results = ['+','-','↺'];
+      const r = results[Math.floor(Math.random()*results.length)];
+      display.innerHTML = `
+        <div>Пара: ${pair} · TF: ${tf}</div>
+        <div>Точка входу: ${signal.entry}</div>
+        <div>${r==='+'?'<span style="color:#4ade80">✅ +</span>':r==='-'?'<span style="color:#ef4444">❌ −</span>':'↺ (повернення)'}</div>
+      `;
+    } else {
+      display.innerHTML = `
+        <div>Пара: ${pair} · TF: ${tf}</div>
+        <div>Точка входу: ${signal.entry}</div>
+        <div>Таймер: 00:${remaining<10?'0'+remaining:remaining}</div>
+      `;
+    }
+  }
+
+  tick();
+  timerInterval = setInterval(tick, 1000);
+  loadTradingView(pair, tf);
+}
 </script>
 </body>
 </html>
