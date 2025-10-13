@@ -1,31 +1,27 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pocket Option Mini App</title>
-<link rel="stylesheet" href="style.css">
-</head>
-<body>
-<div class="container">
-    <h2>🚀 Pocket Option Signals</h2>
-    <p>Для доступа нажмите кнопку ниже</p>
-    <button id="enterBtn">Войти</button>
-</div>
+<input type="text" id="uidInput" placeholder="Введите UID">
+<input type="text" id="refInput" placeholder="Введите реферальный токен">
+<button id="submitBtn">Отправить</button>
+<div id="status"></div>
 
 <script>
-const SECRET_PASSWORD = "20025";
-const enterBtn = document.getElementById("enterBtn");
+const API_URL = "https://u3.shortink.io/main?utm_campaign=815121&utm_source=affiliate&utm_medium=sr&a=kBQn8bFXGHmrzs&ac=dogsmoktr";
 
-enterBtn.addEventListener("click", ()=>{
-    // В Mini App ввод через кнопки, пароль проверяется в коде
-    const userPassword = SECRET_PASSWORD; // Можно заменить на уникальный код для каждого пользователя
-    if(userPassword === SECRET_PASSWORD){
-        window.location.href = "signals.html";
-    } else {
-        alert("Ошибка входа!");
-    }
-});
+document.getElementById("submitBtn").onclick = async () => {
+  const uid = document.getElementById("uidInput").value.trim();
+  const ref = document.getElementById("refInput").value.trim();
+
+  const res = await fetch(API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ uid, ref })
+  });
+
+  const data = await res.json();
+  document.getElementById("status").innerText = `Статус: ${data.status}\n${data.message || ''}`;
+
+  if (data.status === 'approved') {
+    // показать бота / открыть интерфейс сигналов
+    alert('Доступ к боту открыт!');
+  }
+};
 </script>
-</body>
-</html>
