@@ -12,75 +12,107 @@ body {
   color: #f4f4f4;
   text-align: center;
   margin: 0;
-  padding: 0 5px;
+  padding: 0;
 }
 
-h1 { color:#ff2e2e; margin-top:20px; font-size:24px; }
+h1 {
+  color: #ff2e2e;
+  margin: 20px 0 10px;
+  font-size: 22px;
+}
 
 /* ===== Вход ===== */
-#loginDiv { margin-top:50px; }
+#loginDiv { margin-top: 60px; }
 
 input, select, button {
-  border-radius:10px;
-  border:none;
-  padding:12px;
-  font-size:16px;
-  margin:10px 0;
+  border-radius: 12px;
+  border: none;
+  padding: 12px;
+  font-size: 16px;
+  margin: 8px 0;
+  width: 90%;
+  max-width: 320px;
+  box-sizing: border-box;
 }
 
 button {
-  background:#ff2e2e;
-  color:#fff;
-  cursor:pointer;
-  width:90%;
-  max-width:320px;
+  background: linear-gradient(180deg, #ff3b3b, #cc1f1f);
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
 }
 
-button:hover { background:#ff4444; }
+button:hover {
+  background: linear-gradient(180deg, #ff4b4b, #dd2a2a);
+  transform: scale(1.02);
+}
+
+button:disabled {
+  background: #2b0000;
+  color: #666;
+  cursor: not-allowed;
+}
 
 /* ===== Сигналы ===== */
-#signals { display:none; margin-top:20px; }
-
-#tv_chart_container {
-  width:100%;
-  max-width:420px;
-  height:300px;
-  margin:15px auto;
-  border-radius:12px;
-  overflow-x:auto;
-  -webkit-overflow-scrolling: touch;
-  background:#0a0000;
-  border:1px solid #330000;
-  box-shadow:0 0 25px #ff000033;
+#signals {
+  display: none;
+  margin-top: 15px;
+  padding-bottom: 40px;
+  animation: fadeIn 0.5s ease;
 }
 
+#tv_chart_container {
+  width: 100%;
+  max-width: 420px;
+  height: 210px;
+  margin: 12px auto;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #0a0000;
+  border: 1px solid #330000;
+  box-shadow: 0 0 20px #ff000022;
+  transition: all 0.3s ease;
+}
+
+/* ===== Текст ===== */
 #signalDisplay {
-  font-size:16px;
-  min-height:100px;
-  margin-top:10px;
-  word-wrap:break-word;
+  font-size: 16px;
+  min-height: 100px;
+  margin-top: 10px;
+  word-wrap: break-word;
   text-shadow: 0 0 10px #ff000055;
+  animation: fadeIn 0.3s ease;
 }
 
 /* ===== Контролы ===== */
-.controls { display:flex; flex-direction:column; align-items:center; gap:8px; margin-bottom:12px; }
+.controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
 
 select {
-  width:90%;
-  max-width:320px;
-  padding:12px;
-  font-size:16px;
-  border-radius:10px;
-  border:none;
   background: #1a0000;
   color: #ffcccc;
 }
 
+/* ===== Анимация ===== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* ===== Мобильная адаптация ===== */
 @media(max-width:480px) {
-  #tv_chart_container { height:250px; border-radius:10px; }
-  #signalDisplay { font-size:18px; }
-  button, input, select { width:90%; font-size:16px; padding:12px; }
+  #tv_chart_container {
+    height: 190px;
+    border-radius: 10px;
+  }
+  h1 { font-size: 20px; }
+  #signalDisplay { font-size: 17px; }
 }
 </style>
 </head>
@@ -124,8 +156,8 @@ select {
     </select>
   </div>
 
-  <button id="getSignalBtn">🔥 Получить сигнал</button>
-  <button id="resetSignalBtn" disabled>Скинуть сигнал</button>
+  <button id="getSignalBtn">🔥 Отримати новий сигнал</button>
+  <button id="resetSignalBtn" disabled>Скинути сигнал</button>
 </div>
 
 <script src="https://s3.tradingview.com/tv.js"></script>
@@ -156,18 +188,15 @@ loginBtn.onclick = () => {
 let timerInterval = null;
 let tvWidget = null;
 
-// Конвертация пары в символ TradingView
 function tvSymbolFromPair(pair) {
   return `FX:${pair.replace('/','').toUpperCase()}`;
 }
 
-// Интервал для TradingView
 function tvIntervalFromTF(tf) {
   const map = { '1m':'1', '3m':'3', '5m':'5', '15s':'15S', '5s':'5S' };
   return map[tf] || '1';
 }
 
-// Показ графика
 function loadTradingView(pair, tf) {
   const symbol = tvSymbolFromPair(pair);
   const interval = tvIntervalFromTF(tf);
@@ -183,23 +212,21 @@ function loadTradingView(pair, tf) {
       style: "1",
       locale: "ru",
       allow_symbol_change: false,
-      hide_top_toolbar:true,
-      hide_legend:true,
-      enable_publishing:false,
-      withdateranges:false,
-      hide_side_toolbar:true
+      hide_top_toolbar: true,
+      hide_legend: true,
+      enable_publishing: false,
+      withdateranges: false,
+      hide_side_toolbar: true
     });
   } catch(e){ container.innerHTML = '⚠️ Не удалось загрузить график'; }
 }
 
-// Генерация случайного сигнала
 function getRandomSignal() {
   const entries = ["UP ↑", "DOWN ↓"];
   const entry = entries[Math.floor(Math.random()*entries.length)];
   return { entry, duration:60 };
 }
 
-// ===== Кнопки =====
 document.getElementById("getSignalBtn").onclick = () => {
   const signal = getRandomSignal();
   const pair = document.getElementById("pairSelect").value;
@@ -213,9 +240,7 @@ document.getElementById("getSignalBtn").onclick = () => {
 
   display.innerHTML = '⏳ Генерация сигнала...';
 
-  setTimeout(()=>{
-    startSignal(signal, pair, tf);
-  }, 1000);
+  setTimeout(()=>{ startSignal(signal, pair, tf); }, 1000);
 };
 
 document.getElementById("resetSignalBtn").onclick = () => {
@@ -228,7 +253,6 @@ document.getElementById("resetSignalBtn").onclick = () => {
   document.getElementById("resetSignalBtn").disabled = true;
 };
 
-// ===== Таймер сигнала =====
 function startSignal(signal, pair, tf) {
   const display = document.getElementById("signalDisplay");
   const endTime = Date.now() + signal.duration*1000;
