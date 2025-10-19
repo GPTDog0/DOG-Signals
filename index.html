@@ -4,136 +4,156 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🐶 DOG SIGNALS</title>
-<link rel="stylesheet" href="style.css">
 <style>
 body {
   font-family: "Inter", sans-serif;
-  background: radial-gradient(circle at center, #180000 0%, #000 90%);
-  color: #f4f4f4;
+  background: radial-gradient(circle at top, #1a0000 0%, #000 90%);
+  color: #fff;
   text-align: center;
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
 }
 
-h1 {
-  color: #ff2e2e;
-  margin: 20px 0 10px;
-  font-size: 22px;
+/* ===== Верхняя панель ===== */
+.header {
+  background: linear-gradient(180deg, #220000, transparent);
+  padding: 18px 0 10px;
+  text-align: center;
+  box-shadow: 0 0 25px #ff000020;
 }
 
-/* ===== Вход ===== */
-#loginDiv { margin-top: 60px; }
-
-input, select, button {
-  border-radius: 12px;
-  border: none;
-  padding: 12px;
-  font-size: 16px;
-  margin: 8px 0;
-  width: 90%;
-  max-width: 320px;
-  box-sizing: border-box;
+.header h1 {
+  color: #ff3b3b;
+  font-size: 26px;
+  font-weight: 700;
+  margin: 0;
+  text-shadow: 0 0 20px #ff000099;
 }
 
+/* ===== Кнопки ===== */
 button {
-  background: linear-gradient(180deg, #ff3b3b, #cc1f1f);
-  color: #fff;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
   font-weight: 500;
+  padding: 12px 0;
+  width: 160px;
+  color: #fff;
+  background: linear-gradient(180deg, #ff3b3b, #b30000);
+  box-shadow: 0 0 10px #ff000040;
+  transition: 0.25s ease;
 }
 
 button:hover {
-  background: linear-gradient(180deg, #ff4b4b, #dd2a2a);
-  transform: scale(1.02);
+  transform: scale(1.04);
+  box-shadow: 0 0 15px #ff000060;
 }
 
 button:disabled {
-  background: #2b0000;
-  color: #666;
-  cursor: not-allowed;
+  opacity: 0.5;
+  background: #330000;
 }
 
-/* ===== Сигналы ===== */
-#signals {
-  display: none;
-  margin-top: 15px;
-  padding-bottom: 40px;
-  animation: fadeIn 0.5s ease;
+/* ===== Контейнер кнопок ===== */
+.controls {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 12px auto 18px;
+  flex-wrap: wrap;
 }
 
-#tv_chart_container {
-  width: 100%;
-  max-width: 420px;
-  height: 210px;
-  margin: 12px auto;
-  border-radius: 10px;
-  overflow: hidden;
-  background: #0a0000;
+/* ===== Селекты ===== */
+select {
+  background: #1a0000;
   border: 1px solid #330000;
-  box-shadow: 0 0 20px #ff000022;
+  border-radius: 8px;
+  color: #ffcccc;
+  padding: 8px 12px;
+  font-size: 15px;
+}
+
+/* ===== График ===== */
+#tv_chart_container {
+  width: 94%;
+  max-width: 400px;
+  height: 220px;
+  margin: 10px auto;
+  border-radius: 10px;
+  background: #080000;
+  border: 1px solid #330000;
+  box-shadow: 0 0 25px #ff000015;
+  overflow: hidden;
   transition: all 0.3s ease;
 }
 
-/* ===== Текст ===== */
+/* ===== Сигнал ===== */
 #signalDisplay {
-  font-size: 16px;
-  min-height: 100px;
-  margin-top: 10px;
-  word-wrap: break-word;
-  text-shadow: 0 0 10px #ff000055;
-  animation: fadeIn 0.3s ease;
+  font-size: 17px;
+  margin: 12px 0;
+  text-shadow: 0 0 8px #ff000040;
+  animation: fadeIn 0.4s ease;
 }
 
-/* ===== Контролы ===== */
-.controls {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-
-select {
-  background: #1a0000;
-  color: #ffcccc;
-}
-
-/* ===== Анимация ===== */
+/* ===== Анимации ===== */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes pulse {
+  0%,100% { color: #ffaaaa; }
+  50% { color: #fff; }
+}
+
+.timer {
+  animation: pulse 1s infinite;
+}
+
+/* ===== Затемнение фона при активном сигнале ===== */
+#overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(3px);
+  z-index: 5;
+}
+
+/* ===== Контейнер сигнала ===== */
+#signals {
+  position: relative;
+  z-index: 10;
+  animation: fadeIn 0.6s ease;
+  padding-bottom: 40px;
+}
+
+/* ===== Футер ===== */
+footer {
+  margin-top: 15px;
+  font-size: 12px;
+  color: #a66;
+  opacity: 0.7;
+}
+
 /* ===== Мобильная адаптация ===== */
-@media(max-width:480px) {
-  #tv_chart_container {
-    height: 190px;
-    border-radius: 10px;
-  }
-  h1 { font-size: 20px; }
-  #signalDisplay { font-size: 17px; }
+@media (max-width: 480px) {
+  .header h1 { font-size: 22px; }
+  #tv_chart_container { height: 190px; width: 90%; }
+  button { width: 140px; font-size: 15px; }
 }
 </style>
 </head>
 <body>
 
-<h1>🐶 DOG SIGNALS</h1>
-
-<!-- ===== Вход ===== -->
-<div id="loginDiv">
-  <p>Напишите <strong>@gptdog_tr</strong> в Telegram и введите код:</p>
-  <input type="text" id="codeInput" placeholder="Введите код">
-  <br>
-  <button id="loginBtn">Войти</button>
-  <p id="status"></p>
+<div class="header">
+  <h1>🐶 DOG SIGNALS</h1>
 </div>
 
-<!-- ===== Сигналы ===== -->
-<div id="signals">
-  <div id="tv_chart_container"></div>
-  <div id="signalDisplay"></div>
+<div id="overlay"></div>
 
+<div id="signals">
   <div class="controls">
     <select id="pairSelect">
       <option>EUR/USD</option>
@@ -156,37 +176,22 @@ select {
     </select>
   </div>
 
-  <button id="getSignalBtn">🔥 Отримати новий сигнал</button>
-  <button id="resetSignalBtn" disabled>Скинути сигнал</button>
+  <div class="controls">
+    <button id="getSignalBtn">🔥 Отримати сигнал</button>
+    <button id="resetSignalBtn" disabled>Скинути сигнал</button>
+  </div>
+
+  <div id="signalDisplay"></div>
+  <div id="tv_chart_container"></div>
+
+  <footer>© 2025 DOG Signals | Powered by Pocket Option</footer>
 </div>
 
 <script src="https://s3.tradingview.com/tv.js"></script>
 <script>
-// ===== Вход =====
-const loginBtn = document.getElementById('loginBtn');
-const codeInput = document.getElementById('codeInput');
-const status = document.getElementById('status');
-const loginDiv = document.getElementById('loginDiv');
-const signalsDiv = document.getElementById('signals');
-
-loginBtn.onclick = () => {
-  const code = codeInput.value.trim();
-  if(code === '20025') {
-    status.style.color = '#4ade80';
-    status.innerText = '✅ Доступ открыт! Загружаем сигналы...';
-    setTimeout(()=>{
-      loginDiv.style.display = 'none';
-      signalsDiv.style.display = 'block';
-    }, 800);
-  } else {
-    status.style.color = '#ef4444';
-    status.innerText = '❌ Неверный код. Попробуйте снова.';
-  }
-};
-
-// ===== Сигналы =====
 let timerInterval = null;
 let tvWidget = null;
+const overlay = document.getElementById('overlay');
 
 function tvSymbolFromPair(pair) {
   return `FX:${pair.replace('/','').toUpperCase()}`;
@@ -205,26 +210,28 @@ function loadTradingView(pair, tf) {
   try {
     tvWidget = new TradingView.widget({
       container_id: "tv_chart_container",
-      symbol: symbol,
-      interval: interval,
+      symbol,
+      interval,
       timezone: "Etc/UTC",
       theme: "dark",
       style: "1",
       locale: "ru",
       allow_symbol_change: false,
-      hide_top_toolbar: true,
-      hide_legend: true,
-      enable_publishing: false,
-      withdateranges: false,
-      hide_side_toolbar: true
+      hide_top_toolbar:true,
+      hide_legend:true,
+      enable_publishing:false,
+      withdateranges:false,
+      hide_side_toolbar:true
     });
-  } catch(e){ container.innerHTML = '⚠️ Не удалось загрузить график'; }
+  } catch(e){
+    container.innerHTML = '⚠️ Не удалось загрузить график';
+  }
 }
 
 function getRandomSignal() {
   const entries = ["UP ↑", "DOWN ↓"];
   const entry = entries[Math.floor(Math.random()*entries.length)];
-  return { entry, duration:60 };
+  return { entry, duration:180 };
 }
 
 document.getElementById("getSignalBtn").onclick = () => {
@@ -238,6 +245,7 @@ document.getElementById("getSignalBtn").onclick = () => {
   document.getElementById("pairSelect").disabled = true;
   document.getElementById("tfSelect").disabled = true;
 
+  overlay.style.display = 'block';
   display.innerHTML = '⏳ Генерация сигнала...';
 
   setTimeout(()=>{ startSignal(signal, pair, tf); }, 1000);
@@ -251,28 +259,32 @@ document.getElementById("resetSignalBtn").onclick = () => {
   document.getElementById("pairSelect").disabled = false;
   document.getElementById("tfSelect").disabled = false;
   document.getElementById("resetSignalBtn").disabled = true;
+  overlay.style.display = 'none';
 };
 
 function startSignal(signal, pair, tf) {
   const display = document.getElementById("signalDisplay");
-  const endTime = Date.now() + signal.duration*1000;
+  const endTime = Date.now() + signal.duration * 1000;
 
   function tick() {
     const remaining = Math.max(0, Math.ceil((endTime - Date.now())/1000));
-    if(remaining <=0){
+    const mins = Math.floor(remaining / 60);
+    const secs = remaining % 60;
+
+    if(remaining <= 0) {
       clearInterval(timerInterval);
+      overlay.style.display = 'none';
       const results = ['+','-','↺'];
       const r = results[Math.floor(Math.random()*results.length)];
       display.innerHTML = `
         <div>Пара: ${pair} · TF: ${tf}</div>
-        <div>Точка входу: ${signal.entry}</div>
+        <div>Сигнал: ${signal.entry}</div>
         <div>${r==='+'?'<span style="color:#4ade80">✅ +</span>':r==='-'?'<span style="color:#ef4444">❌ −</span>':'↺ (повернення)'}</div>
       `;
     } else {
       display.innerHTML = `
-        <div>Пара: ${pair} · TF: ${tf}</div>
-        <div>Точка входу: ${signal.entry}</div>
-        <div>Таймер: 00:${remaining<10?'0'+remaining:remaining}</div>
+        <div>Сигнал: <b>${signal.entry}</b></div>
+        <div class="timer">Таймер: ${mins}:${secs < 10 ? '0' + secs : secs}</div>
       `;
     }
   }
