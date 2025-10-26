@@ -3,380 +3,212 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🐶 DOG SIGNALS</title>
+<title>🐶 DOG SIGNALS PRO</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 body {
   font-family: "Inter", sans-serif;
   background: radial-gradient(circle at top, #1a0000 0%, #000 90%);
   color: #fff;
-  text-align: center;
-  margin: 0;
-  padding: 0;
-  overflow-y: auto;
-  transition: background 0.8s ease;
+  margin:0;
+  text-align:center;
+  overflow-x:hidden;
 }
 
 /* ===== Заголовок ===== */
 .header {
-  background: linear-gradient(180deg, #220000, transparent);
-  padding: 18px 0 10px;
-  text-align: center;
-  box-shadow: 0 0 25px #ff000020;
+  padding: 15px 0;
+  text-align:center;
+  color:#ff3b3b;
+  font-size:26px;
+  font-weight:700;
+  text-shadow:0 0 20px #ff000099;
   animation: fadeIn 1s ease;
 }
-.header h1 {
-  color: #ff3b3b;
-  font-size: 26px;
-  font-weight: 700;
-  margin: 0;
-  text-shadow: 0 0 20px #ff000099;
-}
 
-/* ===== Кнопки ===== */
-button {
-  border: none;
-  border-radius: 10px;
-  font-size: 16px;
-  font-weight: 500;
-  padding: 12px 0;
-  width: 160px;
-  color: #fff;
-  background: linear-gradient(180deg, #ff3b3b, #b30000);
-  box-shadow: 0 0 10px #ff000040;
-  transition: 0.25s ease;
-  cursor: pointer;
-}
-
-button:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 18px #ff000060;
-}
-
-button:disabled {
-  opacity: 0.5;
-  background: #330000;
-  cursor: not-allowed;
-}
-
-/* ===== Контейнер кнопок ===== */
-.controls {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  margin: 12px auto 18px;
-  flex-wrap: wrap;
-}
-
-/* ===== Селекты ===== */
+/* ===== Контролы ===== */
+.controls { display:flex; justify-content:center; gap:12px; margin:12px auto; flex-wrap:wrap;}
 select {
-  background: #1a0000;
-  border: 1px solid #330000;
-  border-radius: 8px;
-  color: #ffcccc;
-  padding: 8px 12px;
-  font-size: 15px;
-  transition: 0.3s;
+  background:#1a0000;
+  border:1px solid #330000;
+  border-radius:8px;
+  color:#ffcccc;
+  padding:8px 12px;
+  font-size:15px;
 }
-select:hover {
-  box-shadow: 0 0 10px #ff000040;
+button {
+  border:none;
+  border-radius:10px;
+  font-size:16px;
+  padding:10px 0;
+  width:160px;
+  color:#fff;
+  background: linear-gradient(180deg, #ff3b3b, #b30000);
+  box-shadow:0 0 10px #ff000040;
+  cursor:pointer;
+  transition:0.3s;
 }
-
-/* ===== График ===== */
-#tv_chart_container {
-  width: 94%;
-  max-width: 420px;
-  height: 320px;
-  margin: 10px auto 30px;
-  border-radius: 10px;
-  background: #080000;
-  border: 1px solid #330000;
-  box-shadow: 0 0 25px #ff000015;
-  overflow: hidden;
-  position: relative;
-  padding-bottom: 20px;
-  animation: fadeIn 1s ease;
-}
-
-/* ===== Развернутый график ===== */
-#tv_chart_container.fullscreen {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-  width: 100%;
-  height: 100%;
-  max-width: none;
-  border-radius: 0;
-  background: #000;
-  padding: 0;
-}
-#tv_chart_container.fullscreen::after {
-  content: "✖";
-  position: absolute;
-  top: 12px;
-  right: 16px;
-  font-size: 28px;
-  color: #fff;
-  cursor: pointer;
-  z-index: 1001;
-}
-
-/* ===== Кнопка "Развернуть график" ===== */
-#expandChartBtn {
-  display: block;
-  margin: -20px auto 30px;
-  background: #222;
-  border: 1px solid #444;
-  width: 180px;
-  font-size: 15px;
-}
+button:hover { transform:scale(1.05); box-shadow:0 0 18px #ff000060;}
+button:disabled { opacity:0.5; cursor:not-allowed; }
 
 /* ===== Сигнал ===== */
 #signalDisplay {
-  font-size: 18px;
-  margin: 15px 0;
-  text-shadow: 0 0 8px #ff000040;
-  animation: fadeIn 0.6s ease;
-  min-height: 70px;
+  font-size:20px;
+  margin:15px 0;
+  min-height:60px;
+  text-shadow:0 0 15px #ff000088;
+  transition: all 0.6s ease;
 }
+.signal.up { color:#ff5050; text-shadow:0 0 25px #ff5050aa; animation:blinkUp 1s infinite;}
+.signal.down { color:#ff2222; text-shadow:0 0 25px #ff2222aa; animation:blinkDown 1s infinite;}
 
-/* ===== Анимации сигналов ===== */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+@keyframes fadeIn { from {opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
+@keyframes blinkUp { 0%,100%{color:#ff8888;text-shadow:0 0 25px #ff5050;}50%{color:#fff;} }
+@keyframes blinkDown {0%,100%{color:#ff2222;text-shadow:0 0 25px #ff2222;}50%{color:#fff;}}
 
-@keyframes pulse {
-  0%,100% { color: #ffaaaa; }
-  50% { color: #fff; }
-}
+/* ===== График ===== */
+#chartContainer {width:94%; max-width:500px; height:350px; margin:0 auto; background:#080000; border:1px solid #330000; border-radius:10px; box-shadow:0 0 25px #ff000015; animation:fadeIn 1s ease; }
 
-@keyframes blinkUp {
-  0%,100% { color:#4ade80; text-shadow: 0 0 15px #22ff22; }
-  50% { color:#fff; text-shadow: 0 0 5px #fff; }
-}
+/* ===== Footer ===== */
+footer { margin-top:15px; font-size:12px; color:#a66; opacity:0.7; }
 
-@keyframes blinkDown {
-  0%,100% { color:#ef4444; text-shadow: 0 0 15px #ff2222; }
-  50% { color:#fff; text-shadow: 0 0 5px #fff; }
-}
-
-.timer {
-  animation: pulse 1s infinite;
-}
-
-/* ===== Затемнение фона ===== */
-#overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.65);
-  backdrop-filter: blur(3px);
-  z-index: 5;
-}
-
-/* ===== Основной блок ===== */
-#signals {
-  position: relative;
-  z-index: 10;
-  animation: fadeIn 0.6s ease;
-  padding-bottom: 60px;
-}
-
-/* ===== Футер ===== */
-footer {
-  margin-top: 15px;
-  font-size: 12px;
-  color: #a66;
-  opacity: 0.7;
-  animation: fadeIn 1s ease;
-}
-
-/* ===== Мобильная адаптация ===== */
-@media (max-width: 480px) {
-  .header h1 { font-size: 22px; }
-  #tv_chart_container { height: 290px; width: 90%; }
-  button { width: 140px; font-size: 15px; }
-}
 </style>
 </head>
 <body>
 
-<div class="header">
-  <h1>🐶 DOG SIGNALS</h1>
+<div class="header">🐶 DOG SIGNALS PRO</div>
+
+<div class="controls">
+  <select id="pairSelect">
+    <option>EUR/USD</option>
+    <option>GBP/USD</option>
+    <option>USD/JPY</option>
+    <option>AUD/USD</option>
+  </select>
+  <select id="tfSelect">
+    <option value="1m">1M</option>
+    <option value="3m">3M</option>
+    <option value="5m">5M</option>
+  </select>
 </div>
 
-<div id="overlay"></div>
-
-<div id="signals">
-  <div class="controls">
-    <select id="pairSelect">
-      <option>EUR/USD</option>
-      <option>GBP/USD</option>
-      <option>USD/JPY</option>
-      <option>USD/CHF</option>
-      <option>AUD/USD</option>
-      <option>NZD/USD</option>
-      <option>EUR/JPY</option>
-      <option>GBP/JPY</option>
-      <option>EUR/GBP</option>
-    </select>
-
-    <select id="tfSelect">
-      <option value="1m">1M</option>
-      <option value="3m">3M</option>
-      <option value="5m">5M</option>
-      <option value="7m">7M</option>
-    </select>
-  </div>
-
-  <div class="controls">
-    <button id="getSignalBtn">🔥 Отримати сигнал</button>
-    <button id="resetSignalBtn" disabled>Скинути сигнал</button>
-  </div>
-
-  <div id="signalDisplay"></div>
-  <div id="tv_chart_container"></div>
-  <button id="expandChartBtn">📈 Развернуть график</button>
-
-  <footer>© 2025 DOG Signals | Powered by Pocket Option</footer>
+<div class="controls">
+  <button id="getSignalBtn">🔥 Получить сигнал</button>
+  <button id="resetBtn" disabled>Сбросить</button>
 </div>
 
-<script src="https://s3.tradingview.com/tv.js"></script>
+<div id="signalDisplay"></div>
+<div id="chartContainer"><canvas id="chart"></canvas></div>
+
+<footer>© 2025 DOG Signals | Powered by Pocket Option</footer>
+
 <script>
-let timerInterval = null;
-let tvWidget = null;
-const overlay = document.getElementById('overlay');
-const chartContainer = document.getElementById('tv_chart_container');
-const expandBtn = document.getElementById('expandChartBtn');
+const ctx = document.getElementById('chart').getContext('2d');
+let chart = null;
+let timer = null;
 
-function tvSymbolFromPair(pair) {
-  return `FX:${pair.replace('/','').toUpperCase()}`;
-}
-
-function tvIntervalFromTF(tf) {
-  const map = { '1m':'1', '3m':'3', '5m':'5', '7m':'7' };
-  return map[tf] || '1';
-}
-
-function tfToSeconds(tf) {
-  const num = parseInt(tf);
-  return num * 60;
-}
-
-function loadTradingView(pair, tf) {
-  const symbol = tvSymbolFromPair(pair);
-  const interval = tvIntervalFromTF(tf);
-  const container = document.getElementById("tv_chart_container");
-  container.innerHTML = '';
-  try {
-    tvWidget = new TradingView.widget({
-      container_id: "tv_chart_container",
-      symbol,
-      interval,
-      timezone: "Etc/UTC",
-      theme: "dark",
-      style: "1",
-      locale: "ru",
-      allow_symbol_change: false,
-      hide_top_toolbar:true,
-      hide_legend:true,
-      enable_publishing:false,
-      withdateranges:false,
-      hide_side_toolbar:true
-    });
-  } catch(e){
-    container.innerHTML = '⚠️ Не удалось загрузить график';
+function generateData(points=50){
+  const data = [];
+  let price = 100;
+  for(let i=0;i<points;i++){
+    price += (Math.random()-0.5)*2;
+    data.push(Number(price.toFixed(2)));
   }
+  return data;
 }
 
-/* ===== Генерация сигнала ===== */
-function getRandomSignal() {
-  const entries = ["UP ↑", "DOWN ↓"];
-  const entry = entries[Math.floor(Math.random()*entries.length)];
-  const accuracy = (70 + Math.random()*25).toFixed(1);
-  return { entry, accuracy };
+function calculateEMA(data, period){
+  const k = 2/(period+1);
+  let ema = [data[0]];
+  for(let i=1;i<data.length;i++){
+    ema.push(data[i]*k + ema[i-1]*(1-k));
+  }
+  return ema;
 }
 
-/* ===== Звуки ===== */
-const soundStart = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
-const soundEnd = new Audio("https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg");
+function calculateRSI(data, period=14){
+  let gains=[], losses=[];
+  for(let i=1;i<data.length;i++){
+    const diff = data[i]-data[i-1];
+    gains.push(diff>0?diff:0);
+    losses.push(diff<0?-diff:0);
+  }
+  let rsi=[]; 
+  for(let i=period;i<gains.length;i++){
+    const avgGain = gains.slice(i-period,i).reduce((a,b)=>a+b)/period;
+    const avgLoss = losses.slice(i-period,i).reduce((a,b)=>a+b)/period;
+    const RS = avgLoss===0?100:avgGain/avgLoss;
+    rsi.push(100 - 100/(1+RS));
+  }
+  while(rsi.length<data.length) rsi.unshift(50);
+  return rsi;
+}
 
-document.getElementById("getSignalBtn").onclick = () => {
-  const pair = document.getElementById("pairSelect").value;
-  const tf = document.getElementById("tfSelect").value;
-  const signal = getRandomSignal();
-  const display = document.getElementById("signalDisplay");
+function calculateMACD(data, short=12,long=26,signal=9){
+  const emaShort = calculateEMA(data,short);
+  const emaLong = calculateEMA(data,long);
+  const macd = emaShort.map((v,i)=>v - emaLong[i]);
+  const signalLine = calculateEMA(macd,signal);
+  return {macd,signalLine};
+}
 
-  document.getElementById("getSignalBtn").disabled = true;
-  document.getElementById("resetSignalBtn").disabled = false;
-  document.getElementById("pairSelect").disabled = true;
-  document.getElementById("tfSelect").disabled = true;
+function generateSignal(latestPrice,rsi,ema){
+  if(rsi[rsi.length-1]<30 && latestPrice<ema[ema.length-1]) return '📈 Вверх';
+  if(rsi[rsi.length-1]>70 && latestPrice>ema[ema.length-1]) return '📉 Вниз';
+  return '⏸ Ждем';
+}
 
-  overlay.style.display = 'block';
-  display.innerHTML = '⏳ Генерация сигнала...';
-  soundStart.play();
-
-  setTimeout(()=>{ startSignal(signal, pair, tf); }, 1000);
-};
-
-document.getElementById("resetSignalBtn").onclick = () => {
-  clearInterval(timerInterval);
-  document.getElementById("signalDisplay").innerHTML = '';
-  document.getElementById("tv_chart_container").innerHTML = '';
-  document.getElementById("getSignalBtn").disabled = false;
-  document.getElementById("pairSelect").disabled = false;
-  document.getElementById("tfSelect").disabled = false;
-  document.getElementById("resetSignalBtn").disabled = true;
-  overlay.style.display = 'none';
-};
-
-function startSignal(signal, pair, tf) {
-  const display = document.getElementById("signalDisplay");
-  const duration = tfToSeconds(tf);
-  const endTime = Date.now() + duration * 1000;
-
-  function tick() {
-    const remaining = Math.max(0, Math.ceil((endTime - Date.now())/1000));
-    const mins = Math.floor(remaining / 60);
-    const secs = remaining % 60;
-
-    if(remaining <= 0) {
-      clearInterval(timerInterval);
-      overlay.style.display = 'none';
-      const results = ['+','-','↺'];
-      const r = results[Math.floor(Math.random()*results.length)];
-      soundEnd.play();
-      display.innerHTML = `
-        <div>Пара: ${pair} · TF: ${tf}</div>
-        <div>Сигнал: ${signal.entry}</div>
-        <div>Точність сигналу: ${signal.accuracy}%</div>
-        <div>${r==='+'?'<span style="color:#4ade80">✅ +</span>':r==='-'?'<span style="color:#ef4444">❌ −</span>':'↺ (повернення)'}</div>
-      `;
-    } else {
-      const anim = signal.entry.includes("UP") ? "blinkUp" : "blinkDown";
-      display.innerHTML = `
-        <div style="font-size:22px; font-weight:600; animation:${anim} 1s infinite;">${signal.entry}</div>
-        <div>Точність сигналу: ${signal.accuracy}%</div>
-        <div class="timer">Таймер: ${mins}:${secs < 10 ? '0' + secs : secs}</div>
-      `;
+function renderChart(prices){
+  const ema12 = calculateEMA(prices,12);
+  const rsi = calculateRSI(prices,14);
+  const macdObj = calculateMACD(prices);
+  
+  if(chart) chart.destroy();
+  
+  chart = new Chart(ctx,{
+    type:'line',
+    data:{
+      labels:prices.map((v,i)=>i+1),
+      datasets:[
+        {label:'Price', data:prices, borderColor:'#ff3b3b', borderWidth:2, fill:false},
+        {label:'EMA12', data:ema12, borderColor:'#ffaa00', borderWidth:1.5, fill:false},
+        {label:'RSI', data:rsi, borderColor:'#22ff22', borderWidth:1, fill:false, yAxisID:'y2'},
+        {label:'MACD', data:macdObj.macd, borderColor:'#4444ff', borderWidth:1, fill:false, yAxisID:'y2'},
+      ]
+    },
+    options:{
+      responsive:true,
+      plugins:{legend:{labels:{color:'#fff'}}},
+      scales:{
+        x:{ ticks:{color:'#fff'} },
+        y:{ ticks:{color:'#fff'} },
+        y2:{ type:'linear', position:'right', ticks:{color:'#fff'}}
+      }
     }
-  }
-
-  tick();
-  timerInterval = setInterval(tick, 1000);
-  loadTradingView(pair, tf);
+  });
+  
+  const latestPrice = prices[prices.length-1];
+  const signal = generateSignal(latestPrice,rsi,ema12);
+  const display = document.getElementById('signalDisplay');
+  display.innerText = signal;
+  display.className = 'signal ' + (signal==='📈 Вверх'?'up':signal==='📉 Вниз'?'down':'');
 }
 
-/* ===== Разворачивание графика ===== */
-expandBtn.addEventListener('click', () => {
-  chartContainer.classList.add('fullscreen');
-});
+document.getElementById('getSignalBtn').onclick = ()=>{
+  const data = generateData(50);
+  renderChart(data);
+  document.getElementById('getSignalBtn').disabled = true;
+  document.getElementById('resetBtn').disabled = false;
+};
 
-chartContainer.addEventListener('click', (e) => {
-  if (chartContainer.classList.contains('fullscreen') && e.target === chartContainer) {
-    chartContainer.classList.remove('fullscreen');
-  }
-});
+document.getElementById('resetBtn').onclick = ()=>{
+  if(chart) chart.destroy();
+  document.getElementById('signalDisplay').innerText='';
+  document.getElementById('signalDisplay').className='';
+  document.getElementById('getSignalBtn').disabled=false;
+  document.getElementById('resetBtn').disabled=true;
+};
 </script>
+
 </body>
 </html>
