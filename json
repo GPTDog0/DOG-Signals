@@ -1,4 +1,3 @@
 {
-  "91315879": { "status": "approved", "ref": "ABC123" },
-  "12345678": { "status": "pending", "ref": "XYZ789" }
+  "users": [123456789, 987654321]
 }
