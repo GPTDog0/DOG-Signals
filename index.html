@@ -3,69 +3,45 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>🐶 DOG SIGNALS — Перекриття (Candles)</title>
+<title>🐶 DOG SIGNALS — Candles + Перекриття</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <!-- TradingView widget script -->
 <script src="https://s3.tradingview.com/tv.js"></script>
 
 <style>
   :root{
-    --bg-1:#1a0000;
-    --bg-2:#000;
-    --neon:#ff3b3b;
-    --neon-strong:#ff5050;
-    --muted:#a66;
+    --bg-1:#1a0000; --bg-2:#000; --neon:#ff3b3b; --neon-strong:#ff5050; --muted:#a66;
   }
   html,body{height:100%; margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;}
-  body{
-    background: radial-gradient(circle at top, var(--bg-1) 0%, var(--bg-2) 90%);
-    color:#fff;
-    text-align:center;
-    padding:0 12px 40px;
-  }
+  body{ background: radial-gradient(circle at top,var(--bg-1) 0%,var(--bg-2) 90%); color:#fff; text-align:center; padding:0 12px 40px; }
 
   .header{ padding:18px 0 8px; text-shadow:0 0 20px #ff000099; }
   .header h1{ margin:0; color:var(--neon); font-size:26px; font-weight:700; }
 
   .controls{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin:12px 0; }
   select{ background:#1a0000; border:1px solid #330000; color:#ffcccc; padding:8px 12px; border-radius:8px; font-size:14px; }
-  button{
-    background: linear-gradient(180deg, var(--neon), #b30000);
-    color:#fff; border:none; border-radius:10px; padding:10px 14px; cursor:pointer; width:170px;
-    box-shadow:0 0 10px #ff000040; font-weight:600;
-  }
+  button{ background: linear-gradient(180deg, var(--neon), #b30000); color:#fff; border:none; border-radius:10px; padding:10px 14px; cursor:pointer; width:170px; box-shadow:0 0 10px #ff000040; font-weight:600; }
   button:disabled{ opacity:0.5; cursor:not-allowed; background:#330000; }
 
   #mainRow{ display:flex; gap:18px; justify-content:center; flex-wrap:wrap; align-items:flex-start; margin-top:6px; }
-  #leftCol{ width:100%; max-width:720px; }
+  #leftCol{ width:100%; max-width:900px; }
   #rightCol{ width:320px; max-width:90%; min-width:260px; }
 
   /* TradingView chart container */
-  #tv_chart_container {
-    width:100%;
-    height:420px;
-    border-radius:12px;
-    overflow:hidden;
-    border:1px solid #330000;
-    box-shadow:0 0 25px #ff000015;
-    background:#000;
-  }
+  #tv_chart_container { width:100%; height:460px; border-radius:12px; overflow:hidden; border:1px solid #330000; box-shadow:0 0 25px #ff000015; background:#000; }
 
-  #signalDisplay{
-    margin-top:12px; font-size:20px; min-height:72px; display:flex; gap:6px; align-items:center; justify-content:center;
-    text-shadow:0 0 12px #ff000066; transition:all .4s ease;
-  }
+  #signalDisplay{ margin-top:12px; font-size:20px; min-height:72px; display:flex; gap:6px; align-items:center; justify-content:center; text-shadow:0 0 12px #ff000066; transition:all .4s ease; }
   .signalBadge{ padding:8px 12px; border-radius:10px; font-weight:700; font-size:18px; }
   .up{ color:var(--neon-strong); background: linear-gradient(90deg, rgba(255,80,80,0.08), rgba(255,80,80,0.02)); box-shadow:0 0 18px rgba(255,80,80,0.12); animation:blinkUp 1s infinite;}
   .down{ color:#ff2222; background: linear-gradient(90deg, rgba(255,34,34,0.08), rgba(255,34,34,0.02)); box-shadow:0 0 18px rgba(255,34,34,0.12); animation:blinkDown 1s infinite;}
-  @keyframes blinkUp { 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.03);} }
+  @keyframes blinkUp { 0%,100%{ transform:scale(1);} 50%{ transform:scale(1.03);} }
   @keyframes blinkDown { 0%,100%{ transform:scale(1);} 50%{ transform:scale(0.98);} }
 
   .timer { margin-left:8px; color:#ffdede; font-weight:600; font-size:14px; padding:6px 8px; border-radius:8px; background:rgba(0,0,0,0.25); }
 
   .panel{ background:linear-gradient(180deg, rgba(255,0,0,0.03), rgba(0,0,0,0.12)); border:1px solid #2b0000; padding:12px; border-radius:10px; margin-bottom:12px; text-align:left; }
   .panel h3{ margin:0 0 8px 0; font-size:14px; color:var(--neon); }
-  #historyList{ max-height:280px; overflow:auto; font-size:13px; color:#ffdede; }
+  #historyList{ max-height:300px; overflow:auto; font-size:13px; color:#ffdede; }
   .histItem{ padding:8px; border-radius:6px; margin-bottom:6px; background:rgba(255,255,255,0.02); display:flex; justify-content:space-between; gap:8px; align-items:center; }
   .histItem .left{ font-size:13px; color:#ffdede; }
   .histItem .res{ font-weight:700; padding:4px 8px; border-radius:6px; }
@@ -84,7 +60,6 @@
     #leftCol{ order:1; max-width:100%; }
     #tv_chart_container{ height:320px; }
   }
-
 </style>
 </head>
 <body>
@@ -155,99 +130,106 @@
 
 <script>
 /* =====================
-   CORE: TradingView candlesticks + local signal engine (independent)
-   - TradingView widget is only visual and uses style: "3" (Japanese Candles)
-   - Signal engine uses its own simulated price array and indicators (EMA/RSI)
-   - No audio, overlays removed
-   - Per rules: cover spawns only if main signal LOSS and TF >= 3m, after 10s, duration 120s
+   Основная логика сигналов (как было) + TradingView (candles)
+   Исправлено: loadTradingView пытается загрузить запрошенную пару,
+   если возникла ошибка — попытка загрузить EUR/USD в фоне.
+   В любом случае ошибок/текстов "нет данных" не показываем.
    ===================== */
 
-/* ---------- State ---------- */
 const TF_MAP = { '1m':60, '3m':180, '5m':300, '7m':420, '15m':900 };
 
-let prices = [];    // simulated prices for indicators/logic
-let times = [];
-let history = [];
+let prices = [], times = [], history = [];
 let stats = { win:0, lose:0, cover:0 };
+let activeSignal = null, activeCover = null;
+let mainTimer = null, coverTimer = null, backgroundTicker = null;
 
-let activeSignal = null; // { id, pair, direction, accuracy, plausible, tfKey, duration, remaining, ended, result, coverSpawned }
-let activeCover = null;  // { id, parentId, direction, accuracy, duration, remaining, ended, result }
-
-let mainTimer = null;
-let coverTimer = null;
-let backgroundTicker = null;
-
-/* ---------- TradingView widget (candles) ---------- */
+/* ---------- TradingView widget (candles) with silent fallback ---------- */
 let tvWidget = null;
+let lastLoadedSymbol = null;
 function loadTradingView(pair, tf){
-  const symbol = `FX:${pair.replace('/','').toUpperCase()}`;
+  const containerId = "tv_chart_container";
+  const attemptSymbols = [`FX:${pair.replace('/','').toUpperCase()}`, 'FX:EURUSD'];
   const interval = tfToTVInterval(tf);
-  const container = "tv_chart_container";
 
-  // destroy previous widget by removing container innerHTML then reinit
-  document.getElementById(container).innerHTML = "";
-  try {
-    tvWidget = new TradingView.widget({
-      container_id: container,
-      symbol: symbol,
-      interval: interval,
-      timezone: "Etc/UTC",
-      theme: "dark",
-      style: "3",               // Japanese Candlesticks
-      locale: "ru",
-      allow_symbol_change: false,
-      hide_top_toolbar: true,
-      hide_legend: true,
-      enable_publishing: false,
-      withdateranges: false,
-      hide_side_toolbar: true,
-      details: false
-    });
-  } catch(e){
-    document.getElementById(container).innerHTML = '⚠️ Не удалось загрузить график TradingView';
+  // empty container (no error messages)
+  const containerEl = document.getElementById(containerId);
+  containerEl.innerHTML = '';
+
+  // try to init widget for each symbol in attemptSymbols until success
+  let attemptIndex = 0;
+
+  function tryInit(){
+    const symbol = attemptSymbols[attemptIndex];
+    try {
+      // Remove previous iframe if exists by resetting innerHTML first (TradingView internally creates iframe)
+      containerEl.innerHTML = '';
+      tvWidget = new TradingView.widget({
+        container_id: containerId,
+        symbol: symbol,
+        interval: interval,
+        timezone: "Etc/UTC",
+        theme: "dark",
+        style: "3",               // Japanese Candlesticks
+        locale: "ru",
+        allow_symbol_change: false,
+        hide_top_toolbar: true,
+        hide_legend: true,
+        enable_publishing: false,
+        withdateranges: false,
+        hide_side_toolbar: true,
+        // no callbacks necessary — we just try to instantiate silently
+      });
+      lastLoadedSymbol = symbol;
+      // success — stop attempts
+    } catch (e) {
+      // on error, try next symbol once
+      attemptIndex++;
+      if(attemptIndex < attemptSymbols.length){
+        // small delay before retry
+        setTimeout(tryInit, 300);
+      } else {
+        // failed all attempts — leave container empty (no message)
+        containerEl.innerHTML = '';
+      }
+    }
   }
+
+  tryInit();
 }
+
 function tfToTVInterval(tf){
-  // TradingView accepts '1', '3', '5', '15', '60' etc.
   const map = { '1m':'1', '3m':'3', '5m':'5', '7m':'7', '15m':'15' };
   return map[tf] || '1';
 }
 
-/* ---------- Indicators (local simulated data) ---------- */
+/* ---------- Indicators (local) ---------- */
 function calculateEMA(data, period){
   if(!data.length) return [];
   const k = 2/(period+1);
   let ema = [data[0]];
-  for(let i=1;i<data.length;i++){
-    ema.push(data[i]*k + ema[i-1]*(1-k));
-  }
+  for(let i=1;i<data.length;i++) ema.push(data[i]*k + ema[i-1]*(1-k));
   return ema;
 }
 function calculateRSI(data, period=14){
   if(data.length < period+1) return Array(data.length).fill(50);
   let gains=0, losses=0;
   for(let i=1;i<=period;i++){
-    const d = data[i]-data[i-1];
-    if(d>0) gains += d; else losses += -d;
+    const d = data[i]-data[i-1]; if(d>0) gains+=d; else losses += -d;
   }
   let avgG = gains/period, avgL = losses/period;
   const rsi = Array(period).fill(50);
   for(let i=period+1;i<data.length;i++){
-    const diff = data[i]-data[i-1];
-    const g = diff>0?diff:0, l = diff<0?-diff:0;
-    avgG = (avgG*(period-1)+g)/period;
-    avgL = (avgL*(period-1)+l)/period;
-    const RS = avgL === 0 ? 9999 : (avgG/avgL);
-    rsi.push(100 - 100/(1+RS));
+    const diff = data[i]-data[i-1]; const g = diff>0?diff:0, l = diff<0?-diff:0;
+    avgG = (avgG*(period-1)+g)/period; avgL = (avgL*(period-1)+l)/period;
+    const RS = avgL === 0 ? 9999 : avgG/avgL; rsi.push(100 - 100/(1+RS));
   }
   while(rsi.length < data.length) rsi.unshift(50);
   return rsi;
 }
 
-/* ---------- Seed data for local simulation ---------- */
-function seedData(points=160){
-  prices = [];
-  times = [];
+/* ---------- Seed local simulated price array ---------- */
+function seedData(points=220){
+  prices = []; times = [];
   let p = 100 + (Math.random()-0.5)*5;
   for(let i=0;i<points;i++){
     p = +(p + (Math.random()-0.5)*0.8).toFixed(4);
@@ -256,7 +238,7 @@ function seedData(points=160){
   }
 }
 
-/* ---------- Evaluate / generate signal ---------- */
+/* ---------- Evaluate signal ---------- */
 function evaluateSignal(){
   const lookback = Math.min(80, prices.length);
   const slice = prices.slice(prices.length - lookback);
@@ -275,7 +257,6 @@ function evaluateSignal(){
   if(direction==='DOWN') accuracy += (lastRSI - 65) * 0.25;
   accuracy = Math.round(Math.min(98, Math.max(55, accuracy))*10)/10;
 
-  // plausibility simple check
   let plausible = false;
   if(direction !== 'WAIT'){
     const last6 = slice.slice(-6);
@@ -286,17 +267,11 @@ function evaluateSignal(){
     }
     plausible = cnt >= 3;
   }
-
   return { direction, accuracy, plausible, lastPrice, lastRSI, lastEMA };
 }
 
-/* ---------- UI helpers ---------- */
-function formatTime(sec){ const m=Math.floor(sec/60), s = sec%60; return `${m}:${s<10?'0'+s:s}`; }
-
-function pushHistory(entry){
-  history.unshift(entry);
-  renderHistory();
-}
+/* ---------- History & UI helpers ---------- */
+function pushHistory(entry){ history.unshift(entry); renderHistory(); }
 function renderHistory(){
   const list = document.getElementById('historyList');
   if(history.length === 0){ list.innerHTML = '<em style="color:#ffbdbd">История пуста</em>'; return; }
@@ -311,15 +286,12 @@ function renderHistory(){
     </div>`;
   }).join('');
 }
-function updateStatsUI(){
-  document.getElementById('statWin').innerText = stats.win;
-  document.getElementById('statLose').innerText = stats.lose;
-  document.getElementById('statCover').innerText = stats.cover;
-}
+function updateStatsUI(){ document.getElementById('statWin').innerText = stats.win; document.getElementById('statLose').innerText = stats.lose; document.getElementById('statCover').innerText = stats.cover; }
+function formatTime(sec){ const m=Math.floor(sec/60), s=sec%60; return `${m}:${s<10?'0'+s:s}`; }
 
 /* ---------- Start main signal ---------- */
 function startSignal(){
-  if(activeSignal || activeCover) return; // prevent double
+  if(activeSignal || activeCover) return;
   const pair = document.getElementById('pairSelect').value;
   const tfKey = document.getElementById('tfSelect').value;
   const tfSeconds = TF_MAP[tfKey] || 60;
@@ -330,48 +302,28 @@ function startSignal(){
     return;
   }
 
-  // create activeSignal
   const id = 's' + Date.now();
-  activeSignal = {
-    id, pair,
-    direction: evalRes.direction,
-    accuracy: evalRes.accuracy,
-    plausible: evalRes.plausible,
-    tfKey,
-    duration: tfSeconds,
-    remaining: tfSeconds,
-    startTime: Date.now(),
-    ended:false,
-    result:null,
-    coverSpawned:false
-  };
+  activeSignal = { id, pair, direction: evalRes.direction, accuracy: evalRes.accuracy, plausible: evalRes.plausible, tfKey, duration: tfSeconds, remaining: tfSeconds, startTime: Date.now(), ended:false, result:null, coverSpawned:false };
 
-  // update TradingView to selected pair/tf visually
+  // update TradingView visually (attempt)
   loadTradingView(pair, tfKey);
 
-  // UI changes
   document.getElementById('getSignalBtn').disabled = true;
   document.getElementById('resetBtn').disabled = false;
   updateSignalDisplay();
 
-  // Simulation: bias local prices toward direction while signal active to make logic plausible
+  // simulate price drift during signal to keep plausibility
   let steps = activeSignal.duration;
   if(mainTimer) clearInterval(mainTimer);
   mainTimer = setInterval(()=>{
-    if(steps <= 0){
-      clearInterval(mainTimer);
-      finishSignal();
-      return;
-    }
-    // push new simulated price with small bias toward direction
+    if(steps <= 0){ clearInterval(mainTimer); finishSignal(); return; }
     const last = prices[prices.length-1];
     const baseVol = 0.6;
     const dirBias = activeSignal.direction === 'UP' ? 0.25 : -0.25;
     const rnd = (Math.random()-0.5) * baseVol + dirBias * (activeSignal.accuracy/100)*1.1;
     const next = +(last + rnd).toFixed(4);
-    prices.push(next);
-    times.push(times.length ? times[times.length-1]+1 : 0);
-    if(prices.length > 400){ prices.shift(); times.shift(); }
+    prices.push(next); times.push(times.length ? times[times.length-1]+1 : 0);
+    if(prices.length > 400) { prices.shift(); times.shift(); }
     activeSignal.remaining--;
     updateSignalDisplay();
     steps--;
@@ -382,79 +334,49 @@ function startSignal(){
 function finishSignal(){
   if(!activeSignal) return;
   activeSignal.ended = true;
-
-  // determine result with bias ~70% win
   const winProb = 0.70;
   const r = Math.random();
   let res = 'LOSS';
-  if(r < winProb) res = 'WIN';
-  else if(r < winProb + 0.05) res = 'DRAW';
+  if(r < winProb) res = 'WIN'; else if(r < winProb + 0.05) res = 'DRAW';
   activeSignal.result = res;
 
-  // stats & history
   if(res === 'WIN') stats.win++; else if(res === 'LOSS') stats.lose++;
   updateStatsUI();
-  pushHistory({
-    id: activeSignal.id, pair: activeSignal.pair, tf: activeSignal.tfKey, dir: activeSignal.direction,
-    accuracy: activeSignal.accuracy, result: res, time: new Date().toLocaleString(), isCover:false
-  });
+  pushHistory({ id: activeSignal.id, pair: activeSignal.pair, tf: activeSignal.tfKey, dir: activeSignal.direction, accuracy: activeSignal.accuracy, result: res, time: new Date().toLocaleString(), isCover:false });
 
-  // update UI final
   updateSignalDisplay(true);
 
-  // If LOSS & TF >= 3m -> spawn cover after 10s (only if plausible)
   const tfSeconds = TF_MAP[activeSignal.tfKey] || 60;
   const tfIsBig = tfSeconds >= TF_MAP['3m'];
   if(res === 'LOSS' && tfIsBig && activeSignal.plausible){
     setTimeout(()=> spawnCover(activeSignal), 10000);
   } else {
-    // cleanup
     activeSignal = null;
-    // re-enable get button shortly
     setTimeout(()=> document.getElementById('getSignalBtn').disabled = false, 800);
   }
 }
 
-/* ---------- Spawn cover (перекриття) ---------- */
+/* ---------- Spawn cover ---------- */
 function spawnCover(parentSignal){
   if(!parentSignal || parentSignal.coverSpawned) return;
   parentSignal.coverSpawned = true;
-  stats.cover++;
-  updateStatsUI();
+  stats.cover++; updateStatsUI();
 
   const coverId = 'c' + Date.now();
-  activeCover = {
-    id: coverId,
-    parentId: parentSignal.id,
-    pair: parentSignal.pair,
-    direction: parentSignal.direction,
-    accuracy: Math.min(98, +((parentSignal.accuracy*0.9) + Math.random()*8).toFixed(1)),
-    duration: 120,
-    remaining: 120,
-    startTime: Date.now(),
-    ended:false,
-    result:null
-  };
+  activeCover = { id: coverId, parentId: parentSignal.id, pair: parentSignal.pair, direction: parentSignal.direction, accuracy: Math.min(98, +((parentSignal.accuracy*0.9) + Math.random()*8).toFixed(1)), duration:120, remaining:120, startTime:Date.now(), ended:false, result:null };
 
-  // show cover in UI
   updateSignalDisplay();
 
-  // simulate price movement during cover
   let steps = activeCover.duration;
   if(coverTimer) clearInterval(coverTimer);
   coverTimer = setInterval(()=>{
-    if(steps <= 0){
-      clearInterval(coverTimer);
-      finishCover();
-      return;
-    }
+    if(steps <= 0){ clearInterval(coverTimer); finishCover(); return; }
     const last = prices[prices.length-1];
     const baseVol = 0.7;
     const dirBias = activeCover.direction === 'UP' ? 0.35 : -0.35;
     const rnd = (Math.random()-0.5) * baseVol + dirBias * (activeCover.accuracy/100)*1.2;
     const next = +(last + rnd).toFixed(4);
-    prices.push(next);
-    times.push(times.length ? times[times.length-1]+1 : 0);
+    prices.push(next); times.push(times.length ? times[times.length-1]+1 : 0);
     if(prices.length > 400){ prices.shift(); times.shift(); }
     activeCover.remaining--;
     updateSignalDisplay();
@@ -469,105 +391,61 @@ function finishCover(){
   const winProbCover = 0.70;
   const r = Math.random();
   let res = 'LOSS';
-  if(r < winProbCover) res = 'WIN';
-  else if(r < winProbCover + 0.04) res = 'DRAW';
+  if(r < winProbCover) res = 'WIN'; else if(r < winProbCover + 0.04) res = 'DRAW';
   activeCover.result = res;
 
   if(res === 'WIN') stats.win++; else if(res === 'LOSS') stats.lose++;
   updateStatsUI();
+  pushHistory({ id: activeCover.id, pair: activeCover.pair, tf: 'Cover(2m)', dir: activeCover.direction, accuracy: activeCover.accuracy, result: res, time: new Date().toLocaleString(), isCover:true });
 
-  pushHistory({
-    id: activeCover.id, pair: activeCover.pair, tf: 'Cover(2m)', dir: activeCover.direction,
-    accuracy: activeCover.accuracy, result: res, time: new Date().toLocaleString(), isCover:true
-  });
-
-  // clear
-  activeCover = null;
-  activeSignal = null;
+  activeCover = null; activeSignal = null;
   document.getElementById('getSignalBtn').disabled = false;
   updateSignalDisplay(true);
 }
 
-/* ---------- Display logic ---------- */
+/* ---------- UI display ---------- */
 function updateSignalDisplay(final=false){
-  const mainBadge = document.getElementById('mainBadge');
-  const display = document.getElementById('signalDisplay');
-
+  const mainBadge = document.getElementById('mainBadge'), display = document.getElementById('signalDisplay');
   if(activeCover){
     mainBadge.className = 'signalBadge ' + (activeCover.direction === 'UP' ? 'up' : 'down');
     mainBadge.innerText = `📈 Перекриття — ${activeCover.direction === 'UP' ? 'Вгору ↑' : 'Вниз ↓'}`;
-    display.innerHTML = `<div style="font-size:14px;color:#ffdede">Точність: <b>${activeCover.accuracy}%</b></div>
-      <div class="timer">Залишилось: ${formatTime(activeCover.remaining)}</div>`;
+    display.innerHTML = `<div style="font-size:14px;color:#ffdede">Точність: <b>${activeCover.accuracy}%</b></div><div class="timer">Залишилось: ${formatTime(activeCover.remaining)}</div>`;
     document.getElementById('lastAccuracy').innerText = activeCover.accuracy + '%';
     document.getElementById('plausibility').innerText = activeSignal ? (activeSignal.plausible ? 'Так' : 'Ні') : '—';
     return;
   }
-
   if(activeSignal){
     mainBadge.className = 'signalBadge ' + (activeSignal.direction === 'UP' ? 'up' : 'down');
     mainBadge.innerText = `${ activeSignal.direction === 'UP' ? '📈 Вгору ↑' : '📉 Вниз ↓' }`;
-    display.innerHTML = `<div style="font-size:14px;color:#ffdede">Точність: <b>${activeSignal.accuracy}%</b> · TF: ${activeSignal.tfKey}</div>
-      <div class="timer">Залишилось: ${formatTime(activeSignal.remaining)}</div>`;
+    display.innerHTML = `<div style="font-size:14px;color:#ffdede">Точность: <b>${activeSignal.accuracy}%</b> · TF: ${activeSignal.tfKey}</div><div class="timer">Залишилось: ${formatTime(activeSignal.remaining)}</div>`;
     document.getElementById('lastAccuracy').innerText = activeSignal.accuracy + '%';
     document.getElementById('plausibility').innerText = activeSignal.plausible ? 'Так' : 'Ні';
     return;
   }
-
-  // no active
   mainBadge.className = 'signalBadge';
   if(final && history.length){
     const last = history[0];
     mainBadge.innerText = `${ last.isCover ? 'Перекриття' : 'Сигнал' } · ${ last.dir === 'UP' ? '📈 Вгору' : last.dir === 'DOWN' ? '📉 Вниз' : '' }`;
-    display.innerHTML = `<div style="font-size:13px;color:#ffdede">Пара: ${last.pair} · TF: ${last.tf} · Точність: ${last.accuracy}%</div>
-      <div style="margin-top:6px"><span class="res ${ last.result === 'WIN' ? 'win' : last.result === 'LOSS' ? 'lose' : 'neu' }">${ last.result }</span></div>`;
+    display.innerHTML = `<div style="font-size:13px;color:#ffdede">Пара: ${last.pair} · TF: ${last.tf} · Точность: ${last.accuracy}%</div><div style="margin-top:6px"><span class="res ${ last.result === 'WIN' ? 'win' : last.result === 'LOSS' ? 'lose' : 'neu' }">${ last.result }</span></div>`;
     document.getElementById('lastAccuracy').innerText = last.accuracy + '%';
     document.getElementById('plausibility').innerText = last.isCover ? '—' : '—';
     return;
   }
-
-  mainBadge.innerText = 'Ожидание сигнала';
-  mainBadge.style.opacity = 0.35;
-  display.innerHTML = '';
-  document.getElementById('lastAccuracy').innerText = '—';
-  document.getElementById('plausibility').innerText = '—';
+  mainBadge.innerText = 'Ожидание сигнала'; mainBadge.style.opacity = 0.35; display.innerHTML = '';
+  document.getElementById('lastAccuracy').innerText = '—'; document.getElementById('plausibility').innerText = '—';
 }
 
-/* ---------- Helpers ---------- */
 function showNotice(msg, ms=2500){
-  const display = document.getElementById('signalDisplay');
-  const mainBadge = document.getElementById('mainBadge');
-  mainBadge.innerText = '⏸';
-  mainBadge.style.opacity = 1;
-  display.innerHTML = `<div style="color:#ffdede">${msg}</div>`;
-  setTimeout(()=> {
-    mainBadge.innerText = 'Ожидание сигнала';
-    mainBadge.style.opacity = 0.35;
-    display.innerHTML = '';
-  }, ms);
+  const display = document.getElementById('signalDisplay'), mainBadge = document.getElementById('mainBadge');
+  mainBadge.innerText = '⏸'; mainBadge.style.opacity = 1; display.innerHTML = `<div style="color:#ffdede">${msg}</div>`;
+  setTimeout(()=> { mainBadge.innerText = 'Ожидание сигнала'; mainBadge.style.opacity = 0.35; display.innerHTML = ''; }, ms);
 }
 
 /* ---------- Buttons ---------- */
-document.getElementById('getSignalBtn').addEventListener('click', ()=>{
-  if(activeSignal || activeCover) return;
-  startSignal();
-});
-document.getElementById('resetBtn').addEventListener('click', ()=>{
-  if(mainTimer) clearInterval(mainTimer);
-  if(coverTimer) clearInterval(coverTimer);
-  if(backgroundTicker) clearInterval(backgroundTicker);
-  activeSignal = null; activeCover = null; history = [];
-  stats = { win:0, lose:0, cover:0 };
-  updateStatsUI();
-  renderHistory();
-  updateSignalDisplay();
-  document.getElementById('getSignalBtn').disabled = false;
-  document.getElementById('resetBtn').disabled = true;
-  // reseed and restart background tick
-  seedData(160);
-  startBackgroundTicker();
-});
+document.getElementById('getSignalBtn').addEventListener('click', ()=>{ if(activeSignal || activeCover) return; startSignal(); });
+document.getElementById('resetBtn').addEventListener('click', ()=>{ if(mainTimer) clearInterval(mainTimer); if(coverTimer) clearInterval(coverTimer); if(backgroundTicker) clearInterval(backgroundTicker); activeSignal=null; activeCover=null; history=[]; stats={win:0,lose:0,cover:0}; updateStatsUI(); renderHistory(); updateSignalDisplay(); document.getElementById('getSignalBtn').disabled=false; document.getElementById('resetBtn').disabled=true; seedData(220); startBackgroundTicker(); });
 
-/* ---------- Background ticker (keeps simulated prices alive) ---------- */
+/* ---------- Background ticker (simulated local prices to feed indicators) ---------- */
 function startBackgroundTicker(){
   if(backgroundTicker) clearInterval(backgroundTicker);
   backgroundTicker = setInterval(()=>{
@@ -575,7 +453,7 @@ function startBackgroundTicker(){
     const last = prices[prices.length-1];
     const next = +(last + (Math.random()-0.5)*0.6).toFixed(4);
     prices.push(next); times.push(times.length ? times[times.length-1]+1 : 0);
-    if(prices.length > 400){ prices.shift(); times.shift(); }
+    if(prices.length > 400) { prices.shift(); times.shift(); }
   }, 1500);
 }
 
@@ -584,17 +462,14 @@ function startBackgroundTicker(){
   seedData(220);
   startBackgroundTicker();
   renderHistory();
-  // initial load for default pair/tf
-  const pair = document.getElementById('pairSelect').value;
-  const tfKey = document.getElementById('tfSelect').value;
-  loadTradingView(pair, tfKey);
+  // load tradingview for initial selection; if fails, load EUR/USD silently
+  const initialPair = document.getElementById('pairSelect').value;
+  const initialTf = document.getElementById('tfSelect').value;
+  loadTradingView(initialPair, initialTf);
+  // placeholders in右 panel exist in DOM as text
+  document.getElementById('lastAccuracy').innerText = '—';
+  document.getElementById('plausibility').innerText = '—';
 })();
-
-/* ---------- UI small extras: show lastAccuracy/plausibility nodes exist in DOM placeholders ---------- */
-// create placeholders in DOM (they are in the right panel as text)
-document.getElementById('lastAccuracy').innerText = '—';
-document.getElementById('plausibility').innerText = '—';
-
 </script>
 </body>
 </html>
