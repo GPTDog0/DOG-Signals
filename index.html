@@ -119,6 +119,18 @@ select {
 @keyframes blinkUp { 0%,100% { color:#4ade80; text-shadow: 0 0 15px #22ff22; } 50% { color:#fff; text-shadow:0 0 5px #fff; } }
 @keyframes blinkDown { 0%,100% { color:#ef4444; text-shadow: 0 0 15px #ff2222; } 50% { color:#fff; text-shadow:0 0 5px #fff; } }
 .timer { animation: blinkUp 1s infinite; }
+
+/* Блок авторизации */
+#authBlock {
+  margin-top: 80px;
+}
+#authBlock input {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #330000;
+  background: #1a0000;
+  color: #ffcccc;
+}
 </style>
 </head>
 <body>
@@ -127,7 +139,16 @@ select {
   <h1>🐶 DOG SIGNALS</h1>
 </div>
 
-<div id="signals">
+<!-- 🔒 Блок проверки ключа -->
+<div id="authBlock">
+  <p>Введіть ваш ключ доступу:</p>
+  <input type="text" id="accessKey" placeholder="Введіть ключ...">
+  <button id="checkKeyBtn">✅ Перевірити</button>
+  <p id="authMessage" style="color:#ff4444;margin-top:10px;"></p>
+</div>
+
+<!-- 🔓 Основний контент (спочатку схований) -->
+<div id="signals" style="display:none;">
   <div class="controls">
     <select id="pairSelect">
       <option>EUR/USD</option>
@@ -165,6 +186,32 @@ select {
 
 <script src="https://s3.tradingview.com/tv.js"></script>
 <script>
+// === 🔑 ПРОВЕРКА КЛЮЧА ===
+const VALID_KEY = "DOG2025"; // ← сюда вставляешь новый ключ каждую неделю
+
+document.getElementById("checkKeyBtn").onclick = () => {
+  const key = document.getElementById("accessKey").value.trim();
+  const msg = document.getElementById("authMessage");
+
+  if (key === VALID_KEY) {
+    msg.style.color = "#4ade80";
+    msg.textContent = "✅ Доступ дозволено!";
+    document.getElementById("authBlock").style.display = "none";
+    document.getElementById("signals").style.display = "block";
+    localStorage.setItem("dogsignals_access", "granted");
+  } else {
+    msg.style.color = "#ef4444";
+    msg.textContent = "❌ Невірний ключ!";
+  }
+};
+
+// 🔁 Если ключ уже введён ранее — пускаем сразу
+if (localStorage.getItem("dogsignals_access") === "granted") {
+  document.getElementById("authBlock").style.display = "none";
+  document.getElementById("signals").style.display = "block";
+}
+
+// === Остальной код сигналов ===
 let timerInterval = null;
 let activeSignal = null;
 let tvWidget = null;
@@ -185,7 +232,7 @@ function loadTradingView(pair, tf){
       interval: tvIntervalFromTF(tf),
       timezone: "Etc/UTC",
       theme: "dark",
-      style: 1, // японские свечи
+      style: 1,
       locale: "ru",
       allow_symbol_change: false,
       hide_top_toolbar:true,
@@ -214,7 +261,7 @@ function updateSignalDisplay(){
     <div style="font-size:22px;font-weight:600;animation:${anim} 1s infinite;">
       ${activeSignal.direction==='UP'? '📈 Вверх ↑':'📉 Вниз ↓'}
     </div>
-    <div>Точность: ${activeSignal.accuracy}%</div>
+    <div>Точність: ${activeSignal.accuracy}%</div>
     <div class="timer">Таймер: ${mins}:${secs<10?'0'+secs:secs}</div>
   `;
 }
@@ -239,21 +286,18 @@ document.getElementById("getSignalBtn").onclick=()=>{
       updateSignalDisplay();
     } else {
       clearInterval(timerInterval);
-      // Результат
       const result=['+','-'];
       const r=result[Math.floor(Math.random()*result.length)];
       const display=document.getElementById("signalDisplay");
       display.innerHTML=`
         <div>Пара: ${pair} · TF: ${tf}</div>
         <div>Сигнал: ${activeSignal.direction==='UP'? '📈 Вверх ↑':'📉 Вниз ↓'}</div>
-        <div>Точность: ${activeSignal.accuracy}%</div>
+        <div>Точність: ${activeSignal.accuracy}%</div>
         <div>${r==='+'?'<span style="color:#4ade80">✅ +</span>':'<span style="color:#ef4444">❌ −</span>'}</div>
       `;
-
-      // Перекрытие через 10 секунд если минус и TF>=3
       if(r==='-' && parseInt(tf)>1){
         setTimeout(()=>{
-          const cover=activeSignal.direction; // перекрытие в том же направлении
+          const cover=activeSignal.direction;
           const display=document.getElementById("signalDisplay");
           display.innerHTML+=`<div style="margin-top:10px; font-weight:600;">Перекрытие: ${cover==='UP'?'📈 Вверх ↑':'📉 Вниз ↓'} на 2 минуты</div>`;
         }, 10000);
