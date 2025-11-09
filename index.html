@@ -109,7 +109,7 @@ select {
 }
 
 /* Сигнал */
-#signalDisplay {
+#signalDisplay, #signalDisplayNoChart {
   font-size: 18px;
   margin: 15px 0;
   text-shadow: 0 0 8px #ff000040;
@@ -121,15 +121,36 @@ select {
 .timer { animation: blinkUp 1s infinite; }
 
 /* Блок авторизации */
-#authBlock {
-  margin-top: 80px;
-}
+#authBlock { margin-top: 80px; }
 #authBlock input {
   padding: 8px 12px;
   border-radius: 8px;
   border: 1px solid #330000;
   background: #1a0000;
   color: #ffcccc;
+}
+
+/* 🔹 Навигация между разделами */
+.tabs {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 20px 0 10px;
+}
+.tab-btn {
+  background: #200;
+  border: 1px solid #400;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 15px;
+  color: #ffaaaa;
+  cursor: pointer;
+  transition: .25s;
+}
+.tab-btn.active {
+  background: #ff3b3b;
+  color: #fff;
+  box-shadow: 0 0 10px #ff000050;
 }
 </style>
 </head>
@@ -147,47 +168,66 @@ select {
   <p id="authMessage" style="color:#ff4444;margin-top:10px;"></p>
 </div>
 
-<!-- 🔓 Основний контент (спочатку схований) -->
+<!-- 🔓 Основний контент -->
 <div id="signals" style="display:none;">
-  <div class="controls">
-    <select id="pairSelect">
-      <option>EUR/USD</option>
-      <option>GBP/USD</option>
-      <option>USD/JPY</option>
-      <option>USD/CHF</option>
-      <option>AUD/USD</option>
-      <option>NZD/USD</option>
-      <option>EUR/JPY</option>
-      <option>GBP/JPY</option>
-      <option>EUR/GBP</option>
-      <option>CAD/JPY</option>
-      <option>AUD/JPY</option>
-      <option>GBP/AUD</option>
-      <option>USD/CAD</option>
-    </select>
 
-    <select id="tfSelect">
-      <option value="1m">1M</option>
-      <option value="3m">3M</option>
-      <option value="5m">5M</option>
-      <option value="7m">7M</option>
-    </select>
+  <!-- 🔹 Навигация -->
+  <div class="tabs">
+    <div id="tabChart" class="tab-btn active">📊 С графиком</div>
+    <div id="tabNoChart" class="tab-btn">⚡ Без графика</div>
   </div>
 
-  <div class="controls">
-    <button id="getSignalBtn">🔥 Отримати сигнал</button>
-    <button id="resetSignalBtn" disabled>Скинути сигнал</button>
+  <!-- === Раздел С ГРАФИКОМ === -->
+  <div id="chartSection">
+    <div class="controls">
+      <select id="pairSelect">
+        <option>EUR/USD</option><option>GBP/USD</option><option>USD/JPY</option>
+        <option>USD/CHF</option><option>AUD/USD</option><option>NZD/USD</option>
+        <option>EUR/JPY</option><option>GBP/JPY</option><option>EUR/GBP</option>
+        <option>CAD/JPY</option><option>AUD/JPY</option><option>GBP/AUD</option><option>USD/CAD</option>
+      </select>
+      <select id="tfSelect">
+        <option value="1m">1M</option><option value="3m">3M</option>
+        <option value="5m">5M</option><option value="7m">7M</option>
+      </select>
+    </div>
+
+    <div class="controls">
+      <button id="getSignalBtn">🔥 Отримати сигнал</button>
+      <button id="resetSignalBtn" disabled>Скинути сигнал</button>
+    </div>
+
+    <div id="signalDisplay"></div>
+    <div id="tv_chart_container"></div>
+    <button id="expandChartBtn">📈 Развернуть график</button>
   </div>
 
-  <div id="signalDisplay"></div>
-  <div id="tv_chart_container"></div>
-  <button id="expandChartBtn">📈 Развернуть график</button>
+  <!-- === Раздел БЕЗ ГРАФИКА === -->
+  <div id="noChartSection" style="display:none;">
+    <div class="controls">
+      <select id="pairSelectNoChart">
+        <option>EUR/USD</option><option>GBP/USD</option><option>USD/JPY</option>
+        <option>USD/CHF</option><option>AUD/USD</option><option>NZD/USD</option>
+      </select>
+      <select id="tfSelectNoChart">
+        <option value="1m">1M</option><option value="3m">3M</option>
+        <option value="5m">5M</option>
+      </select>
+    </div>
+
+    <div class="controls">
+      <button id="getSignalNoChartBtn">⚡ Сигнал</button>
+      <button id="resetSignalNoChartBtn" disabled>Скинути</button>
+    </div>
+
+    <div id="signalDisplayNoChart"></div>
+  </div>
 </div>
 
 <script src="https://s3.tradingview.com/tv.js"></script>
 <script>
 // === 🔑 ПРОВЕРКА КЛЮЧА ===
-const VALID_KEY = "DOG2025"; // ← сюда вставляешь новый ключ каждую неделю
+const VALID_KEY = "DOG2025";
 
 document.getElementById("checkKeyBtn").onclick = () => {
   const key = document.getElementById("accessKey").value.trim();
@@ -204,126 +244,119 @@ document.getElementById("checkKeyBtn").onclick = () => {
     msg.textContent = "❌ Невірний ключ!";
   }
 };
-
-// 🔁 Если ключ уже введён ранее — пускаем сразу
 if (localStorage.getItem("dogsignals_access") === "granted") {
   document.getElementById("authBlock").style.display = "none";
   document.getElementById("signals").style.display = "block";
 }
 
-// === Остальной код сигналов ===
-let timerInterval = null;
-let activeSignal = null;
-let tvWidget = null;
-const chartContainer = document.getElementById('tv_chart_container');
-const expandBtn = document.getElementById('expandChartBtn');
+// === ТАБЫ ===
+const tabChart = document.getElementById("tabChart");
+const tabNoChart = document.getElementById("tabNoChart");
+const chartSection = document.getElementById("chartSection");
+const noChartSection = document.getElementById("noChartSection");
 
-function tvSymbolFromPair(pair){ return `FX:${pair.replace('/','')}`; }
-function tvIntervalFromTF(tf){ const map={'1m':'1','3m':'3','5m':'5','7m':'7'}; return map[tf]||'1'; }
-function tfToSeconds(tf){ return parseInt(tf)*60; }
+tabChart.onclick = () => {
+  tabChart.classList.add("active");
+  tabNoChart.classList.remove("active");
+  chartSection.style.display = "block";
+  noChartSection.style.display = "none";
+};
+tabNoChart.onclick = () => {
+  tabNoChart.classList.add("active");
+  tabChart.classList.remove("active");
+  chartSection.style.display = "none";
+  noChartSection.style.display = "block";
+};
 
-function loadTradingView(pair, tf){
-  const container = document.getElementById("tv_chart_container");
-  container.innerHTML = '';
-  try{
-    tvWidget = new TradingView.widget({
-      container_id: "tv_chart_container",
-      symbol: tvSymbolFromPair(pair),
-      interval: tvIntervalFromTF(tf),
-      timezone: "Etc/UTC",
-      theme: "dark",
-      style: 1,
-      locale: "ru",
-      allow_symbol_change: false,
-      hide_top_toolbar:true,
-      hide_legend:true,
-      enable_publishing:false,
-      withdateranges:false,
-      hide_side_toolbar:false
-    });
-  } catch(e){ container.innerHTML='⚠️ График не доступен'; }
-}
-
+// === ФУНКЦИИ СИГНАЛОВ ===
 function generateSignal(){
   const directions=['UP','DOWN'];
   const dir=directions[Math.floor(Math.random()*2)];
   const accuracy=(70+Math.random()*25).toFixed(1);
   return { direction: dir, accuracy: accuracy, remaining:0 };
 }
-
-function updateSignalDisplay(){
-  const display=document.getElementById("signalDisplay");
-  if(!activeSignal) return;
-  const mins=Math.floor(activeSignal.remaining/60);
-  const secs=activeSignal.remaining%60;
-  const anim=activeSignal.direction==='UP'?'blinkUp':'blinkDown';
+function tfToSeconds(tf){ return parseInt(tf)*60; }
+function updateSignalDisplay(display, signal){
+  const mins=Math.floor(signal.remaining/60);
+  const secs=signal.remaining%60;
+  const anim=signal.direction==='UP'?'blinkUp':'blinkDown';
   display.innerHTML=`
     <div style="font-size:22px;font-weight:600;animation:${anim} 1s infinite;">
-      ${activeSignal.direction==='UP'? '📈 Вверх ↑':'📉 Вниз ↓'}
+      ${signal.direction==='UP'? '📈 Вверх ↑':'📉 Вниз ↓'}
     </div>
-    <div>Точність: ${activeSignal.accuracy}%</div>
+    <div>Точність: ${signal.accuracy}%</div>
     <div class="timer">Таймер: ${mins}:${secs<10?'0'+secs:secs}</div>
   `;
 }
 
+// === С ГРАФИКОМ ===
+let timerInterval = null;
+let activeSignal = null;
+function loadTradingView(pair, tf){
+  const container = document.getElementById("tv_chart_container");
+  container.innerHTML = '';
+  try{
+    new TradingView.widget({
+      container_id: "tv_chart_container",
+      symbol: `FX:${pair.replace('/','')}`,
+      interval: tf.replace('m',''),
+      theme: "dark",
+      locale: "ru",
+      hide_top_toolbar:true,
+      hide_legend:true,
+      allow_symbol_change:false,
+    });
+  } catch(e){ container.innerHTML='⚠️ График не доступен'; }
+}
 document.getElementById("getSignalBtn").onclick=()=>{
   const pair=document.getElementById("pairSelect").value;
   const tf=document.getElementById("tfSelect").value;
   activeSignal=generateSignal();
   activeSignal.remaining=tfToSeconds(tf);
-
   document.getElementById("getSignalBtn").disabled=true;
   document.getElementById("resetSignalBtn").disabled=false;
-  document.getElementById("pairSelect").disabled=true;
-  document.getElementById("tfSelect").disabled=true;
-
   loadTradingView(pair, tf);
-  updateSignalDisplay();
-
+  updateSignalDisplay(document.getElementById("signalDisplay"), activeSignal);
   timerInterval=setInterval(()=>{
     if(activeSignal.remaining>0){
       activeSignal.remaining--;
-      updateSignalDisplay();
-    } else {
-      clearInterval(timerInterval);
-      const result=['+','-'];
-      const r=result[Math.floor(Math.random()*result.length)];
-      const display=document.getElementById("signalDisplay");
-      display.innerHTML=`
-        <div>Пара: ${pair} · TF: ${tf}</div>
-        <div>Сигнал: ${activeSignal.direction==='UP'? '📈 Вверх ↑':'📉 Вниз ↓'}</div>
-        <div>Точність: ${activeSignal.accuracy}%</div>
-        <div>${r==='+'?'<span style="color:#4ade80">✅ +</span>':'<span style="color:#ef4444">❌ −</span>'}</div>
-      `;
-      if(r==='-' && parseInt(tf)>1){
-        setTimeout(()=>{
-          const cover=activeSignal.direction;
-          const display=document.getElementById("signalDisplay");
-          display.innerHTML+=`<div style="margin-top:10px; font-weight:600;">Перекрытие: ${cover==='UP'?'📈 Вверх ↑':'📉 Вниз ↓'} на 2 минуты</div>`;
-        }, 10000);
-      }
-    }
+      updateSignalDisplay(document.getElementById("signalDisplay"), activeSignal);
+    } else clearInterval(timerInterval);
   },1000);
 };
-
 document.getElementById("resetSignalBtn").onclick=()=>{
   clearInterval(timerInterval);
-  activeSignal=null;
   document.getElementById("signalDisplay").innerHTML='';
   document.getElementById("tv_chart_container").innerHTML='';
   document.getElementById("getSignalBtn").disabled=false;
   document.getElementById("resetSignalBtn").disabled=true;
-  document.getElementById("pairSelect").disabled=false;
-  document.getElementById("tfSelect").disabled=false;
 };
 
-/* Разворачивание графика */
-expandBtn.addEventListener('click',()=>{ chartContainer.classList.add('fullscreen'); });
-chartContainer.addEventListener('click',(e)=>{
-  if(chartContainer.classList.contains('fullscreen') && e.target===chartContainer){
-    chartContainer.classList.remove('fullscreen');
-  }
-});
+// === БЕЗ ГРАФИКА ===
+let timerNoChart = null;
+let signalNoChart = null;
+document.getElementById("getSignalNoChartBtn").onclick=()=>{
+  const pair=document.getElementById("pairSelectNoChart").value;
+  const tf=document.getElementById("tfSelectNoChart").value;
+  signalNoChart=generateSignal();
+  signalNoChart.remaining=tfToSeconds(tf);
+  document.getElementById("getSignalNoChartBtn").disabled=true;
+  document.getElementById("resetSignalNoChartBtn").disabled=false;
+  const display=document.getElementById("signalDisplayNoChart");
+  updateSignalDisplay(display, signalNoChart);
+  timerNoChart=setInterval(()=>{
+    if(signalNoChart.remaining>0){
+      signalNoChart.remaining--;
+      updateSignalDisplay(display, signalNoChart);
+    } else clearInterval(timerNoChart);
+  },1000);
+};
+document.getElementById("resetSignalNoChartBtn").onclick=()=>{
+  clearInterval(timerNoChart);
+  document.getElementById("signalDisplayNoChart").innerHTML='';
+  document.getElementById("getSignalNoChartBtn").disabled=false;
+  document.getElementById("resetSignalNoChartBtn").disabled=true;
+};
 </script>
 </body>
 </html>
