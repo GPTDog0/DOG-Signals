@@ -115,31 +115,26 @@ select:hover{ border-color:#ff3b3b; box-shadow:0 0 10px #ff000040; }
 
 <div class="header"><h1>🐶 DOG SIGNALS</h1></div>
 
-<!-- ===== ПРИВЕТСТВИЕ И ПАРОЛЬ ===== -->
 <div id="authBlock">
-  <h2>👋 Добро пожаловать!</h2>
-  <p>Для доступа к сигналам введите пароль:</p>
+  <h2 id="authTitle">👋 Добро пожаловать!</h2>
+  <p id="authText">Введите пароль для доступа:</p>
   <input type="password" id="accessKey" placeholder="Введите пароль...">
   <br>
   <button id="checkKeyBtn">🔐 Проверить</button>
   <p id="authMessage"></p>
 </div>
 
-<!-- ===== СИГНАЛЫ ===== -->
 <div id="signals">
   <div class="controls">
     <button id="classicBtn" class="activeTab">💱 Обычный рынок</button>
     <button id="otcBtn">📊 OTC рынок</button>
   </div>
 
-  <!-- ===== КЛАССИЧЕСКИЙ РЫНОК ===== -->
   <div id="classicMarket">
     <div class="controls">
       <select id="pairSelect">
         <option>EUR/USD</option><option>GBP/USD</option><option>USD/JPY</option>
         <option>USD/CHF</option><option>AUD/USD</option><option>NZD/USD</option>
-        <option>EUR/JPY</option><option>GBP/JPY</option><option>EUR/GBP</option>
-        <option>CAD/JPY</option><option>AUD/JPY</option><option>GBP/AUD</option><option>USD/CAD</option>
       </select>
       <select id="tfSelect">
         <option value="1m">1M</option><option value="3m">3M</option>
@@ -154,7 +149,6 @@ select:hover{ border-color:#ff3b3b; box-shadow:0 0 10px #ff000040; }
     <div id="tv_chart_container"></div>
   </div>
 
-  <!-- ===== OTC РЫНОК ===== -->
   <div id="otcMarket" style="display:none;">
     <div class="controls">
       <select id="otcPairSelect">
@@ -168,10 +162,6 @@ select:hover{ border-color:#ff3b3b; box-shadow:0 0 10px #ff000040; }
         <option value="10s">10 sec</option>
         <option value="30s">30 sec</option>
         <option value="1m">1 min</option>
-        <option value="2m">2 min</option>
-        <option value="3m">3 min</option>
-        <option value="5m">5 min</option>
-        <option value="10m">10 min</option>
       </select>
     </div>
     <div class="controls">
@@ -184,10 +174,9 @@ select:hover{ border-color:#ff3b3b; box-shadow:0 0 10px #ff000040; }
 
 <script src="https://s3.tradingview.com/tv.js"></script>
 <script>
-// ===== ЯЗЫК =====
 const translations = {
   ru: {
-    authTitle:"Введите пароль:",
+    authText:"Введите пароль для доступа:",
     authWrong:"❌ Неверный пароль!",
     authSuccess:"✅ Пароль верный, доступ открыт!",
     classic:"💱 Обычный рынок",
@@ -203,7 +192,7 @@ const translations = {
     pair:"Пара"
   },
   en: {
-    authTitle:"Enter password:",
+    authText:"Enter password to access:",
     authWrong:"❌ Invalid password!",
     authSuccess:"✅ Password correct, access granted!",
     classic:"💱 Classic Market",
@@ -221,37 +210,44 @@ const translations = {
 };
 
 const langSelect=document.getElementById("langSelect");
-langSelect.onchange=()=>applyLang(langSelect.value);
+const authTitle=document.getElementById("authTitle");
+const authText=document.getElementById("authText");
+const checkKeyBtn=document.getElementById("checkKeyBtn");
+const classicBtn=document.getElementById("classicBtn");
+const otcBtn=document.getElementById("otcBtn");
+const getSignalBtn=document.getElementById("getSignalBtn");
+const resetSignalBtn=document.getElementById("resetSignalBtn");
+const getOtcSignalBtn=document.getElementById("getOtcSignalBtn");
+const resetOtcSignalBtn=document.getElementById("resetOtcSignalBtn");
 
 function applyLang(lang){
   const t=translations[lang];
-  checkKeyBtn.textContent="🔐 Проверить";
+  authText.textContent=t.authText;
   classicBtn.textContent=t.classic;
   otcBtn.textContent=t.otc;
   getSignalBtn.textContent=t.getSignal;
   resetSignalBtn.textContent=t.reset;
   getOtcSignalBtn.textContent=t.getOtc;
 }
+langSelect.onchange=()=>applyLang(langSelect.value);
 applyLang("ru");
 
-// ===== ПАРОЛЬ =====
-const VALID_KEY = "DOG2025";
-const accessKey = document.getElementById("accessKey");
-const checkKeyBtn = document.getElementById("checkKeyBtn");
-const authMessage = document.getElementById("authMessage");
-const authBlock = document.getElementById("authBlock");
-const signals = document.getElementById("signals");
+const VALID_KEY="DOG2025";
+const accessKey=document.getElementById("accessKey");
+const authMessage=document.getElementById("authMessage");
+const authBlock=document.getElementById("authBlock");
+const signals=document.getElementById("signals");
 
-checkKeyBtn.onclick = () => {
-  if(accessKey.value.trim() === VALID_KEY){
-    authMessage.style.color = "#4ade80";
-    authMessage.textContent = translations[langSelect.value].authSuccess;
-    authBlock.style.display = "none";
-    signals.style.display = "block";
+checkKeyBtn.onclick=()=>{
+  if(accessKey.value.trim()===VALID_KEY){
+    authMessage.style.color="#4ade80";
+    authMessage.textContent=translations[langSelect.value].authSuccess;
+    authBlock.style.display="none";
+    signals.style.display="block";
     localStorage.setItem("dogsignals_access","granted");
   } else {
-    authMessage.style.color = "#ef4444";
-    authMessage.textContent = translations[langSelect.value].authWrong;
+    authMessage.style.color="#ef4444";
+    authMessage.textContent=translations[langSelect.value].authWrong;
   }
 }
 
@@ -260,91 +256,22 @@ if(localStorage.getItem("dogsignals_access")==="granted"){
   signals.style.display="block";
 }
 
-// ===== ТАБЫ =====
-const classicBtn = document.getElementById("classicBtn");
-const otcBtn = document.getElementById("otcBtn");
-const classicMarket = document.getElementById("classicMarket");
-const otcMarket = document.getElementById("otcMarket");
+const classicMarket=document.getElementById("classicMarket");
+const otcMarket=document.getElementById("otcMarket");
 
-classicBtn.onclick = () => {
+classicBtn.onclick=()=>{
   classicMarket.style.display="block";
   otcMarket.style.display="none";
   classicBtn.classList.add("activeTab");
   otcBtn.classList.remove("activeTab");
 }
-otcBtn.onclick = () => {
+
+otcBtn.onclick=()=>{
   classicMarket.style.display="none";
   otcMarket.style.display="block";
   otcBtn.classList.add("activeTab");
   classicBtn.classList.remove("activeTab");
 }
-
-// ===== СИГНАЛЫ =====
-function loadTradingView(pair,tf){
-  try{
-    tv_chart_container.innerHTML="";
-    new TradingView.widget({
-      container_id:"tv_chart_container",
-      symbol:`FX:${pair.replace('/','')}`,
-      interval:tf.replace('m',''),
-      theme:"dark",
-      style:1,
-      width:"100%",
-      height:"100%",
-      hide_top_toolbar:true,
-      hide_legend:true
-    });
-  }catch(e){
-    tv_chart_container.innerHTML="⚠️ Chart unavailable";
-  }
-}
-
-let activeSignal=null, timer=null;
-function genSignal(){ return {dir:Math.random()>0.5?"UP":"DOWN", acc:(70+Math.random()*25).toFixed(1)} }
-function tfSeconds(tf){ return +tf.replace("m","")*60 }
-function updateDisplay(){
-  if(!activeSignal) return;
-  signalDisplay.innerHTML=`<div style="font-size:24px;font-weight:700;animation:${activeSignal.dir==="UP"?"blinkUp":"blinkDown"} 1s infinite">${activeSignal.dir==="UP"?translations[langSelect.value].up:translations[langSelect.value].down}</div><div>${translations[langSelect.value].accuracy}: ${activeSignal.acc}%</div><div>${translations[langSelect.value].timer}: ${activeSignal.rem}s</div>`;
-}
-
-getSignalBtn.onclick = () => {
-  const pair = pairSelect.value, tf = tfSelect.value;
-  activeSignal = genSignal();
-  activeSignal.rem = tfSeconds(tf);
-  loadTradingView(pair,tf);
-  updateDisplay();
-  getSignalBtn.disabled = true; resetSignalBtn.disabled = false;
-  timer = setInterval(()=>{
-    if(activeSignal.rem>0){ activeSignal.rem--; updateDisplay(); }
-    else{ clearInterval(timer); signalDisplay.innerHTML=`Пара: ${pair}<br>${activeSignal.dir==="UP"?translations[langSelect.value].up:translations[langSelect.value].down}<br>${translations[langSelect.value].accuracy}: ${activeSignal.acc}%`; }
-  },1000);
-}
-resetSignalBtn.onclick = () => { clearInterval(timer); activeSignal=null; signalDisplay.innerHTML=""; tv_chart_container.innerHTML=""; getSignalBtn.disabled=false; resetSignalBtn.disabled=true; }
-
-// ===== OTC =====
-let otcSignal=null, otcTimer=null;
-function parseOTC(tf){ if(tf.endsWith("s")) return +tf.replace("s",""); if(tf.endsWith("m")) return +tf.replace("m","")*60; return null; }
-function humanTf(sec){ return sec<60?sec+" сек":(sec/60)+" мин"; }
-function genOtc(tf){
-  let sec=tf==="random"?Math.floor(Math.random()*595)+5:parseOTC(tf);
-  return {dir:Math.random()>0.5?"UP":"DOWN", acc:(70+Math.random()*25).toFixed(1), rem:sec, tf:sec}
-}
-function updateOtc(){
-  if(!otcSignal) return;
-  otcSignalDisplay.innerHTML=`<div style="font-size:24px;font-weight:700;animation:${otcSignal.dir==="UP"?"blinkUp":"blinkDown"} 1s infinite">${otcSignal.dir==="UP"?translations[langSelect.value].up:translations[langSelect.value].down}</div><div>${translations[langSelect.value].accuracy}: ${otcSignal.acc}%</div><div>${translations[langSelect.value].tf}: ${humanTf(otcSignal.tf)}</div><div>${translations[langSelect.value].timer}: ${otcSignal.rem}s</div>`;
-}
-getOtcSignalBtn.onclick = () => {
-  const tf = otcTfSelect.value, pair = otcPairSelect.value;
-  otcSignal = genOtc(tf);
-  getOtcSignalBtn.disabled=true; resetOtcSignalBtn.disabled=false;
-  updateOtc();
-  otcTimer=setInterval(()=>{
-    if(otcSignal.rem>0){ otcSignal.rem--; updateOtc(); }
-    else{ clearInterval(otcTimer); otcSignalDisplay.innerHTML=`Пара: ${pair}<br>${otcSignal.dir==="UP"?translations[langSelect.value].up:translations[langSelect.value].down}<br>${translations[langSelect.value].tf}: ${humanTf(otcSignal.tf)}<br>${translations[langSelect.value].accuracy}: ${otcSignal.acc}%`; }
-  },1000);
-}
-resetOtcSignalBtn.onclick = () => { clearInterval(otcTimer); otcSignal=null; otcSignalDisplay.innerHTML=""; getOtcSignalBtn.disabled=false; resetOtcSignalBtn.disabled=true; }
 </script>
-
 </body>
 </html>
