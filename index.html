@@ -100,7 +100,7 @@ select:hover{ border-color:#ff3b3b; box-shadow:0 0 10px #ff000040; }
 @keyframes blinkDown{0%,100%{color:#ef4444; text-shadow:0 0 15px #ff2222;}50%{color:#fff; text-shadow:0 0 5px #fff;}}
 .timer{ animation: blinkUp 1s infinite; }
 #authBlock, #welcomeBlock { margin-top:70px; }
-#authBlock input { padding:10px 12px; border-radius:10px; border:1px solid #330000; background:#1a0000; color:#ffcccc; width:190px; font-size:16px; }
+#authBlock input, #welcomeBlock button { padding:10px 12px; border-radius:10px; border:1px solid #330000; background:#1a0000; color:#ffcccc; width:190px; font-size:16px; }
 .activeTab { background: linear-gradient(180deg,#ff6666,#cc0000)!important; }
 .small{ width:125px; }
 #langSelect {
@@ -124,19 +124,19 @@ select:hover{ border-color:#ff3b3b; box-shadow:0 0 10px #ff000040; }
 
 <div class="header"><h1>🐶 DOG SIGNALS</h1></div>
 
-<!-- ===== ПРИВЕТСТВИЕ ===== -->
-<div id="welcomeBlock">
-  <h2>👋 Добро пожаловать!</h2>
-  <p>Нажмите кнопку, чтобы получить сигналы.</p>
-  <button id="startBtn">➡ Получить сигналы</button>
-</div>
-
-<!-- ===== АВТОРИЗАЦИЯ ===== -->
-<div id="authBlock" style="display:none;">
+<!-- ===== ВВОД ПАРОЛЯ ===== -->
+<div id="authBlock">
   <p id="authTitle">Введите ваш ключ доступа:</p>
   <input type="text" id="accessKey" placeholder="Введите ключ...">
   <button id="checkKeyBtn">🔐 Проверить</button>
   <p id="authMessage" style="color:#ff4444;margin-top:10px;"></p>
+</div>
+
+<!-- ===== ПРИВЕТСТВИЕ ===== -->
+<div id="welcomeBlock" style="display:none;">
+  <h2>👋 Добро пожаловать!</h2>
+  <p>Доступ к сигналам открыт.</p>
+  <button id="enterSignalsBtn">➡ Перейти к сигналам</button>
 </div>
 
 <!-- ===== СИГНАЛЫ ===== -->
@@ -160,7 +160,7 @@ select:hover{ border-color:#ff3b3b; box-shadow:0 0 10px #ff000040; }
       </select>
     </div>
     <div class="controls">
-      <button id="getSignalBtn" disabled>🔥 Получить сигнал</button>
+      <button id="getSignalBtn">🔥 Получить сигнал</button>
       <button id="resetSignalBtn" disabled>♻ Сбросить</button>
     </div>
     <div id="signalDisplay"></div>
@@ -187,7 +187,7 @@ select:hover{ border-color:#ff3b3b; box-shadow:0 0 10px #ff000040; }
       </select>
     </div>
     <div class="controls">
-      <button id="getOtcSignalBtn" disabled>⚡ Сигнал OTC</button>
+      <button id="getOtcSignalBtn">⚡ Сигнал OTC</button>
       <button id="resetOtcSignalBtn" disabled>♻ Сбросить</button>
     </div>
     <div id="otcSignalDisplay"></div>
@@ -216,55 +216,33 @@ function applyLang(lang){
 }
 applyLang("ru");
 
-// ===== ПОРЯДОК =====
+// ===== АВТОРИЗАЦИЯ =====
 const VALID_KEY="DOG2025";
-
-const startBtn = document.getElementById("startBtn");
-const authBlock = document.getElementById("authBlock");
-const checkKeyBtn = document.getElementById("checkKeyBtn");
-const accessKey = document.getElementById("accessKey");
-const authMessage = document.getElementById("authMessage");
-const getSignalBtn = document.getElementById("getSignalBtn");
-const getOtcSignalBtn = document.getElementById("getOtcSignalBtn");
-const welcomeBlock = document.getElementById("welcomeBlock");
-const signals = document.getElementById("signals");
-
-// Нажатие кнопки "Получить сигналы" показывает ввод пароля
-startBtn.onclick = () => {
-  welcomeBlock.style.display = "none";
-  authBlock.style.display = "block";
-}
-
-// Проверка ключа
-checkKeyBtn.onclick = () => {
-  const key = accessKey.value.trim();
-  const t = translations[langSelect.value];
-  if (key === VALID_KEY) {
-    authMessage.style.color = "#4ade80";
-    authMessage.textContent = t.authSuccess;
-
-    // Активируем кнопки сигналов
-    getSignalBtn.disabled = false;
-    getOtcSignalBtn.disabled = false;
-
-    // Показываем сигналы
-    authBlock.style.display = "none";
-    signals.style.display = "block";
-
-    localStorage.setItem("dogsignals_access", "granted");
+checkKeyBtn.onclick=()=>{
+  const key=accessKey.value.trim();
+  const t=translations[langSelect.value];
+  if(key===VALID_KEY){
+    authMessage.style.color="#4ade80"; 
+    authMessage.textContent=t.authSuccess;
+    authBlock.style.display="none";
+    welcomeBlock.style.display="block";
+    localStorage.setItem("dogsignals_access","granted");
   } else {
-    authMessage.style.color = "#ef4444";
-    authMessage.textContent = t.authWrong;
+    authMessage.style.color="#ef4444"; 
+    authMessage.textContent=t.authWrong; 
   }
 }
 
-// Если доступ уже есть
+// Автопроверка доступа через localStorage
 if(localStorage.getItem("dogsignals_access")==="granted"){
-  welcomeBlock.style.display = "none";
-  authBlock.style.display = "none";
-  signals.style.display = "block";
-  getSignalBtn.disabled = false;
-  getOtcSignalBtn.disabled = false;
+  authBlock.style.display="none"; 
+  welcomeBlock.style.display="block";
+}
+
+// Переход к сигналам
+enterSignalsBtn.onclick=()=>{
+  welcomeBlock.style.display="none";
+  signals.style.display="block";
 }
 
 // ===== ТАБЫ =====
