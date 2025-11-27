@@ -158,6 +158,13 @@ select:hover{
 <div class="header"><h1>🐶 DOG SIGNALS — ULTRA</h1></div>
 
 <!-- Авторизация -->
+<div class="controls" style="margin-top:25px;">
+  <select id="langSelect">
+    <option value="ru">Русский</option>
+    <option value="en">English</option>
+  </select>
+</div>
+
 <div id="authBlock" class="card">
   <p>Введіть ваш ключ доступу:</p>
   <input type="text" id="accessKey" placeholder="Введіть ключ..." style="padding:10px 14px;border-radius:10px;border:1px solid #330000;background:#1a0000;color:#ffcccc;width:80%;max-width:260px;">
@@ -242,6 +249,34 @@ function realisticDirection(){
 
 /* ===== Авторизация ===== */
 const VALID_KEY = "DOG2025";
+
+/* === LANGUAGE ENGINE === */
+const langData = {
+  ru: {
+    enterKey: "Введите ваш ключ доступа:",
+    placeholder: "Введите ключ...",
+    check: "Проверить",
+    wrong: "❌ Неверный ключ!",
+    ok: "✔ Доступ разрешён!"
+  },
+  en: {
+    enterKey: "Enter your access key:",
+    placeholder: "Enter key...",
+    check: "Check",
+    wrong: "❌ Wrong key!",
+    ok: "✔ Access granted!"
+  }
+};
+
+function applyLang(l){
+  const t = langData[l];
+  document.querySelector('#authBlock p').textContent = t.enterKey;
+  document.querySelector('#accessKey').placeholder = t.placeholder;
+  document.querySelector('#checkKeyBtn').textContent = t.check;
+}
+
+document.getElementById("langSelect").onchange = (e)=> applyLang(e.target.value);
+applyLang('ru');
 document.getElementById("checkKeyBtn").onclick = () => {
   const key = document.getElementById("accessKey").value.trim();
   const msg = document.getElementById("authMessage");
