@@ -124,6 +124,7 @@ select:hover{ border-color:#ff3b3b; box-shadow:0 0 10px #ff000040; }
 
 <div class="header"><h1>🐶 DOG SIGNALS</h1></div>
 
+<!-- ===== АВТОРИЗАЦИЯ ===== -->
 <div id="authBlock">
   <p id="authTitle">Введите ваш ключ доступа:</p>
   <input type="text" id="accessKey" placeholder="Введите ключ...">
@@ -131,6 +132,7 @@ select:hover{ border-color:#ff3b3b; box-shadow:0 0 10px #ff000040; }
   <p id="authMessage" style="color:#ff4444;margin-top:10px;"></p>
 </div>
 
+<!-- ===== СИГНАЛЫ (СКРЫТЫ ПО УМОЛЧАНИЮ) ===== -->
 <div id="signals" style="display:none;">
   <div class="controls">
     <button id="classicBtn" class="activeTab">💱 Обычный рынок</button>
@@ -187,15 +189,15 @@ select:hover{ border-color:#ff3b3b; box-shadow:0 0 10px #ff000040; }
 
 <script src="https://s3.tradingview.com/tv.js"></script>
 <script>
+// ===== ЯЗЫК =====
 const translations = {
   ru: {authTitle:"Введите ваш ключ доступа:",authPlaceholder:"Введите ключ...",authWrong:"❌ Неверный ключ!",authSuccess:"✅ Доступ разрешён!",classic:"💱 Обычный рынок",otc:"📊 OTC рынок",getSignal:"🔥 Получить сигнал",reset:"♻ Сбросить",getOtc:"⚡ Сигнал OTC",up:"📈 Вверх ↑",down:"📉 Вниз ↓",accuracy:"Точность",timer:"Таймер",tf:"TF",pair:"Пара"},
   en: {authTitle:"Enter access key:",authPlaceholder:"Enter key...",authWrong:"❌ Invalid key!",authSuccess:"✅ Access granted!",classic:"💱 Classic Market",otc:"📊 OTC Market",getSignal:"🔥 Get Signal",reset:"♻ Reset",getOtc:"⚡ Get OTC Signal",up:"📈 Up ↑",down:"📉 Down ↓",accuracy:"Accuracy",timer:"Timer",tf:"TF",pair:"Pair"}
 };
-
-const langSelect = document.getElementById("langSelect");
-langSelect.onchange = () => applyLang(langSelect.value);
+const langSelect=document.getElementById("langSelect");
+langSelect.onchange=()=>applyLang(langSelect.value);
 function applyLang(lang){
-  const t = translations[lang];
+  const t=translations[lang];
   authTitle.textContent=t.authTitle;
   accessKey.placeholder=t.authPlaceholder;
   classicBtn.textContent=t.classic;
@@ -207,6 +209,7 @@ function applyLang(lang){
 }
 applyLang("ru");
 
+// ===== АВТОРИЗАЦИЯ =====
 const VALID_KEY="DOG2025";
 checkKeyBtn.onclick=()=>{
   const key=accessKey.value.trim();
@@ -219,11 +222,12 @@ checkKeyBtn.onclick=()=>{
 }
 if(localStorage.getItem("dogsignals_access")==="granted"){authBlock.style.display="none";signals.style.display="block";}
 
+// ===== ТАБЫ =====
 classicBtn.onclick=()=>{classicMarket.style.display="block";otcMarket.style.display="none";classicBtn.classList.add("activeTab");otcBtn.classList.remove("activeTab");}
 otcBtn.onclick=()=>{classicMarket.style.display="none";otcMarket.style.display="block";otcBtn.classList.add("activeTab");classicBtn.classList.remove("activeTab");}
 
+// ===== СИГНАЛЫ =====
 function loadTradingView(pair,tf){try{tv_chart_container.innerHTML="";new TradingView.widget({container_id:"tv_chart_container",symbol:`FX:${pair.replace('/','')}`,interval:tf.replace('m',''),theme:"dark",style:1,width:"100%",height:"100%",hide_top_toolbar:true,hide_legend:true});}catch(e){tv_chart_container.innerHTML="⚠️ Chart unavailable"}}
-
 let activeSignal=null,timer=null;
 function genSignal(){return{dir:Math.random()>0.5?"UP":"DOWN",acc:(70+Math.random()*25).toFixed(1)}}
 function tfSeconds(tf){return+tf.replace("m","")*60}
@@ -237,6 +241,7 @@ getSignalBtn.onclick=()=>{
 }
 resetSignalBtn.onclick=()=>{clearInterval(timer);activeSignal=null;signalDisplay.innerHTML="";tv_chart_container.innerHTML="";getSignalBtn.disabled=false;resetSignalBtn.disabled=true;}
 
+// ===== OTC =====
 let otcSignal=null,otcTimer=null;
 function parseOTC(tf){if(tf.endsWith("s"))return+tf.replace("s","");if(tf.endsWith("m"))return+tf.replace("m","")*60;return null;}
 function humanTf(sec){return sec<60?sec+" сек":(sec/60)+" мин";}
