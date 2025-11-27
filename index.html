@@ -250,33 +250,81 @@ function realisticDirection(){
 /* ===== Авторизация ===== */
 const VALID_KEY = "DOG2025";
 
-/* === LANGUAGE ENGINE === */
-const langData = {
+/* === FULL LANGUAGE PACK FOR ENTIRE SITE === */
+const LANG = {
   ru: {
     enterKey: "Введите ваш ключ доступа:",
     placeholder: "Введите ключ...",
     check: "Проверить",
     wrong: "❌ Неверный ключ!",
-    ok: "✔ Доступ разрешён!"
+    ok: "✔ Доступ разрешён!",
+    classic: "💱 Обычный рынок",
+    otc: "📊 OTC рынок",
+    getSignal: "🔥 Получить сигнал",
+    reset: "Сбросить сигнал",
+    expand: "📈 Развернуть график",
+    otcGet: "⚡ Получить сигнал OTC",
+    otcReset: "Сбросить"
   },
   en: {
     enterKey: "Enter your access key:",
     placeholder: "Enter key...",
     check: "Check",
     wrong: "❌ Wrong key!",
-    ok: "✔ Access granted!"
+    ok: "✔ Access granted!",
+    classic: "💱 Classic market",
+    otc: "📊 OTC market",
+    getSignal: "🔥 Get Signal",
+    reset: "Reset",
+    expand: "📈 Expand chart",
+    otcGet: "⚡ Get OTC Signal",
+    otcReset: "Reset"
   }
 };
 
 function applyLang(l){
-  const t = langData[l];
+  const t = LANG[l];
+  // AUTH
   document.querySelector('#authBlock p').textContent = t.enterKey;
   document.querySelector('#accessKey').placeholder = t.placeholder;
   document.querySelector('#checkKeyBtn').textContent = t.check;
+
+  // TABS
+  document.getElementById('classicBtn').textContent = t.classic;
+  document.getElementById('otcBtn').textContent = t.otc;
+
+  // CLASSIC BUTTONS
+  document.getElementById('getSignalBtn').textContent = t.getSignal;
+  document.getElementById('resetSignalBtn').textContent = t.reset;
+  document.getElementById('expandChartBtn').textContent = t.expand;
+
+  // OTC BUTTONS
+  document.getElementById('getOtcSignalBtn').textContent = t.otcGet;
+  document.getElementById('resetOtcSignalBtn').textContent = t.otcReset;
 }
 
 document.getElementById("langSelect").onchange = (e)=> applyLang(e.target.value);
 applyLang('ru');
+
+/* === FIXED AUTH === */
+document.getElementById("checkKeyBtn").onclick = () => {
+  const userKey = document.getElementById("accessKey").value.trim();
+  const lang = document.getElementById("langSelect").value;
+  const msg = document.getElementById("authMessage");
+  const t = LANG[lang];
+
+  if (userKey === VALID_KEY) {
+    msg.style.color = "#4ade80";
+    msg.textContent = t.ok;
+    setTimeout(() => {
+      document.getElementById("authBlock").style.display = "none";
+      document.getElementById("signals").style.display = "block";
+    }, 600);
+  } else {
+    msg.style.color = "#ff4444";
+    msg.textContent = t.wrong;
+  }
+};
 document.getElementById("checkKeyBtn").onclick = () => {
   const key = document.getElementById("accessKey").value.trim();
   const msg = document.getElementById("authMessage");
