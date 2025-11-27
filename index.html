@@ -564,3 +564,26 @@ select:hover{
 /* === AUTH === */
 const VALID_KEY = "DOG2025";
 const msg = document.get
+<script>
+/* === AUTH === */
+const VALID_KEY = "DOG2025";
+
+document.getElementById("checkKeyBtn").onclick = () => {
+  const userKey = document.getElementById("accessKey").value.trim();
+  const msg = document.getElementById("authMessage");
+
+  if (userKey === VALID_KEY) {
+    msg.style.color = "#4ade80";
+    msg.textContent = "✔ Доступ разрешён!";
+    setTimeout(() => {
+      document.getElementById("authBlock").style.display = "none";
+      document.getElementById("signals").style.display = "block";
+    }, 700);
+  } else {
+    msg.style.color = "#ff4444";
+    msg.textContent = "❌ Неверный ключ!";
+  }
+};
+</script>
+</body>
+</html>
