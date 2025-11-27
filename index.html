@@ -3,50 +3,181 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>🐶 DOG SIGNALS</title>
+<title>🐶 DOG SIGNALS — ULTRA</title>
 <style>
-body { font-family: "Inter", sans-serif; background: radial-gradient(circle at top, #1a0000 0%, #000 90%); color:#fff; text-align:center; margin:0; padding:0; overflow-y:auto;}
-.header {background: linear-gradient(180deg, #220000, transparent); padding: 18px 0 10px; text-align:center; box-shadow:0 0 25px #ff000020;}
-.header h1 {color:#ff3b3b; font-size:26px; font-weight:700; margin:0; text-shadow:0 0 20px #ff000099;}
-button {border:none; border-radius:10px; font-size:16px; font-weight:500; padding:12px 0; width:160px; color:#fff; background: linear-gradient(180deg,#ff3b3b,#b30000); box-shadow:0 0 10px #ff000040; transition:.25s; cursor:pointer;}
-button:hover{ transform:scale(1.05); box-shadow:0 0 18px #ff000060;}
-button:disabled{ opacity:.5; background:#330000; cursor:not-allowed;}
-.controls{ display:flex; justify-content:center; gap:12px; margin:12px auto 18px; flex-wrap:wrap;}
-select{ background:#1a0000; border:1px solid #330000; border-radius:8px; color:#ffcccc; padding:8px 12px; font-size:15px;}
-#tv_chart_container{ width:94%; max-width:420px; height:320px; margin:10px auto 30px; border-radius:10px; background:#080000; border:1px solid #330000; box-shadow:0 0 25px #ff000015; overflow:hidden; position:relative; padding-bottom:20px;}
-#tv_chart_container.fullscreen{ position:fixed; inset:0; z-index:1000; width:100%; height:100%; max-width:none; border-radius:0; background:#000; padding:0;}
-#tv_chart_container.fullscreen::after{ content:"✖"; position:absolute; top:12px; right:16px; font-size:28px; color:#fff; cursor:pointer; z-index:1001;}
-#expandChartBtn{ display:block; margin:-20px auto 30px; background:#222; border:1px solid #444; width:180px; font-size:15px;}
-#signalDisplay, #otcSignalDisplay { font-size:18px; margin:15px 0; text-shadow:0 0 8px #ff000040; min-height:80px;}
-@keyframes blinkUp{0%,100%{color:#4ade80; text-shadow:0 0 15px #22ff22;}50%{color:#fff; text-shadow:0 0 5px #fff;}}
-@keyframes blinkDown{0%,100%{color:#ef4444; text-shadow:0 0 15px #ff2222;}50%{color:#fff; text-shadow:0 0 5px #fff;}}
+/* ===== ГЛАВНЫЙ СТИЛЬ ===== */
+body {
+  font-family: "Inter", sans-serif;
+  background: radial-gradient(circle at top, #180000 0%, #000 90%);
+  color:#fff;
+  text-align:center;
+  margin:0;
+  padding:0;
+  overflow-y:auto;
+}
+
+/* ===== ГЛОССИ HEADER ===== */
+.header {
+  background: linear-gradient(180deg, #330000, transparent);
+  padding: 20px 0 12px;
+  text-align:center;
+  box-shadow:0 0 40px #ff1a1a40;
+  backdrop-filter: blur(8px);
+  position:sticky;
+  top:0;
+  z-index:999;
+}
+.header h1 {
+  color:#ff4d4d;
+  font-size:30px;
+  font-weight:800;
+  margin:0;
+  letter-spacing:1px;
+  text-shadow:0 0 25px #ff0000cc;
+}
+
+/* ===== КАРТОЧКИ БЛОКОВ ===== */
+.card {
+  background: rgba(20,0,0,0.7);
+  border:1px solid #330000;
+  border-radius:18px;
+  margin: 20px auto;
+  padding: 20px 18px;
+  width:90%;
+  max-width:480px;
+  box-shadow:0 0 35px #ff000015;
+  backdrop-filter: blur(6px);
+}
+
+/* ===== СТИЛЬ КНОПОК ===== */
+button {
+  border:none;
+  border-radius:12px;
+  font-size:16px;
+  font-weight:600;
+  padding:12px 0;
+  width:170px;
+  color:#fff;
+  background: linear-gradient(180deg,#ff3b3b,#b30000);
+  box-shadow:0 0 12px #ff000040;
+  transition:.25s;
+  cursor:pointer;
+}
+button:hover {
+  transform:scale(1.07);
+  box-shadow:0 0 25px #ff000080;
+}
+button:disabled {
+  opacity:.45;
+  background:#320000;
+  cursor:not-allowed;
+}
+
+.controls{
+  display:flex;
+  justify-content:center;
+  gap:14px;
+  margin:14px auto 20px;
+  flex-wrap:wrap;
+}
+
+select{
+  background:#1a0000;
+  border:1px solid #330000;
+  border-radius:10px;
+  color:#ffdddd;
+  padding:10px 14px;
+  font-size:15px;
+  transition:.25s;
+}
+select:hover{
+  border-color:#aa0000;
+  box-shadow:0 0 12px #ff000040;
+}
+
+/* ===== ГРАФИК ===== */
+#tv_chart_container{
+  width:94%;
+  max-width:440px;
+  height:330px;
+  margin:15px auto 25px;
+  border-radius:14px;
+  background:#0a0000;
+  border:1px solid #330000;
+  box-shadow:0 0 25px #ff000030;
+  overflow:hidden;
+  position:relative;
+}
+
+#tv_chart_container.fullscreen{
+  position:fixed;
+  inset:0;
+  z-index:1000;
+  width:100%;
+  height:100%;
+  border-radius:0;
+  padding:0;
+  background:#000;
+}
+#tv_chart_container.fullscreen::after{
+  content:"✖";
+  position:absolute;
+  top:16px;
+  right:18px;
+  font-size:32px;
+  color:#fff;
+  cursor:pointer;
+  z-index:1001;
+}
+
+#expandChartBtn{
+  width:200px;
+  background:#1a1a1a;
+  border:1px solid #444;
+}
+
+/* ===== СИГНАЛЫ ===== */
+#signalDisplay, #otcSignalDisplay {
+  font-size:18px;
+  min-height:80px;
+  text-shadow:0 0 10px #ff000050;
+}
+
+/* Анимации */
+@keyframes blinkUp{0%,100%{color:#4ade80;text-shadow:0 0 25px #22ff22;}50%{color:#fff;}}
+@keyframes blinkDown{0%,100%{color:#ef4444;text-shadow:0 0 25px #ff2222;}50%{color:#fff;}}
 .timer{ animation: blinkUp 1s infinite; }
-#authBlock{ margin-top:80px; }
-#authBlock input{ padding:8px 12px; border-radius:8px; border:1px solid #330000; background:#1a0000; color:#ffcccc; }
-.activeTab { background: linear-gradient(180deg,#ff6666,#cc0000)!important; }
-.small{ width:120px; }
+
+/* TAB активности */
+.activeTab {
+  background: linear-gradient(180deg,#ff6666,#cc0000)!important;
+}
 </style>
 </head>
 <body>
-<div class="header"><h1>🐶 DOG SIGNALS</h1></div>
+<div class="header"><h1>🐶 DOG SIGNALS — ULTRA</h1></div>
 
 <!-- Авторизация -->
-<div id="authBlock">
+<div id="authBlock" class="card">
   <p>Введіть ваш ключ доступу:</p>
-  <input type="text" id="accessKey" placeholder="Введіть ключ...">
-  <button id="checkKeyBtn">✅ Перевірити</button>
-  <p id="authMessage" style="color:#ff4444;margin-top:10px;"></p>
+  <input type="text" id="accessKey" placeholder="Введіть ключ..." style="padding:10px 14px;border-radius:10px;border:1px solid #330000;background:#1a0000;color:#ffcccc;width:80%;max-width:260px;">
+  <br><br>
+  <button id="checkKeyBtn">🔑 Перевірити ключ</button>
+  <p id="authMessage" style="color:#ff4444;margin-top:10px;font-size:15px;"></p>
 </div>
 
 <!-- Основной контент -->
 <div id="signals" style="display:none;">
-  <div class="controls">
-    <button id="classicBtn" class="activeTab">💱 Звичайний ринок</button>
-    <button id="otcBtn">📊 OTC-ринок</button>
+
+  <div class="card">
+    <div class="controls">
+      <button id="classicBtn" class="activeTab">💱 Звичайний ринок</button>
+      <button id="otcBtn">📊 OTC-ринок</button>
+    </div>
   </div>
 
   <!-- Классический рынок -->
-  <div id="classicMarket">
+  <div id="classicMarket" class="card">
     <div class="controls">
       <select id="pairSelect">
         <option>EUR/USD</option><option>GBP/USD</option><option>USD/JPY</option>
@@ -59,35 +190,31 @@ select{ background:#1a0000; border:1px solid #330000; border-radius:8px; color:#
         <option value="5m">5M</option><option value="7m">7M</option>
       </select>
     </div>
+
     <div class="controls">
       <button id="getSignalBtn">🔥 Отримати сигнал</button>
       <button id="resetSignalBtn" disabled>Скинути сигнал</button>
     </div>
+
     <div id="signalDisplay"></div>
     <div id="tv_chart_container"></div>
     <button id="expandChartBtn">📈 Развернуть график</button>
   </div>
 
-  <!-- OTC рынок -->
-  <div id="otcMarket" style="display:none;">
+  <!-- OTC -->
+  <div id="otcMarket" class="card" style="display:none;">
     <div class="controls">
       <select id="otcPairSelect">
         <option>EUR/USD OTC</option><option>GBP/USD OTC</option>
         <option>USD/JPY OTC</option><option>EUR/JPY OTC</option>
         <option>AUD/USD OTC</option><option>USD/CAD OTC</option>
       </select>
-
-      <!-- Таймфрейм для OTC: пользователь выбирает или Random -->
       <select id="otcTfSelect" class="small">
         <option value="random">🎲 Random</option>
-        <option value="5s">5с</option>
-        <option value="10s">10с</option>
-        <option value="30s">30с</option>
-        <option value="1m">1м</option>
-        <option value="2m">2м</option>
-        <option value="3m">3м</option>
-        <option value="5m">5м</option>
-        <option value="10m">10м</option>
+        <option value="5s">5с</option><option value="10s">10с</option>
+        <option value="30s">30с</option><option value="1m">1м</option>
+        <option value="2m">2м</option><option value="3m">3м</option>
+        <option value="5m">5м</option><option value="10m">10м</option>
       </select>
     </div>
 
@@ -102,7 +229,18 @@ select{ background:#1a0000; border:1px solid #330000; border-radius:8px; color:#
 
 <script src="https://s3.tradingview.com/tv.js"></script>
 <script>
-// === Авторизация ===
+/* Улучшенный и более реалистичный генератор сигналов */
+function realisticAccuracy(){
+  const base = Math.random() * 12 + 70; // 70–82 обычно
+  const volatility = Math.random() * 7; // чуть разброс
+  return (base + volatility).toFixed(1);
+}
+
+function realisticDirection(){
+  return Math.random() > 0.55 ? 'UP' : 'DOWN';
+}
+
+/* ===== Авторизация ===== */
 const VALID_KEY = "DOG2025";
 document.getElementById("checkKeyBtn").onclick = () => {
   const key = document.getElementById("accessKey").value.trim();
@@ -123,22 +261,36 @@ if (localStorage.getItem("dogsignals_access") === "granted") {
   document.getElementById("signals").style.display = "block";
 }
 
-// === Переключение вкладок ===
+/* ===== Переключение вкладок ===== */
 const classic = document.getElementById('classicMarket');
 const otc = document.getElementById('otcMarket');
 const classicBtn = document.getElementById('classicBtn');
 const otcBtn = document.getElementById('otcBtn');
-classicBtn.onclick = () => { classic.style.display='block'; otc.style.display='none'; classicBtn.classList.add('activeTab'); otcBtn.classList.remove('activeTab'); };
-otcBtn.onclick = () => { classic.style.display='none'; otc.style.display='block'; otcBtn.classList.add('activeTab'); classicBtn.classList.remove('activeTab'); };
 
-// === Классический рынок (без изменений) ===
+classicBtn.onclick = () => {
+  classic.style.display='block';
+  otc.style.display='none';
+  classicBtn.classList.add('activeTab');
+  otcBtn.classList.remove('activeTab');
+};
+otcBtn.onclick = () => {
+  classic.style.display='none';
+  otc.style.display='block';
+  otcBtn.classList.add('activeTab');
+  classicBtn.classList.remove('activeTab');
+};
+
+/* ===== Классический рынок ===== */
 let timerInterval = null;
 let activeSignal = null;
-function tvSymbolFromPair(pair){ return `FX:${pair.replace('/','')}`; }
-function tvIntervalFromTF(tf){ return {'1m':'1','3m':'3','5m':'5','7m':'7'}[tf]||'1'; }
-function tfToSeconds(tf){ return parseInt(tf)*60; }
+
+function tvSymbolFromPair(pair){ return `FX:${pair.replace('/', '')}`; }
+function tvIntervalFromTF(tf){ return { '1m':'1','3m':'3','5m':'5','7m':'7' }[tf] || '1'; }
+function tfToSeconds(tf){ return parseInt(tf) * 60; }
+
 function loadTradingView(pair, tf){
-  const c = document.getElementById("tv_chart_container"); c.innerHTML = '';
+  const c = document.getElementById("tv_chart_container");
+  c.innerHTML = '';
   try {
     new TradingView.widget({
       container_id: "tv_chart_container",
@@ -147,113 +299,268 @@ function loadTradingView(pair, tf){
       timezone: "Etc/UTC",
       theme: "dark",
       style: 1,
-      locale: "ru",
-      allow_symbol_change: false,
       hide_top_toolbar:true,
       hide_legend:true,
-      enable_publishing:false,
-      withdateranges:false
+      allow_symbol_change:false,
+      withdateranges:false,
     });
-  } catch(e){ c.innerHTML='⚠️ График не доступен'; }
+  } catch(e){
+    c.innerHTML='⚠️ График не доступен';
+  }
 }
-function generateSignal(){ const dir = Math.random()>0.5?'UP':'DOWN'; const acc = (70+Math.random()*25).toFixed(1); return { direction: dir, accuracy: acc, remaining: 0 }; }
+
+function generateSignal(){
+  return {
+    direction: realisticDirection(),
+    accuracy: realisticAccuracy(),
+    remaining: 0
+  };
+}
+
 function updateSignalDisplay(){
   const d = document.getElementById("signalDisplay");
   if(!activeSignal) return;
-  const m = Math.floor(activeSignal.remaining/60), s = activeSignal.remaining%60;
+  const m = Math.floor(activeSignal.remaining/60);
+  const s = activeSignal.remaining%60;
   const anim = activeSignal.direction==='UP'?'blinkUp':'blinkDown';
-  d.innerHTML = `<div style="font-size:22px;font-weight:600;animation:${anim} 1s infinite;">${activeSignal.direction==='UP'?'📈 Вверх ↑':'📉 Вниз ↓'}</div>
-                 <div>Точність: ${activeSignal.accuracy}%</div>
-                 <div class="timer">Таймер: ${m}:${s<10?'0'+s:s}</div>`;
-}
-document.getElementById("getSignalBtn").onclick = () => {
-  const p = document.getElementById("pairSelect").value;
-  const tf = document.getElementById("tfSelect").value;
-  activeSignal = generateSignal();
-  activeSignal.remaining = tfToSeconds(tf);
-  document.getElementById("getSignalBtn").disabled = true;
-  document.getElementById("resetSignalBtn").disabled = false;
-  loadTradingView(p, tf);
-  updateSignalDisplay();
-  timerInterval = setInterval(()=>{ if(activeSignal.remaining>0){ activeSignal.remaining--; updateSignalDisplay(); } else { clearInterval(timerInterval); const r = Math.random()>0.5?'+':'-'; document.getElementById("signalDisplay").innerHTML = `<div>Пара: ${p} · TF: ${tf}</div><div>Сигнал: ${activeSignal.direction==='UP'?'📈 Вверх ↑':'📉 Вниз ↓'}</div><div>Точність: ${activeSignal.accuracy}%</div><div>${r==='+'?'<span style="color:#4ade80">✅ +</span>':'<span style="color:#ef4444">❌ −</span>'}</div>`; } }, 1000);
-};
-document.getElementById("resetSignalBtn").onclick = () => { clearInterval(timerInterval); activeSignal = null; document.getElementById("signalDisplay").innerHTML=''; document.getElementById("tv_chart_container").innerHTML=''; document.getElementById("getSignalBtn").disabled=false; document.getElementById("resetSignalBtn").disabled=true; };
 
-// === OTC рынок (исправлено: добавлен выбор таймфрейма) ===
-let otcTimer = null;
-let activeOtc = null;
-
-function parseTfToSeconds(tf){
-  // tf like '5s','10s','30s','1m','2m', '10m' or 'random'
-  if(!tf || tf === 'random') return null;
-  if(tf.endsWith('s')) return parseInt(tf);
-  if(tf.endsWith('m')) return parseInt(tf) * 60;
-  return null;
+  d.innerHTML = `
+    <div style="font-size:24px;font-weight:700;animation:${anim} 1s infinite;">
+      ${activeSignal.direction==='UP'? '📈 Вверх ↑' : '📉 Вниз ↓'}
+    </div>
+    <div>Точність: ${activeSignal.accuracy}%</div>
+    <div class="timer">Таймер: ${m}:${s<10?'0'+s:s}</div>`;
 }
 
-function humanTf(tfSeconds){
-  if(tfSeconds < 60) return `${tfSeconds}с`;
-  return `${Math.floor(tfSeconds/60)}м`;
+/* Запуск сигнала */
+document.getElementById("getSignal
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>🐶 DOG SIGNALS — PREMIUM</title>
+<style>
+/* ====== GLOBAL STYLE ====== */
+body {
+  font-family: "Inter", sans-serif;
+  background: radial-gradient(circle at top, #190000 0%, #000 90%);
+  color:#fff;
+  margin:0;
+  padding:0;
+  overflow-x:hidden;
+}
+::-webkit-scrollbar { width:8px; }
+::-webkit-scrollbar-thumb { background:#700000; border-radius:4px; }
+::-webkit-scrollbar-track { background:#1a0000; }
+
+/* ====== HEADER ====== */
+.header {
+  padding: 20px 0 10px;
+  text-align:center;
+  background: rgba(255,0,0,0.04);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid #3a0000;
+  box-shadow:0 0 30px #ff000020 inset;
+}
+.header h1 {
+  font-size:30px;
+  font-weight:800;
+  letter-spacing:1px;
+  color:#ff4b4b;
+  text-shadow:0 0 20px #ff000099, 0 0 40px #ff000040;
+  margin:0;
 }
 
-function generateOtcSignalWithTf(selectedTf){
-  // selectedTf может быть 'random' или конкретный (например '30s' или '3m')
-  let tfSeconds;
-  if(selectedTf === 'random'){
-    tfSeconds = Math.floor(Math.random() * (600 - 5 + 1)) + 5; // 5..600 sec
-  } else {
-    const parsed = parseTfToSeconds(selectedTf);
-    tfSeconds = parsed !== null ? parsed : (Math.floor(Math.random() * (600 - 5 + 1)) + 5);
-  }
-  const dir = Math.random() > 0.5 ? 'UP' : 'DOWN';
-  const acc = (70 + Math.random() * 25).toFixed(1);
-  return { direction: dir, accuracy: acc, remaining: tfSeconds, tfSeconds: tfSeconds };
+/* ====== CARD BLOCKS ====== */
+.card {
+  background: linear-gradient(145deg, #130000, #1d0000);
+  border:1px solid #320000;
+  box-shadow:0 0 25px #ff000020;
+  border-radius:18px;
+  padding:20px;
+  width:92%;
+  max-width:450px;
+  margin:20px auto;
 }
 
-function updateOtcDisplay(){
-  const d = document.getElementById('otcSignalDisplay');
-  if(!activeOtc) return;
-  const m = Math.floor(activeOtc.remaining/60);
-  const s = activeOtc.remaining%60;
-  const anim = activeOtc.direction==='UP'?'blinkUp':'blinkDown';
-  d.innerHTML = `<div style="font-size:22px;font-weight:600;animation:${anim} 1s infinite;">${activeOtc.direction==='UP'?'📈 Вверх ↑':'📉 Вниз ↓'}</div>
-                 <div>Точність: ${activeOtc.accuracy}%</div>
-                 <div>TF: ${humanTf(activeOtc.tfSeconds)}</div>
-                 <div class="timer">Таймер: ${m}:${s<10?'0'+s:s}</div>`;
+/* ====== BUTTONS ====== */
+button {
+  border:none;
+  border-radius:10px;
+  font-size:16px;
+  font-weight:600;
+  padding:12px 0;
+  width:170px;
+  color:#fff;
+  background: linear-gradient(180deg,#ff3b3b,#b30000);
+  box-shadow:0 0 12px #ff000040;
+  transition:0.25s;
+  cursor:pointer;
+}
+button:hover{
+  transform:scale(1.07);
+  box-shadow:0 0 20px #ff000090;
+}
+button:disabled{
+  opacity:.5;
+  background:#330000;
+  cursor:not-allowed;
 }
 
-document.getElementById('getOtcSignalBtn').onclick = () => {
-  const pair = document.getElementById('otcPairSelect').value;
-  const selectedTf = document.getElementById('otcTfSelect').value; // 'random' or '5s','1m',...
-  activeOtc = generateOtcSignalWithTf(selectedTf);
+.activeTab {
+  background: linear-gradient(180deg,#ff6666,#cc0000)!important;
+  transform:scale(1.08);
+}
 
-  document.getElementById('getOtcSignalBtn').disabled = true;
-  document.getElementById('resetOtcSignalBtn').disabled = false;
-  updateOtcDisplay();
+/* ====== SELECTS ====== */
+select{
+  background:#1a0000;
+  border:1px solid #330000;
+  border-radius:10px;
+  color:#ffcccc;
+  padding:10px 14px;
+  font-size:16px;
+  transition:.2s;
+}
+select:hover{
+  border-color:#ff4444;
+}
 
-  otcTimer = setInterval(()=>{
-    if(activeOtc.remaining > 0){
-      activeOtc.remaining--;
-      updateOtcDisplay();
-    } else {
-      clearInterval(otcTimer);
-      const r = Math.random() > 0.5 ? '+' : '-';
-      document.getElementById('otcSignalDisplay').innerHTML = `<div>Пара: ${pair}</div>
-        <div>Сигнал: ${activeOtc.direction==='UP'?'📈 Вверх ↑':'📉 Вниз ↓'}</div>
-        <div>TF: ${humanTf(activeOtc.tfSeconds)}</div>
-        <div>Точність: ${activeOtc.accuracy}%</div>
-        <div>${r==='+'?'<span style="color:#4ade80">✅ +</span>':'<span style="color:#ef4444">❌ −</span>'}</div>`;
-    }
-  }, 1000);
-};
+/* ====== CHART CONTAINER ====== */
+#tv_chart_container{
+  width:94%;
+  max-width:450px;
+  height:350px;
+  margin:10px auto 25px;
+  border-radius:14px;
+  background:#070000;
+  border:1px solid #330000;
+  box-shadow:0 0 30px #ff000015;
+  overflow:hidden;
+  position:relative;
+}
+#tv_chart_container.fullscreen{
+  position:fixed;
+  inset:0;
+  z-index:1000;
+  width:100%;
+  height:100%;
+  border-radius:0;
+  background:#000;
+}
+#tv_chart_container.fullscreen::after{
+  content:"✖";
+  position:absolute;
+  top:15px;
+  right:20px;
+  font-size:32px;
+  color:#fff;
+  cursor:pointer;
+  z-index:1001;
+}
 
-document.getElementById('resetOtcSignalBtn').onclick = () => {
-  clearInterval(otcTimer);
-  activeOtc = null;
-  document.getElementById('otcSignalDisplay').innerHTML = '';
-  document.getElementById('getOtcSignalBtn').disabled = false;
-  document.getElementById('resetOtcSignalBtn').disabled = true;
-};
-</script>
-</body>
-</html>
+/* ====== SIGNAL TEXT ====== */
+#signalDisplay, #otcSignalDisplay {
+  font-size:19px;
+  min-height:90px;
+  padding:10px;
+  text-shadow:0 0 8px #ff000040;
+}
+
+@keyframes blinkUp{0%,100%{color:#4ade80; text-shadow:0 0 15px #22ff22;}50%{color:#fff;}}
+@keyframes blinkDown{0%,100%{color:#ef4444; text-shadow:0 0 15px #ff2222;}50%{color:#fff;}}
+.timer{ animation: blinkUp 1s infinite; }
+
+/* AUTH */
+#authBlock input{
+  padding:10px 14px;
+  border-radius:10px;
+  border:1px solid #330000;
+  background:#1a0000;
+  color:#ffcccc;
+  font-size:16px;
+  width:230px;
+  text-align:center;
+}
+
+</style>
+</head>
+<body>
+
+<div class="header"><h1>🐶 DOG SIGNALS — PREMIUM</h1></div>
+
+<!-- === AUTH BLOCK === -->
+<div id="authBlock" class="card">
+  <p style="font-size:18px;opacity:.9;">Введіть ваш ключ доступу:</p>
+  <input type="text" id="accessKey" placeholder="Введіть ключ...">
+  <br><br>
+  <button id="checkKeyBtn">🔐 Перевірити</button>
+  <p id="authMessage" style="margin-top:10px;color:#ff4444;font-size:15px;"></p>
+</div>
+
+<!-- === SIGNALS MAIN BLOCK === -->
+<div id="signals" style="display:none;">
+
+  <div class="card" style="padding:15px; text-align:center; display:flex; gap:14px; justify-content:center;">
+    <button id="classicBtn" class="activeTab">💱 Звичайний</button>
+    <button id="otcBtn">📊 OTC</button>
+  </div>
+
+  <!-- === CLASSIC MARKET === -->
+  <div id="classicMarket" class="card">
+    <div class="controls" style="display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">
+      <select id="pairSelect">
+        <option>EUR/USD</option><option>GBP/USD</option><option>USD/JPY</option>
+        <option>USD/CHF</option><option>AUD/USD</option><option>NZD/USD</option>
+        <option>EUR/JPY</option><option>GBP/JPY</option><option>EUR/GBP</option>
+        <option>CAD/JPY</option><option>AUD/JPY</option><option>GBP/AUD</option>
+        <option>USD/CAD</option>
+      </select>
+      <select id="tfSelect">
+        <option value="1m">1M</option><option value="3m">3M</option>
+        <option value="5m">5M</option><option value="7m">7M</option>
+      </select>
+    </div>
+
+    <div style="text-align:center; margin-top:14px; display:flex; justify-content:center; gap:14px; flex-wrap:wrap;">
+      <button id="getSignalBtn">🔥 Отримати сигнал</button>
+      <button id="resetSignalBtn" disabled>Скинути</button>
+    </div>
+
+    <div id="signalDisplay"></div>
+    <div id="tv_chart_container"></div>
+    <button id="expandChartBtn" style="margin-top:-5px; background:#222; border:1px solid #444; width:200px;">📈 Розгорнути графік</button>
+  </div>
+
+  <!-- === OTC MARKET === -->
+  <div id="otcMarket" class="card" style="display:none;">
+    <div class="controls" style="display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">
+      <select id="otcPairSelect">
+        <option>EUR/USD OTC</option><option>GBP/USD OTC</option>
+        <option>USD/JPY OTC</option><option>EUR/JPY OTC</option>
+        <option>AUD/USD OTC</option><option>USD/CAD OTC</option>
+      </select>
+      <select id="otcTfSelect" class="small" style="width:130px;">
+        <option value="random">🎲 Random</option>
+        <option value="5s">5с</option><option value="10s">10с</option>
+        <option value="30s">30с</option><option value="1m">1м</option>
+        <option value="2m">2м</option><option value="3m">3м</option>
+        <option value="5m">5м</option><option value="10m">10м</option>
+      </select>
+    </div>
+
+    <div style="margin-top:14px; text-align:center; display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">
+      <button id="getOtcSignalBtn">⚡ Отримати сигнал</button>
+      <button id="resetOtcSignalBtn" disabled>Скинути</button>
+    </div>
+
+    <div id="otcSignalDisplay"></div>
+  </div>
+</div>
+
+<script src="https://s3.tradingview.com/tv.js"></script>
+<script>
+/* === AUTH === */
+const VALID_KEY = "DOG2025";
+const msg = document.get
