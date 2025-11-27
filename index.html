@@ -129,10 +129,8 @@ select:hover{ border-color:#ff3b3b; box-shadow:0 0 10px #ff000040; }
 <div id="signals">
   <div class="controls">
     <button id="classicBtn" class="activeTab">💱 Обычный рынок</button>
-    <button id="otcBtn">📊 OTC рынок</button>
   </div>
 
-  <!-- ===== КЛАССИЧЕСКИЙ РЫНОК ===== -->
   <div id="classicMarket">
     <div class="controls">
       <select id="pairSelect">
@@ -162,7 +160,7 @@ const translations = {
 };
 const langSelect=document.getElementById("langSelect");
 const authText=document.getElementById("authText");
-langSelect.onchange=()=>{const t=translations[langSelect.value]; authText.textContent=t.authText; updateDisplay(); updateOtc();}
+langSelect.onchange=()=>{const t=translations[langSelect.value]; authText.textContent=t.authText; updateDisplay();}
 
 // ===== ПАРОЛЬ =====
 const VALID_KEY = "DOG2025";
@@ -190,12 +188,6 @@ if(localStorage.getItem("dogsignals_access")==="granted"){
   signals.style.display="block";
 }
 
-// ===== ТАБЫ =====
-const classicBtn = document.getElementById("classicBtn");
-const classicMarket = document.getElementById("classicMarket");
-
-classicBtn.onclick = () => { classicMarket.style.display="block"; }
-
 // ===== СИГНАЛЫ И ГРАФИК =====
 const pairSelect = document.getElementById("pairSelect");
 const tfSelect = document.getElementById("tfSelect");
@@ -207,7 +199,7 @@ const tv_chart_container = document.getElementById("tv_chart_container");
 let activeSignal=null, timer=null;
 
 function genSignal(){ return {dir:Math.random()>0.5?"UP":"DOWN", acc:(70+Math.random()*25).toFixed(1)} }
-function tfSeconds(tf){ return 60; } // простой таймер, для демонстрации
+function tfSeconds(tf){ return 60; } // простой таймер
 function updateDisplay(){
   if(!activeSignal) return;
   const t = translations[langSelect.value];
