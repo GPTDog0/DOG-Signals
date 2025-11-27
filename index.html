@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>🐶 DOG SIGNALS</title>
+
 <style>
 body {
   font-family: "Inter", sans-serif;
@@ -12,23 +13,106 @@ body {
   text-align:center;
   margin:0;
   padding:0;
+  overflow-y:auto;
 }
-.header {background: linear-gradient(180deg, #220000, transparent);padding: 18px 0 10px;box-shadow:0 0 25px #ff000020;}
-.header h1 {color:#ff3b3b;font-size:28px;font-weight:700;margin:0;text-shadow:0 0 20px #ff000099;}
-button {border:none;border-radius:12px;font-size:16px;font-weight:600;padding:12px 0;width:170px;color:#fff;background: linear-gradient(180deg,#ff3b3b,#b30000);box-shadow:0 0 12px #ff000040;transition:.25s;cursor:pointer;}
-button:hover{transform:scale(1.06);box-shadow:0 0 20px #ff000080;}
-button:disabled{opacity:.5;background:#330000;cursor:not-allowed;}
-.controls{display:flex;justify-content:center;gap:14px;margin:14px auto 18px;flex-wrap:wrap;}
-select{background:#110000;border:1px solid #330000;border-radius:10px;color:#ffcdcd;padding:10px 14px;font-size:16px;outline:none;transition: .2s;}
-select:hover{border-color:#ff3b3b;box-shadow:0 0 10px #ff000040;}
-#tv_chart_container{width:94%;max-width:450px;height:330px;margin:10px auto 20px;border-radius:12px;background:#080000;border:1px solid #330000;box-shadow:0 0 25px #ff000020;overflow:hidden;position:relative;}
-#signalDisplay,#otcSignalDisplay{font-size:20px;margin:15px 0;text-shadow:0 0 8px #ff000040;min-height:90px;}
-@keyframes blinkUp{0%,100%{color:#4ade80; text-shadow:0 0 15px #22ff22;}50%{color:#fff;text-shadow:0 0 5px #fff;}}
-@keyframes blinkDown{0%,100%{color:#ef4444; text-shadow:0 0 15px #ff2222;}50%{color:#fff;text-shadow:0 0 5px #fff;}}
-.timer{animation: blinkUp 1s infinite;}
-#authBlock{margin-top:70px;}
-#authBlock input{padding:10px 12px;border-radius:10px;border:1px solid #330000;background:#1a0000;color:#ffcccc;width:190px;font-size:16px;}
-#langSelect{position: fixed;top: 12px;right: 12px;background: #1a0000;border: 1px solid #330000;padding: 8px 12px;border-radius: 8px;color: #ffcccc;}
+.header {
+  background: linear-gradient(180deg, #220000, transparent);
+  padding: 18px 0 10px;
+  box-shadow:0 0 25px #ff000020;
+}
+.header h1 {
+  color:#ff3b3b;
+  font-size:28px;
+  font-weight:700;
+  margin:0;
+  text-shadow:0 0 20px #ff000099;
+}
+button {
+  border:none;
+  border-radius:12px;
+  font-size:16px;
+  font-weight:600;
+  padding:12px 0;
+  width:170px;
+  color:#fff;
+  background: linear-gradient(180deg,#ff3b3b,#b30000);
+  box-shadow:0 0 12px #ff000040;
+  transition:.25s;
+  cursor:pointer;
+}
+button:hover{ transform:scale(1.06); box-shadow:0 0 20px #ff000080; }
+button:disabled{ opacity:.5; background:#330000; cursor:not-allowed; }
+.controls{
+  display:flex;
+  justify-content:center;
+  gap:14px;
+  margin:14px auto 18px;
+  flex-wrap:wrap;
+}
+select{
+  background:#110000;
+  border:1px solid #330000;
+  border-radius:10px;
+  color:#ffcdcd;
+  padding:10px 14px;
+  font-size:16px;
+  outline:none;
+  transition: .2s;
+}
+select:hover{ border-color:#ff3b3b; box-shadow:0 0 10px #ff000040; }
+#tv_chart_container{
+  width:94%;
+  max-width:450px;
+  height:330px;
+  margin:10px auto 20px;
+  border-radius:12px;
+  background:#080000;
+  border:1px solid #330000;
+  box-shadow:0 0 25px #ff000020;
+  overflow:hidden;
+  position:relative;
+}
+#tv_chart_container.fullscreen{
+  position:fixed;
+  inset:0;
+  z-index:1000;
+  width:100%;
+  height:100%;
+  border-radius:0;
+  background:#000;
+}
+#tv_chart_container.fullscreen::after{
+  content:"✖";
+  position:absolute;
+  top:12px;
+  right:16px;
+  font-size:28px;
+  color:#fff;
+  cursor:pointer;
+}
+#signalDisplay, #otcSignalDisplay {
+  font-size:20px;
+  margin:15px 0;
+  text-shadow:0 0 8px #ff000040;
+  min-height:90px;
+}
+@keyframes blinkUp{0%,100%{color:#4ade80; text-shadow:0 0 15px #22ff22;}50%{color:#fff; text-shadow:0 0 5px #fff;}}
+@keyframes blinkDown{0%,100%{color:#ef4444; text-shadow:0 0 15px #ff2222;}50%{color:#fff; text-shadow:0 0 5px #fff;}}
+.timer{ animation: blinkUp 1s infinite; }
+#authBlock{ margin-top:70px; }
+#authBlock input{ padding:10px 12px; border-radius:10px; border:1px solid #330000; background:#1a0000; color:#ffcccc; width:190px; font-size:16px; }
+.activeTab { background: linear-gradient(180deg,#ff6666,#cc0000)!important; }
+.small{ width:125px; }
+#langSelect {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  background: #1a0000;
+  border: 1px solid #330000;
+  padding: 8px 12px;
+  border-radius: 8px;
+  color: #ffcccc;
+}
 </style>
 </head>
 <body>
@@ -40,7 +124,7 @@ select:hover{border-color:#ff3b3b;box-shadow:0 0 10px #ff000040;}
 
 <div class="header"><h1>🐶 DOG SIGNALS</h1></div>
 
-<!-- ===== ЭКРАН ПРИВЕТСТВИЯ И ПАРОЛЯ ===== -->
+<!-- ===== АВТОРИЗАЦИЯ ===== -->
 <div id="authBlock">
   <p id="authTitle">Введите ваш ключ доступа:</p>
   <input type="text" id="accessKey" placeholder="Введите ключ...">
@@ -48,7 +132,7 @@ select:hover{border-color:#ff3b3b;box-shadow:0 0 10px #ff000040;}
   <p id="authMessage" style="color:#ff4444;margin-top:10px;"></p>
 </div>
 
-<!-- ===== ОСНОВНОЙ КОНТЕНТ (СКРЫТ) ===== -->
+<!-- ===== СИГНАЛЫ (СКРЫТЫ ПО УМОЛЧАНИЮ) ===== -->
 <div id="signals" style="display:none;">
   <div class="controls">
     <button id="classicBtn" class="activeTab">💱 Обычный рынок</button>
@@ -59,9 +143,13 @@ select:hover{border-color:#ff3b3b;box-shadow:0 0 10px #ff000040;}
     <div class="controls">
       <select id="pairSelect">
         <option>EUR/USD</option><option>GBP/USD</option><option>USD/JPY</option>
+        <option>USD/CHF</option><option>AUD/USD</option><option>NZD/USD</option>
+        <option>EUR/JPY</option><option>GBP/JPY</option><option>EUR/GBP</option>
+        <option>CAD/JPY</option><option>AUD/JPY</option><option>GBP/AUD</option><option>USD/CAD</option>
       </select>
       <select id="tfSelect">
-        <option value="1m">1M</option><option value="5m">5M</option>
+        <option value="1m">1M</option><option value="3m">3M</option>
+        <option value="5m">5M</option><option value="7m">7M</option>
       </select>
     </div>
     <div class="controls">
@@ -76,11 +164,19 @@ select:hover{border-color:#ff3b3b;box-shadow:0 0 10px #ff000040;}
     <div class="controls">
       <select id="otcPairSelect">
         <option>EUR/USD OTC</option><option>GBP/USD OTC</option>
+        <option>USD/JPY OTC</option><option>EUR/JPY OTC</option>
+        <option>AUD/USD OTC</option><option>USD/CAD OTC</option>
       </select>
       <select id="otcTfSelect" class="small">
         <option value="random">🎲 Случайно</option>
         <option value="5s">5 сек</option>
         <option value="10s">10 сек</option>
+        <option value="30s">30 сек</option>
+        <option value="1m">1 мин</option>
+        <option value="2m">2 мин</option>
+        <option value="3m">3 мин</option>
+        <option value="5m">5 мин</option>
+        <option value="10m">10 мин</option>
       </select>
     </div>
     <div class="controls">
@@ -95,8 +191,8 @@ select:hover{border-color:#ff3b3b;box-shadow:0 0 10px #ff000040;}
 <script>
 // ===== ЯЗЫК =====
 const translations = {
-  ru:{authTitle:"Введите ваш ключ доступа:",authPlaceholder:"Введите ключ...",authWrong:"❌ Неверный ключ!",authSuccess:"✅ Доступ разрешён!",classic:"💱 Обычный рынок",otc:"📊 OTC рынок",getSignal:"🔥 Получить сигнал",reset:"♻ Сбросить",getOtc:"⚡ Сигнал OTC",up:"📈 Вверх ↑",down:"📉 Вниз ↓",accuracy:"Точность",timer:"Таймер",tf:"TF",pair:"Пара"},
-  en:{authTitle:"Enter access key:",authPlaceholder:"Enter key...",authWrong:"❌ Invalid key!",authSuccess:"✅ Access granted!",classic:"💱 Classic Market",otc:"📊 OTC Market",getSignal:"🔥 Get Signal",reset:"♻ Reset",getOtc:"⚡ Get OTC Signal",up:"📈 Up ↑",down:"📉 Down ↓",accuracy:"Accuracy",timer:"Timer",tf:"TF",pair:"Pair"}
+  ru: {authTitle:"Введите ваш ключ доступа:",authPlaceholder:"Введите ключ...",authWrong:"❌ Неверный ключ!",authSuccess:"✅ Доступ разрешён!",classic:"💱 Обычный рынок",otc:"📊 OTC рынок",getSignal:"🔥 Получить сигнал",reset:"♻ Сбросить",getOtc:"⚡ Сигнал OTC",up:"📈 Вверх ↑",down:"📉 Вниз ↓",accuracy:"Точность",timer:"Таймер",tf:"TF",pair:"Пара"},
+  en: {authTitle:"Enter access key:",authPlaceholder:"Enter key...",authWrong:"❌ Invalid key!",authSuccess:"✅ Access granted!",classic:"💱 Classic Market",otc:"📊 OTC Market",getSignal:"🔥 Get Signal",reset:"♻ Reset",getOtc:"⚡ Get OTC Signal",up:"📈 Up ↑",down:"📉 Down ↓",accuracy:"Accuracy",timer:"Timer",tf:"TF",pair:"Pair"}
 };
 const langSelect=document.getElementById("langSelect");
 langSelect.onchange=()=>applyLang(langSelect.value);
@@ -119,24 +215,40 @@ checkKeyBtn.onclick=()=>{
   const key=accessKey.value.trim();
   const t=translations[langSelect.value];
   if(key===VALID_KEY){
-    authMessage.style.color="#4ade80";
-    authMessage.textContent=t.authSuccess;
-    authBlock.style.display="none";
-    signals.style.display="block";
+    authMessage.style.color="#4ade80"; authMessage.textContent=t.authSuccess;
+    authBlock.style.display="none"; signals.style.display="block";
     localStorage.setItem("dogsignals_access","granted");
-  }else{
-    authMessage.style.color="#ef4444";
-    authMessage.textContent=t.authWrong;
-  }
+  }else{ authMessage.style.color="#ef4444"; authMessage.textContent=t.authWrong; }
 }
-if(localStorage.getItem("dogsignals_access")==="granted"){
-  authBlock.style.display="none";
-  signals.style.display="block";
-}
+if(localStorage.getItem("dogsignals_access")==="granted"){authBlock.style.display="none";signals.style.display="block";}
 
 // ===== ТАБЫ =====
 classicBtn.onclick=()=>{classicMarket.style.display="block";otcMarket.style.display="none";classicBtn.classList.add("activeTab");otcBtn.classList.remove("activeTab");}
 otcBtn.onclick=()=>{classicMarket.style.display="none";otcMarket.style.display="block";otcBtn.classList.add("activeTab");classicBtn.classList.remove("activeTab");}
+
+// ===== СИГНАЛЫ =====
+function loadTradingView(pair,tf){try{tv_chart_container.innerHTML="";new TradingView.widget({container_id:"tv_chart_container",symbol:`FX:${pair.replace('/','')}`,interval:tf.replace('m',''),theme:"dark",style:1,width:"100%",height:"100%",hide_top_toolbar:true,hide_legend:true});}catch(e){tv_chart_container.innerHTML="⚠️ Chart unavailable"}}
+let activeSignal=null,timer=null;
+function genSignal(){return{dir:Math.random()>0.5?"UP":"DOWN",acc:(70+Math.random()*25).toFixed(1)}}
+function tfSeconds(tf){return+tf.replace("m","")*60}
+function updateDisplay(){if(!activeSignal)return;const t=translations[langSelect.value];signalDisplay.innerHTML=`<div style="font-size:24px;font-weight:700;animation:${activeSignal.dir==="UP"?"blinkUp":"blinkDown"} 1s infinite">${activeSignal.dir==="UP"?t.up:t.down}</div><div>${t.accuracy}: ${activeSignal.acc}%</div><div>${t.timer}: ${activeSignal.rem}s</div>`;}
+getSignalBtn.onclick=()=>{
+  const pair=pairSelect.value,tf=tfSelect.value;
+  activeSignal=genSignal();activeSignal.rem=tfSeconds(tf);
+  loadTradingView(pair,tf);updateDisplay();
+  getSignalBtn.disabled=true;resetSignalBtn.disabled=false;
+  timer=setInterval(()=>{if(activeSignal.rem>0){activeSignal.rem--;updateDisplay();}else{clearInterval(timer);const t=translations[langSelect.value];signalDisplay.innerHTML=`<div>${t.pair}: ${pair}</div><div>${activeSignal.dir==="UP"?t.up:t.down}</div><div>${t.accuracy}: ${activeSignal.acc}%</div>`;}},1000);
+}
+resetSignalBtn.onclick=()=>{clearInterval(timer);activeSignal=null;signalDisplay.innerHTML="";tv_chart_container.innerHTML="";getSignalBtn.disabled=false;resetSignalBtn.disabled=true;}
+
+// ===== OTC =====
+let otcSignal=null,otcTimer=null;
+function parseOTC(tf){if(tf.endsWith("s"))return+tf.replace("s","");if(tf.endsWith("m"))return+tf.replace("m","")*60;return null;}
+function humanTf(sec){return sec<60?sec+" сек":(sec/60)+" мин";}
+function genOtc(tf){let sec=tf==="random"?Math.floor(Math.random()*595)+5:parseOTC(tf);return{dir:Math.random()>0.5?"UP":"DOWN",acc:(70+Math.random()*25).toFixed(1),rem:sec,tf:sec}}
+function updateOtc(){if(!otcSignal)return;const t=translations[langSelect.value];otcSignalDisplay.innerHTML=`<div style="font-size:24px;font-weight:700;animation:${otcSignal.dir==="UP"?"blinkUp":"blinkDown"} 1s infinite">${otcSignal.dir==="UP"?t.up:t.down}</div><div>${t.accuracy}: ${otcSignal.acc}%</div><div>${t.tf}: ${humanTf(otcSignal.tf)}</div><div>${t.timer}: ${otcSignal.rem}s</div>`;}
+getOtcSignalBtn.onclick=()=>{const tf=otcTfSelect.value,pair=otcPairSelect.value;otcSignal=genOtc(tf);getOtcSignalBtn.disabled=true;resetOtcSignalBtn.disabled=false;updateOtc();otcTimer=setInterval(()=>{if(otcSignal.rem>0){otcSignal.rem--;updateOtc();}else{clearInterval(otcTimer);const t=translations[langSelect.value];otcSignalDisplay.innerHTML=`<div>${t.pair}: ${pair}</div><div>${otcSignal.dir==="UP"?t.up:t.down}</div><div>${t.tf}: ${humanTf(otcSignal.tf)}</div><div>${t.accuracy}: ${otcSignal.acc}%</div>`;}},1000);}
+resetOtcSignalBtn.onclick=()=>{clearInterval(otcTimer);otcSignal=null;otcSignalDisplay.innerHTML="";getOtcSignalBtn.disabled=false;resetOtcSignalBtn.disabled=true;}
 </script>
 
 </body>
