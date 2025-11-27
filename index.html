@@ -99,8 +99,8 @@ select:hover{ border-color:#ff3b3b; box-shadow:0 0 10px #ff000040; }
 @keyframes blinkUp{0%,100%{color:#4ade80; text-shadow:0 0 15px #22ff22;}50%{color:#fff; text-shadow:0 0 5px #fff;}}
 @keyframes blinkDown{0%,100%{color:#ef4444; text-shadow:0 0 15px #ff2222;}50%{color:#fff; text-shadow:0 0 5px #fff;}}
 .timer{ animation: blinkUp 1s infinite; }
-#authBlock{ margin-top:70px; }
-#authBlock input{ padding:10px 12px; border-radius:10px; border:1px solid #330000; background:#1a0000; color:#ffcccc; width:190px; font-size:16px; }
+#authBlock, #welcomeBlock { margin-top:70px; }
+#authBlock input, #welcomeBlock button { padding:10px 12px; border-radius:10px; border:1px solid #330000; background:#1a0000; color:#ffcccc; width:190px; font-size:16px; }
 .activeTab { background: linear-gradient(180deg,#ff6666,#cc0000)!important; }
 .small{ width:125px; }
 #langSelect {
@@ -130,6 +130,13 @@ select:hover{ border-color:#ff3b3b; box-shadow:0 0 10px #ff000040; }
   <input type="text" id="accessKey" placeholder="Введите ключ...">
   <button id="checkKeyBtn">🔐 Проверить</button>
   <p id="authMessage" style="color:#ff4444;margin-top:10px;"></p>
+</div>
+
+<!-- ===== ПРИВЕТСТВИЕ ===== -->
+<div id="welcomeBlock" style="display:none;">
+  <h2>👋 Добро пожаловать!</h2>
+  <p>Доступ к сигналам открыт.</p>
+  <button id="enterSignalsBtn">➡ Перейти к сигналам</button>
 </div>
 
 <!-- ===== СИГНАЛЫ (СКРЫТЫ ПО УМОЛЧАНИЮ) ===== -->
@@ -216,11 +223,13 @@ checkKeyBtn.onclick=()=>{
   const t=translations[langSelect.value];
   if(key===VALID_KEY){
     authMessage.style.color="#4ade80"; authMessage.textContent=t.authSuccess;
-    authBlock.style.display="none"; signals.style.display="block";
+    authBlock.style.display="none";
+    welcomeBlock.style.display="block";
     localStorage.setItem("dogsignals_access","granted");
   }else{ authMessage.style.color="#ef4444"; authMessage.textContent=t.authWrong; }
 }
-if(localStorage.getItem("dogsignals_access")==="granted"){authBlock.style.display="none";signals.style.display="block";}
+if(localStorage.getItem("dogsignals_access")==="granted"){authBlock.style.display="none"; welcomeBlock.style.display="block";}
+enterSignalsBtn.onclick=()=>{welcomeBlock.style.display="none"; signals.style.display="block";}
 
 // ===== ТАБЫ =====
 classicBtn.onclick=()=>{classicMarket.style.display="block";otcMarket.style.display="none";classicBtn.classList.add("activeTab");otcBtn.classList.remove("activeTab");}
