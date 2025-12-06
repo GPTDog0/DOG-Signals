@@ -65,8 +65,8 @@ footer { font-size: 12px; color: #ff4444; opacity: 0.7; padding: 8px; }
   <div id="passwordStatus" style="margin-top:10px;color:#ffaaaa;"></div>
 </div>
 
-<!-- 💹 ОСНОВНИЙ ІНТЕРФЕЙС (з'являється після пароля) -->
-<div id="mainApp">
+<!-- 💹 ОСНОВНИЙ ІНТЕРФЕЙС -->
+<div id="mainApp" class="active">
   <h1>🐶 DOG SIGNALS</h1>
   <div class="container">
     <select id="pairSelect">
@@ -92,6 +92,11 @@ footer { font-size: 12px; color: #ff4444; opacity: 0.7; padding: 8px; }
     <button id="getSignalBtn">🔥 Отримати сигнал</button>
     <button id="resetSignalBtn" disabled>Скинути сигнал</button>
   </div>
+
+  <div id="signalDisplay"></div>
+  <div id="tv_chart_container"></div>
+  <footer>© 2025 DOG Signals | Powered by Pocket Option</footer>
+</div>
 
   <div id="signalDisplay"></div>
   <div id="tv_chart_container"></div>
