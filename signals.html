@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DOG Signals | Вхід по паролю → ID</title>
+<title>DOG Signals | Вхід по паролю та ID</title>
 <style>
 body {
   font-family: "Inter", sans-serif;
@@ -34,8 +34,8 @@ input, button {
   margin: 6px 0;
 }
 button:hover { background: #ff0000; color: #fff; box-shadow: 0 0 15px #ff0000aa; }
-#loginBox, #mainApp { display: none; text-align: center; }
-#loginBox.active, #mainApp.active { display: block; }
+#passwordBox, #loginBox, #mainApp { display: none; text-align: center; }
+#passwordBox.active, #loginBox.active, #mainApp.active { display: block; }
 
 #signalDisplay { margin-top: 15px; min-height: 140px; }
 .signal-line { font-size: 15px; margin: 4px 0; }
@@ -55,24 +55,25 @@ footer { font-size: 12px; color: #ff4444; opacity: 0.7; padding: 8px; }
 </head>
 <body>
 
-<!-- 🧩 ВХІД: спочатку ПАРОЛЬ, потім ID -->
-<div id="loginBox" class="active">
+<!-- 🔐 ВХОД ПО ПАРОЛЮ -->
+<div id="passwordBox" class="active">
   <h1>🐶 DOG SIGNALS</h1>
-  <p>Спочатку введіть пароль для доступу:</p>
+  <p>Введіть пароль:</p>
   <input type="password" id="userPassword" placeholder="Пароль">
-  <button id="checkPwdBtn">Перевірити пароль</button>
-  <div id="pwdStatus" style="margin-top:10px;color:#ffaaaa;"></div>
-
-  <!-- Блок ID буде показаний тільки після успішного пароля -->
-  <div id="idBlock" style="margin-top:12px; display:none;">
-    <p>Тепер введіть ваш ID:</p>
-    <input type="text" id="userId" placeholder="Ваш ID">
-    <button id="sendIdBtn">Відправити ID</button>
-    <div id="loginStatus" style="margin-top:10px;color:#ffaaaa;"></div>
-  </div>
+  <button id="checkPasswordBtn">Увійти</button>
+  <div id="passwordStatus" style="margin-top:10px;color:#ffaaaa;"></div>
 </div>
 
-<!-- 💹 ОСНОВНИЙ ІНТЕРФЕЙС -->
+<!-- 🧩 ВХІД ПО ID -->
+<div id="loginBox">
+  <h1>🐶 DOG SIGNALS</h1>
+  <p>Введіть ваш ID для входу:</p>
+  <input type="text" id="userId" placeholder="Ваш ID">
+  <button id="sendIdBtn">Відправити</button>
+  <div id="loginStatus" style="margin-top:10px;color:#ffaaaa;"></div>
+</div>
+
+<!-- 💹 ГОЛОВНИЙ ІНТЕРФЕЙС -->
 <div id="mainApp">
   <h1>🐶 DOG SIGNALS</h1>
   <div class="container">
@@ -108,58 +109,56 @@ footer { font-size: 12px; color: #ff4444; opacity: 0.7; padding: 8px; }
 <script>
 let timerInterval = null;
 const display = document.getElementById("signalDisplay");
+const HARDCODED_PASSWORD = "DOG2025";   // ← Можешь поставить свой пароль
 
-// === Конфіг: змініть пароль тут на свій (приклад) ===
-const HARDCODED_PASSWORD = 'DOG2025'; // ПРИКЛАД: змініть на свій механізм перевірки
+// ==== 🔐 ПРОВЕРКА ПАРОЛЯ ====
+document.getElementById("checkPasswordBtn").onclick = () => {
+  const pass = document.getElementById("userPassword").value.trim();
+  const status = document.getElementById("passwordStatus");
 
-// === 💡 Логіка перевірки пароля ===
-document.getElementById('checkPwdBtn').onclick = () => {
-  const pwd = document.getElementById('userPassword').value;
-  const status = document.getElementById('pwdStatus');
-  if(!pwd){ status.innerText = '⚠️ Введіть пароль!'; return; }
-  status.innerText = '⏳ Перевірка пароля...';
-  setTimeout(()=>{
-    if(pwd === HARDCODED_PASSWORD){
-      status.innerHTML = '✅ Пароль вірний. Введіть ваш ID.';
-      document.getElementById('idBlock').style.display = 'block';
-      // зберігаємо тимчасовий маркер доступу
-      localStorage.setItem('dog_access_granted','true');
-    } else {
-      status.innerHTML = '❌ Невірний пароль.';
-    }
-  },700);
+  if (!pass) {
+    status.innerHTML = "⚠️ Введіть пароль!";
+    return;
+  }
+
+  if (pass === HARDCODED_PASSWORD) {
+    document.getElementById("passwordBox").classList.remove("active");
+    document.getElementById("loginBox").classList.add("active");
+  } else {
+    status.innerHTML = "❌ Невірний пароль!";
+  }
 };
 
-// === 💡 Логін по ID (після пароля) ===
-document.getElementById('sendIdBtn').onclick = () => {
-  const id = document.getElementById('userId').value.trim();
-  const status = document.getElementById('loginStatus');
+// ==== 💡 ЛОГИН ПО ID ====
+document.getElementById("sendIdBtn").onclick = () => {
+  const id = document.getElementById("userId").value.trim();
+  const status = document.getElementById("loginStatus");
 
-  if(!id){ status.innerHTML = '⚠️ Введіть ваш ID!'; return; }
+  if (!id) {
+    status.innerHTML = "⚠️ Введіть ваш ID!";
+    return;
+  }
 
-  // Перевіряємо, чи був наданий пароль раніше
-  const access = localStorage.getItem('dog_access_granted');
-  if(!access){ status.innerHTML = '❌ Спочатку введіть правильний пароль.'; return; }
+  status.innerHTML = "⏳ ID відправлено на перевірку...";
 
-  status.innerHTML = '⏳ ID відправлено на перевірку...';
-  setTimeout(()=>{
-    const approved = true; // тут - ваша логіка перевірки ID
-    if(approved){
-      localStorage.setItem('dog_user_id', id);
-      // приховуємо блок логіну і показуємо основний інтерфейс
-      document.getElementById('loginBox').classList.remove('active');
-      document.getElementById('mainApp').classList.add('active');
+  setTimeout(() => {
+    const approved = true;
+
+    if (approved) {
+      localStorage.setItem("dog_user_id", id);
+      document.getElementById("loginBox").classList.remove("active");
+      document.getElementById("mainApp").classList.add("active");
     } else {
-      status.innerHTML = '❌ Ваш ID відхилено адміністратором.';
+      status.innerHTML = "❌ Ваш ID відхилено адміністратором.";
     }
-  },1000);
+  }, 1500);
 };
 
-// === 📊 Графік ===
+// ==== 📊 ГРАФИК ====
 function tvSymbolFromPair(pair){ return `FX:${pair.replace('/','').toUpperCase()}`; }
 function tvIntervalFromTF(tf){ const map={'5s':'1','15s':'1','3m':'3','5m':'5','7m':'7'}; return map[tf]||'1'; }
 function loadTradingView(pair, tf){
-  const container = document.getElementById('tv_chart_container');
+  const container = document.getElementById("tv_chart_container");
   container.innerHTML='';
   try {
     new TradingView.widget({
@@ -181,7 +180,7 @@ function loadTradingView(pair, tf){
   }
 }
 
-// === 🎯 Логіка сигналів ===
+// ==== 🎯 ГЕНЕРАЦИЯ СИГНАЛОВ ====
 function getRandomSignal(){ const entries=["UP ↑","DOWN ↓"]; return {entry:entries[Math.floor(Math.random()*entries.length)]}; }
 function getPrice(){ return (Math.random()*1.5+1).toFixed(5); }
 function computeResult(entryPrice, exitPrice, direction){
@@ -215,7 +214,7 @@ function runSignal(direction, seconds, title){
   tick(); timerInterval=setInterval(tick,1000);
 }
 
-// === 🔘 Кнопки ===
+// ==== 🔘 КНОПКИ ====
 document.getElementById("getSignalBtn").onclick=()=>{
   const signal=getRandomSignal();
   const btnGet=document.getElementById("getSignalBtn");
