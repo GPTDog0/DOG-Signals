@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DOG Signals | Вхід по паролю та ID</title>
+<title>DOG Signals | Вхід по паролю</title>
 <style>
 body {
   font-family: "Inter", sans-serif;
@@ -55,7 +55,7 @@ footer { font-size: 12px; color: #ff4444; opacity: 0.7; padding: 8px; }
 </head>
 <body>
 
-<!-- 🔐 ВХОД ПО ПАРОЛЮ -->
+<!-- 🔐 ВХІД ПО ПАРОЛЮ -->
 <div id="passwordBox" class="active">
   <h1>🐶 DOG SIGNALS</h1>
   <p>Введіть пароль:</p>
@@ -73,7 +73,7 @@ footer { font-size: 12px; color: #ff4444; opacity: 0.7; padding: 8px; }
   <div id="loginStatus" style="margin-top:10px;color:#ffaaaa;"></div>
 </div>
 
-<!-- 💹 ГОЛОВНИЙ ІНТЕРФЕЙС -->
+<!-- 💹 ОСНОВНИЙ ІНТЕРФЕЙС -->
 <div id="mainApp">
   <h1>🐶 DOG SIGNALS</h1>
   <div class="container">
@@ -109,9 +109,9 @@ footer { font-size: 12px; color: #ff4444; opacity: 0.7; padding: 8px; }
 <script>
 let timerInterval = null;
 const display = document.getElementById("signalDisplay");
-const HARDCODED_PASSWORD = "DOG2025";   // ← Можешь поставить свой пароль
 
-// ==== 🔐 ПРОВЕРКА ПАРОЛЯ ====
+// === 🔐 ПАРОЛЬ ===
+const CORRECT_PASSWORD = "DOG2025";
 document.getElementById("checkPasswordBtn").onclick = () => {
   const pass = document.getElementById("userPassword").value.trim();
   const status = document.getElementById("passwordStatus");
@@ -121,7 +121,7 @@ document.getElementById("checkPasswordBtn").onclick = () => {
     return;
   }
 
-  if (pass === HARDCODED_PASSWORD) {
+  if (pass === CORRECT_PASSWORD) {
     document.getElementById("passwordBox").classList.remove("active");
     document.getElementById("loginBox").classList.add("active");
   } else {
@@ -129,32 +129,15 @@ document.getElementById("checkPasswordBtn").onclick = () => {
   }
 };
 
-// ==== 💡 ЛОГИН ПО ID ====
+// === 💡 Логін по ID ===
 document.getElementById("sendIdBtn").onclick = () => {
   const id = document.getElementById("userId").value.trim();
-  const status = document.getElementById("loginStatus");
-
-  if (!id) {
-    status.innerHTML = "⚠️ Введіть ваш ID!";
-    return;
-  }
-
-  status.innerHTML = "⏳ ID відправлено на перевірку...";
-
-  setTimeout(() => {
-    const approved = true;
-
-    if (approved) {
-      localStorage.setItem("dog_user_id", id);
-      document.getElementById("loginBox").classList.remove("active");
-      document.getElementById("mainApp").classList.add("active");
-    } else {
-      status.innerHTML = "❌ Ваш ID відхилено адміністратором.";
-    }
-  }, 1500);
+  localStorage.setItem("dog_user_id", id || "default"); 
+  document.getElementById("loginBox").classList.remove("active");
+  document.getElementById("mainApp").classList.add("active");
 };
 
-// ==== 📊 ГРАФИК ====
+// === 📊 Графік ===
 function tvSymbolFromPair(pair){ return `FX:${pair.replace('/','').toUpperCase()}`; }
 function tvIntervalFromTF(tf){ const map={'5s':'1','15s':'1','3m':'3','5m':'5','7m':'7'}; return map[tf]||'1'; }
 function loadTradingView(pair, tf){
@@ -180,7 +163,7 @@ function loadTradingView(pair, tf){
   }
 }
 
-// ==== 🎯 ГЕНЕРАЦИЯ СИГНАЛОВ ====
+// === 🎯 Логіка сигналів ===
 function getRandomSignal(){ const entries=["UP ↑","DOWN ↓"]; return {entry:entries[Math.floor(Math.random()*entries.length)]}; }
 function getPrice(){ return (Math.random()*1.5+1).toFixed(5); }
 function computeResult(entryPrice, exitPrice, direction){
@@ -214,7 +197,7 @@ function runSignal(direction, seconds, title){
   tick(); timerInterval=setInterval(tick,1000);
 }
 
-// ==== 🔘 КНОПКИ ====
+// === 🔘 Кнопки ===
 document.getElementById("getSignalBtn").onclick=()=>{
   const signal=getRandomSignal();
   const btnGet=document.getElementById("getSignalBtn");
