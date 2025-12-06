@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DOG Signals | Вхід по ID</title>
+<title>DOG Signals | Вхід по паролю</title>
 <style>
 body {
   font-family: "Inter", sans-serif;
@@ -64,7 +64,7 @@ footer { font-size: 12px; color: #ff4444; opacity: 0.7; padding: 8px; }
   <div id="passwordStatus" style="margin-top:10px;color:#ffaaaa;"></div>
 </div>
 
-<!-- 🧩 ВХІД ПО ID (оставляем как есть, но сразу показываем интерфейс после пароля) -->
+<!-- 🧩 ВХІД ПО ID -->
 <div id="loginBox">
   <h1>🐶 DOG SIGNALS</h1>
   <p>Введіть ваш ID для входу:</p>
@@ -123,16 +123,16 @@ document.getElementById("checkPasswordBtn").onclick = () => {
 
   if (pass === CORRECT_PASSWORD) {
     document.getElementById("passwordBox").classList.remove("active");
-    document.getElementById("mainApp").classList.add("active");
+    document.getElementById("loginBox").classList.add("active");
   } else {
     status.innerHTML = "❌ Невірний пароль!";
   }
 };
 
-// === 💡 Логіка ID кнопки оставляем, но она больше не нужна ===
+// === 💡 Логін по ID ===
 document.getElementById("sendIdBtn").onclick = () => {
   const id = document.getElementById("userId").value.trim();
-  localStorage.setItem("dog_user_id", id || "default"); // просто сохраняем для совместимости
+  localStorage.setItem("dog_user_id", id || "default"); 
   document.getElementById("loginBox").classList.remove("active");
   document.getElementById("mainApp").classList.add("active");
 };
