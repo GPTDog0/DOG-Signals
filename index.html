@@ -35,7 +35,7 @@ input, button {
 }
 button:hover { background: #ff0000; color: #fff; box-shadow: 0 0 15px #ff0000aa; }
 
-#passwordBox, #loginBox, #mainApp { display: none; text-align: center; }
+#passwordBox, #mainApp { display: none; text-align: center; }
 .active { display: block !important; }
 
 #signalDisplay { margin-top: 15px; min-height: 140px; }
@@ -65,16 +65,7 @@ footer { font-size: 12px; color: #ff4444; opacity: 0.7; padding: 8px; }
   <div id="passwordStatus" style="margin-top:10px;color:#ffaaaa;"></div>
 </div>
 
-<!-- 🧩 ВХІД ПО ID -->
-<div id="loginBox">
-  <h1>🐶 DOG SIGNALS</h1>
-  <p>Введіть ваш ID для входу:</p>
-  <input type="text" id="userId" placeholder="Ваш ID">
-  <button id="sendIdBtn">Відправити</button>
-  <div id="loginStatus" style="margin-top:10px;color:#ffaaaa;"></div>
-</div>
-
-<!-- 💹 ОСНОВНИЙ ІНТЕРФЕЙС -->
+<!-- 💹 ОСНОВНИЙ ІНТЕРФЕЙС (з'являється після пароля) -->
 <div id="mainApp">
   <h1>🐶 DOG SIGNALS</h1>
   <div class="container">
@@ -111,53 +102,30 @@ footer { font-size: 12px; color: #ff4444; opacity: 0.7; padding: 8px; }
 let timerInterval = null;
 const display = document.getElementById("signalDisplay");
 
-
 // === 🔐 Перевірка ПАРОЛЯ ===
 const CORRECT_PASSWORD = "DOG2025";
 
 document.getElementById("checkPasswordBtn").onclick = () => {
-  const pass = document.getElementById("userPassword").value.trim();
+  const pass = document.getElementById("userPassword").value;
   const status = document.getElementById("passwordStatus");
 
-  if (!pass) {
+  if (!pass || pass.trim() === "") {
     status.innerHTML = "⚠️ Введіть пароль!";
     return;
   }
 
-  if (pass === CORRECT_PASSWORD) {
+  // подчистим пробелы и сравним строго
+  if (pass.trim() === CORRECT_PASSWORD) {
+    // скрываем парольный блок и показываем основной интерфейс
     document.getElementById("passwordBox").classList.remove("active");
-    document.getElementById("loginBox").classList.add("active");
+    document.getElementById("mainApp").classList.add("active");
+    // очищаем поле и статус
+    document.getElementById("userPassword").value = "";
+    status.innerHTML = "";
   } else {
     status.innerHTML = "❌ Невірний пароль!";
   }
 };
-
-
-// === 💡 Логін по ID ===
-document.getElementById("sendIdBtn").onclick = () => {
-  const id = document.getElementById("userId").value.trim();
-  const status = document.getElementById("loginStatus");
-
-  if (!id) {
-    status.innerHTML = "⚠️ Введіть ваш ID!";
-    return;
-  }
-
-  status.innerHTML = "⏳ ID відправлено на перевірку...";
-
-  setTimeout(() => {
-    const approved = true;
-
-    if (approved) {
-      localStorage.setItem("dog_user_id", id);
-      document.getElementById("loginBox").classList.remove("active");
-      document.getElementById("mainApp").classList.add("active");
-    } else {
-      status.innerHTML = "❌ Ваш ID відхилено.";
-    }
-  }, 1200);
-};
-
 
 // === 📊 Графік ===
 function tvSymbolFromPair(pair){ return `FX:${pair.replace('/', '').toUpperCase()}`; }
@@ -185,8 +153,68 @@ function loadTradingView(pair, tf){
   }
 }
 
-
 // === 🎯 Логіка сигналів ===
 function getRandomSignal(){ const entries=["UP ↑","DOWN ↓"]; return {entry:entries[Math.floor(Math.random()*entries.length)]}; }
 function getPrice(){ return (Math.random()*1.5+1).toFixed(5); }
 function computeResult(entryPrice, exitPrice, direction){
+  if(direction==="UP ↑") return exitPrice>entryPrice ? '+' : '-';
+  if(direction==="DOWN ↓") return exitPrice<entryPrice ? '+' : '-';
+  return '-';
+}
+function runSignal(direction, seconds, title){
+  const entryPrice=parseFloat(getPrice());
+  const endTime=new Date(Date.now()+seconds*1000);
+  function tick(){
+    const now=new Date();
+    const remaining=Math.max(0,Math.ceil((endTime-now)/1000));
+    const min=Math.floor(remaining/60);
+    const sec=remaining%60;
+    if(remaining<=0){
+      clearInterval(timerInterval);
+      const exitPrice=parseFloat(getPrice());
+      const r=computeResult(entryPrice,exitPrice,direction);
+      display.innerHTML+=`<div class="signal-line">${title}: ${direction}</div>
+        <div class="signal-line">${r==='+'?'<span class="result-plus">✅ + (прибуток)</span>':'<span class="result-dogon">❌ Догон</span>'}</div>`;
+      if(r==='-' && title==='Сигнал'){
+        display.innerHTML+=`<div class="signal-line result-load">⏳ Генерація догон...</div>`;
+        setTimeout(()=>{ runSignal(direction,120,'Догон'); },1500);
+      }
+    } else {
+      display.innerHTML=`<div class="signal-line">${title}: ${direction}</div>
+        <div class="signal-line">Таймер: ${min}:${sec<10?'0'+sec:sec}</div>`;
+    }
+  }
+  tick(); timerInterval=setInterval(tick,1000);
+}
+
+// === 🔘 Кнопки ===
+document.getElementById("getSignalBtn").onclick=()=>{
+  const signal=getRandomSignal();
+  const btnGet=document.getElementById("getSignalBtn");
+  const btnReset=document.getElementById("resetSignalBtn");
+  const pairSelect=document.getElementById("pairSelect");
+  const tfSelect=document.getElementById("tfSelect");
+  btnGet.disabled=true; pairSelect.disabled=true; tfSelect.disabled=true; btnReset.disabled=true;
+  display.innerHTML='<div class="signal-line result-load">⏳ Генерація сигналу...</div>';
+  setTimeout(()=>{
+    const tf=tfSelect.value;
+    const map={'5s':5,'15s':15,'3m':180,'5m':300,'7m':420};
+    runSignal(signal.entry,map[tf],'Сигнал');
+    loadTradingView(pairSelect.value, tf);
+    btnReset.disabled=false;
+  },1000);
+};
+
+document.getElementById("resetSignalBtn").onclick=()=>{
+  clearInterval(timerInterval);
+  display.innerHTML='';
+  document.getElementById("tv_chart_container").innerHTML='';
+  document.getElementById("getSignalBtn").disabled=false;
+  document.getElementById("pairSelect").disabled=false;
+  document.getElementById("tfSelect").disabled=false;
+  document.getElementById("resetSignalBtn").disabled=true;
+};
+</script>
+
+</body>
+</html>
