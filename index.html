@@ -1,220 +1,143 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DOG Signals | Вхід по ID</title>
+<title>🐶 DOG SIGNALS</title>
 <style>
 body {
   font-family: "Inter", sans-serif;
-  background: radial-gradient(circle at center, #180000 0%, #000 90%);
-  color: #f4f4f4;
-  margin: 0; padding: 0;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  height: 100vh;
+  background: radial-gradient(circle at top, #1a0000 0%, #000 90%);
+  color:#fff;
+  text-align:center;
+  margin:0;
+  padding:0;
 }
-h1 {
-  color: #ff2e2e;
-  font-weight: 800;
-  font-size: 26px;
-  margin-bottom: 10px;
-  text-shadow: 0 0 12px #ff0000aa;
-}
-input, button {
-  background: linear-gradient(180deg, #1a0000 0%, #000 100%);
-  border: 1px solid #ff0000;
-  color: #ffcccc;
-  padding: 10px;
-  border-radius: 8px;
-  font-size: 15px;
-  width: 220px;
-  text-align: center;
-  box-shadow: 0 0 10px #ff000055;
-  margin: 6px 0;
-}
-button:hover { background: #ff0000; color: #fff; box-shadow: 0 0 15px #ff0000aa; }
-#loginBox, #mainApp { display: none; text-align: center; }
-#loginBox.active, #mainApp.active { display: block; }
-
-#signalDisplay { margin-top: 15px; min-height: 140px; }
-.signal-line { font-size: 15px; margin: 4px 0; }
-.result-plus { color: #4ade80; font-weight: 700; }
-.result-dogon { color: #facc15; font-weight: 700; }
-.result-load { color: #ffaaaa; font-style: italic; }
-
-#tv_chart_container {
-  width: 100%; max-width: 600px; height: 350px;
-  margin: 15px auto 20px; border-radius: 12px;
-  overflow: hidden; box-shadow: 0 0 25px #ff000033;
-  background: #0a0000; border: 1px solid #330000;
-}
-footer { font-size: 12px; color: #ff4444; opacity: 0.7; padding: 8px; }
+.header {background: linear-gradient(180deg, #220000, transparent);padding: 18px 0 10px;box-shadow:0 0 25px #ff000020;}
+.header h1 {color:#ff3b3b;font-size:28px;font-weight:700;margin:0;text-shadow:0 0 20px #ff000099;}
+button {border:none;border-radius:12px;font-size:16px;font-weight:600;padding:12px 0;width:170px;color:#fff;background: linear-gradient(180deg,#ff3b3b,#b30000);box-shadow:0 0 12px #ff000040;transition:.25s;cursor:pointer;}
+button:hover{transform:scale(1.06);box-shadow:0 0 20px #ff000080;}
+button:disabled{opacity:.5;background:#330000;cursor:not-allowed;}
+.controls{display:flex;justify-content:center;gap:14px;margin:14px auto 18px;flex-wrap:wrap;}
+select{background:#110000;border:1px solid #330000;border-radius:10px;color:#ffcdcd;padding:10px 14px;font-size:16px;outline:none;transition: .2s;}
+select:hover{border-color:#ff3b3b;box-shadow:0 0 10px #ff000040;}
+#tv_chart_container{width:94%;max-width:450px;height:330px;margin:10px auto 20px;border-radius:12px;background:#080000;border:1px solid #330000;box-shadow:0 0 25px #ff000020;overflow:hidden;position:relative;}
+#signalDisplay,#otcSignalDisplay{font-size:20px;margin:15px 0;text-shadow:0 0 8px #ff000040;min-height:90px;}
+@keyframes blinkUp{0%,100%{color:#4ade80; text-shadow:0 0 15px #22ff22;}50%{color:#fff;text-shadow:0 0 5px #fff;}}
+@keyframes blinkDown{0%,100%{color:#ef4444; text-shadow:0 0 15px #ff2222;}50%{color:#fff;text-shadow:0 0 5px #fff;}}
+.timer{animation: blinkUp 1s infinite;}
+#authBlock{margin-top:70px;}
+#authBlock input{padding:10px 12px;border-radius:10px;border:1px solid #330000;background:#1a0000;color:#ffcccc;width:190px;font-size:16px;}
+#langSelect{position: fixed;top: 12px;right: 12px;background: #1a0000;border: 1px solid #330000;padding: 8px 12px;border-radius: 8px;color: #ffcccc;}
 </style>
-<script src="https://s3.tradingview.com/tv.js"></script>
 </head>
 <body>
 
-<!-- 🧩 ВХІД -->
-<div id="loginBox" class="active">
-  <h1>🐶 DOG SIGNALS</h1>
-  <p>Введіть ваш ID для входу:</p>
-  <input type="text" id="userId" placeholder="Ваш ID">
-  <button id="sendIdBtn">Відправити</button>
-  <div id="loginStatus" style="margin-top:10px;color:#ffaaaa;"></div>
+<select id="langSelect">
+  <option value="ru">🇷🇺 Русский</option>
+  <option value="en">🇬🇧 English</option>
+</select>
+
+<div class="header"><h1>🐶 DOG SIGNALS</h1></div>
+
+<!-- ===== ЭКРАН ПРИВЕТСТВИЯ И ПАРОЛЯ ===== -->
+<div id="authBlock">
+  <p id="authTitle">Введите ваш ключ доступа:</p>
+  <input type="text" id="accessKey" placeholder="Введите ключ...">
+  <button id="checkKeyBtn">🔐 Проверить</button>
+  <p id="authMessage" style="color:#ff4444;margin-top:10px;"></p>
 </div>
 
-<!-- 💹 ОСНОВНИЙ ІНТЕРФЕЙС -->
-<div id="mainApp">
-  <h1>🐶 DOG SIGNALS</h1>
-  <div class="container">
-    <select id="pairSelect">
-      <option>EUR/USD</option>
-      <option>GBP/USD</option>
-      <option>USD/JPY</option>
-      <option>USD/CHF</option>
-      <option>AUD/USD</option>
-      <option>NZD/USD</option>
-      <option>EUR/JPY</option>
-      <option>GBP/JPY</option>
-      <option>EUR/GBP</option>
-    </select>
-
-    <select id="tfSelect">
-      <option value="5s">5S</option>
-      <option value="15s">15S</option>
-      <option value="3m">3M</option>
-      <option value="5m">5M</option>
-      <option value="7m">7M</option>
-    </select>
-
-    <button id="getSignalBtn">🔥 Отримати сигнал</button>
-    <button id="resetSignalBtn" disabled>Скинути сигнал</button>
+<!-- ===== ОСНОВНОЙ КОНТЕНТ (СКРЫТ) ===== -->
+<div id="signals" style="display:none;">
+  <div class="controls">
+    <button id="classicBtn" class="activeTab">💱 Обычный рынок</button>
+    <button id="otcBtn">📊 OTC рынок</button>
   </div>
 
-  <div id="signalDisplay"></div>
-  <div id="tv_chart_container"></div>
-  <footer>© 2025 DOG Signals | Powered by Pocket Option</footer>
+  <div id="classicMarket">
+    <div class="controls">
+      <select id="pairSelect">
+        <option>EUR/USD</option><option>GBP/USD</option><option>USD/JPY</option>
+      </select>
+      <select id="tfSelect">
+        <option value="1m">1M</option><option value="5m">5M</option>
+      </select>
+    </div>
+    <div class="controls">
+      <button id="getSignalBtn">🔥 Получить сигнал</button>
+      <button id="resetSignalBtn" disabled>♻ Сбросить</button>
+    </div>
+    <div id="signalDisplay"></div>
+    <div id="tv_chart_container"></div>
+  </div>
+
+  <div id="otcMarket" style="display:none;">
+    <div class="controls">
+      <select id="otcPairSelect">
+        <option>EUR/USD OTC</option><option>GBP/USD OTC</option>
+      </select>
+      <select id="otcTfSelect" class="small">
+        <option value="random">🎲 Случайно</option>
+        <option value="5s">5 сек</option>
+        <option value="10s">10 сек</option>
+      </select>
+    </div>
+    <div class="controls">
+      <button id="getOtcSignalBtn">⚡ Сигнал OTC</button>
+      <button id="resetOtcSignalBtn" disabled>♻ Сбросить</button>
+    </div>
+    <div id="otcSignalDisplay"></div>
+  </div>
 </div>
 
+<script src="https://s3.tradingview.com/tv.js"></script>
 <script>
-let timerInterval = null;
-const display = document.getElementById("signalDisplay");
-
-// === 💡 Логін по ID ===
-document.getElementById("sendIdBtn").onclick = () => {
-  const id = document.getElementById("userId").value.trim();
-  const status = document.getElementById("loginStatus");
-
-  if (!id) {
-    status.innerHTML = "⚠️ Введіть ваш ID!";
-    return;
-  }
-
-  // Симулюємо відправку ID на перевірку
-  status.innerHTML = "⏳ ID відправлено на перевірку...";
-  
-  // Тут в майбутньому буде реальна перевірка через Telegram / базу
-  setTimeout(() => {
-    // Імітація "схвалення"
-    const approved = true;
-
-    if (approved) {
-      localStorage.setItem("dog_user_id", id);
-      document.getElementById("loginBox").classList.remove("active");
-      document.getElementById("mainApp").classList.add("active");
-    } else {
-      status.innerHTML = "❌ Ваш ID відхилено адміністратором.";
-    }
-  }, 2000);
+// ===== ЯЗЫК =====
+const translations = {
+  ru:{authTitle:"Введите ваш ключ доступа:",authPlaceholder:"Введите ключ...",authWrong:"❌ Неверный ключ!",authSuccess:"✅ Доступ разрешён!",classic:"💱 Обычный рынок",otc:"📊 OTC рынок",getSignal:"🔥 Получить сигнал",reset:"♻ Сбросить",getOtc:"⚡ Сигнал OTC",up:"📈 Вверх ↑",down:"📉 Вниз ↓",accuracy:"Точность",timer:"Таймер",tf:"TF",pair:"Пара"},
+  en:{authTitle:"Enter access key:",authPlaceholder:"Enter key...",authWrong:"❌ Invalid key!",authSuccess:"✅ Access granted!",classic:"💱 Classic Market",otc:"📊 OTC Market",getSignal:"🔥 Get Signal",reset:"♻ Reset",getOtc:"⚡ Get OTC Signal",up:"📈 Up ↑",down:"📉 Down ↓",accuracy:"Accuracy",timer:"Timer",tf:"TF",pair:"Pair"}
 };
+const langSelect=document.getElementById("langSelect");
+langSelect.onchange=()=>applyLang(langSelect.value);
+function applyLang(lang){
+  const t=translations[lang];
+  authTitle.textContent=t.authTitle;
+  accessKey.placeholder=t.authPlaceholder;
+  classicBtn.textContent=t.classic;
+  otcBtn.textContent=t.otc;
+  getSignalBtn.textContent=t.getSignal;
+  resetSignalBtn.textContent=t.reset;
+  getOtcSignalBtn.textContent=t.getOtc;
+  resetOtcSignalBtn.textContent=t.reset;
+}
+applyLang("ru");
 
-// === 📊 Графік ===
-function tvSymbolFromPair(pair){ return `FX:${pair.replace('/','').toUpperCase()}`; }
-function tvIntervalFromTF(tf){ const map={'5s':'1','15s':'1','3m':'3','5m':'5','7m':'7'}; return map[tf]||'1'; }
-function loadTradingView(pair, tf){
-  const container = document.getElementById("tv_chart_container");
-  container.innerHTML='';
-  try {
-    new TradingView.widget({
-      container_id:"tv_chart_container",
-      symbol:tvSymbolFromPair(pair),
-      interval:tvIntervalFromTF(tf),
-      timezone:"Etc/UTC",
-      theme:"dark",
-      style:"1",
-      locale:"ru",
-      hide_side_toolbar:true,
-      hide_top_toolbar:true,
-      allow_symbol_change:false,
-      withdateranges:false,
-      enable_publishing:false
-    });
-  } catch(e) {
-    container.innerHTML='<div style="padding:12px;color:#ffaaaa">Помилка завантаження графіка</div>';
+// ===== АВТОРИЗАЦИЯ =====
+const VALID_KEY="DOG2025";
+checkKeyBtn.onclick=()=>{
+  const key=accessKey.value.trim();
+  const t=translations[langSelect.value];
+  if(key===VALID_KEY){
+    authMessage.style.color="#4ade80";
+    authMessage.textContent=t.authSuccess;
+    authBlock.style.display="none";
+    signals.style.display="block";
+    localStorage.setItem("dogsignals_access","granted");
+  }else{
+    authMessage.style.color="#ef4444";
+    authMessage.textContent=t.authWrong;
   }
 }
-
-// === 🎯 Логіка сигналів ===
-function getRandomSignal(){ const entries=["UP ↑","DOWN ↓"]; return {entry:entries[Math.floor(Math.random()*entries.length)]}; }
-function getPrice(){ return (Math.random()*1.5+1).toFixed(5); }
-function computeResult(entryPrice, exitPrice, direction){
-  if(direction==="UP ↑") return exitPrice>entryPrice ? '+' : '-';
-  if(direction==="DOWN ↓") return exitPrice<entryPrice ? '+' : '-';
-  return '-';
-}
-function runSignal(direction, seconds, title){
-  const entryPrice=parseFloat(getPrice());
-  const endTime=new Date(Date.now()+seconds*1000);
-  function tick(){
-    const now=new Date();
-    const remaining=Math.max(0,Math.ceil((endTime-now)/1000));
-    const min=Math.floor(remaining/60);
-    const sec=remaining%60;
-    if(remaining<=0){
-      clearInterval(timerInterval);
-      const exitPrice=parseFloat(getPrice());
-      const r=computeResult(entryPrice,exitPrice,direction);
-      display.innerHTML+=`<div class="signal-line">${title}: ${direction}</div>
-        <div class="signal-line">${r==='+'?'<span class="result-plus">✅ + (прибуток)</span>':'<span class="result-dogon">❌ Догон</span>'}</div>`;
-      if(r==='-' && title==='Сигнал'){
-        display.innerHTML+=`<div class="signal-line result-load">⏳ Генерація догон...</div>`;
-        setTimeout(()=>{ runSignal(direction,120,'Догон'); },1500);
-      }
-    } else {
-      display.innerHTML=`<div class="signal-line">${title}: ${direction}</div>
-        <div class="signal-line">Таймер: ${min}:${sec<10?'0'+sec:sec}</div>`;
-    }
-  }
-  tick(); timerInterval=setInterval(tick,1000);
+if(localStorage.getItem("dogsignals_access")==="granted"){
+  authBlock.style.display="none";
+  signals.style.display="block";
 }
 
-// === 🔘 Кнопки ===
-document.getElementById("getSignalBtn").onclick=()=>{
-  const signal=getRandomSignal();
-  const btnGet=document.getElementById("getSignalBtn");
-  const btnReset=document.getElementById("resetSignalBtn");
-  const pairSelect=document.getElementById("pairSelect");
-  const tfSelect=document.getElementById("tfSelect");
-  btnGet.disabled=true; pairSelect.disabled=true; tfSelect.disabled=true; btnReset.disabled=true;
-  display.innerHTML='<div class="signal-line result-load">⏳ Генерація сигналу...</div>';
-  setTimeout(()=>{
-    const tf=tfSelect.value;
-    const map={'5s':5,'15s':15,'3m':180,'5m':300,'7m':420};
-    runSignal(signal.entry,map[tf],'Сигнал');
-    loadTradingView(pairSelect.value, tf);
-    btnReset.disabled=false;
-  },1000);
-};
-document.getElementById("resetSignalBtn").onclick=()=>{
-  clearInterval(timerInterval);
-  display.innerHTML='';
-  document.getElementById("tv_chart_container").innerHTML='';
-  document.getElementById("getSignalBtn").disabled=false;
-  document.getElementById("pairSelect").disabled=false;
-  document.getElementById("tfSelect").disabled=false;
-  document.getElementById("resetSignalBtn").disabled=true;
-};
+// ===== ТАБЫ =====
+classicBtn.onclick=()=>{classicMarket.style.display="block";otcMarket.style.display="none";classicBtn.classList.add("activeTab");otcBtn.classList.remove("activeTab");}
+otcBtn.onclick=()=>{classicMarket.style.display="none";otcMarket.style.display="block";otcBtn.classList.add("activeTab");classicBtn.classList.remove("activeTab");}
 </script>
+
 </body>
-</html> вот мой код просто добавь пароль и всеее!!!
+</html>
