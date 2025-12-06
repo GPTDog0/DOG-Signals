@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DOG Signals | Вхід по паролю</title>
+<title>DOG Signals | Вхід по ID</title>
 <style>
 body {
   font-family: "Inter", sans-serif;
@@ -34,8 +34,8 @@ input, button {
   margin: 6px 0;
 }
 button:hover { background: #ff0000; color: #fff; box-shadow: 0 0 15px #ff0000aa; }
-#passwordBox, #loginBox, #mainApp { display: none; text-align: center; }
-#passwordBox.active, #loginBox.active, #mainApp.active { display: block; }
+#loginBox, #mainApp { display: none; text-align: center; }
+#loginBox.active, #mainApp.active { display: block; }
 
 #signalDisplay { margin-top: 15px; min-height: 140px; }
 .signal-line { font-size: 15px; margin: 4px 0; }
@@ -55,17 +55,8 @@ footer { font-size: 12px; color: #ff4444; opacity: 0.7; padding: 8px; }
 </head>
 <body>
 
-<!-- 🔐 ВХІД ПО ПАРОЛЮ -->
-<div id="passwordBox" class="active">
-  <h1>🐶 DOG SIGNALS</h1>
-  <p>Введіть пароль:</p>
-  <input type="password" id="userPassword" placeholder="Пароль">
-  <button id="checkPasswordBtn">Увійти</button>
-  <div id="passwordStatus" style="margin-top:10px;color:#ffaaaa;"></div>
-</div>
-
-<!-- 🧩 ВХІД ПО ID -->
-<div id="loginBox">
+<!-- 🧩 ВХІД -->
+<div id="loginBox" class="active">
   <h1>🐶 DOG SIGNALS</h1>
   <p>Введіть ваш ID для входу:</p>
   <input type="text" id="userId" placeholder="Ваш ID">
@@ -110,31 +101,32 @@ footer { font-size: 12px; color: #ff4444; opacity: 0.7; padding: 8px; }
 let timerInterval = null;
 const display = document.getElementById("signalDisplay");
 
-// === 🔐 ПАРОЛЬ ===
-const CORRECT_PASSWORD = "DOG2025";
-document.getElementById("checkPasswordBtn").onclick = () => {
-  const pass = document.getElementById("userPassword").value.trim();
-  const status = document.getElementById("passwordStatus");
-
-  if (!pass) {
-    status.innerHTML = "⚠️ Введіть пароль!";
-    return;
-  }
-
-  if (pass === CORRECT_PASSWORD) {
-    document.getElementById("passwordBox").classList.remove("active");
-    document.getElementById("loginBox").classList.add("active");
-  } else {
-    status.innerHTML = "❌ Невірний пароль!";
-  }
-};
-
 // === 💡 Логін по ID ===
 document.getElementById("sendIdBtn").onclick = () => {
   const id = document.getElementById("userId").value.trim();
-  localStorage.setItem("dog_user_id", id || "default"); 
-  document.getElementById("loginBox").classList.remove("active");
-  document.getElementById("mainApp").classList.add("active");
+  const status = document.getElementById("loginStatus");
+
+  if (!id) {
+    status.innerHTML = "⚠️ Введіть ваш ID!";
+    return;
+  }
+
+  // Симулюємо відправку ID на перевірку
+  status.innerHTML = "⏳ ID відправлено на перевірку...";
+  
+  // Тут в майбутньому буде реальна перевірка через Telegram / базу
+  setTimeout(() => {
+    // Імітація "схвалення"
+    const approved = true;
+
+    if (approved) {
+      localStorage.setItem("dog_user_id", id);
+      document.getElementById("loginBox").classList.remove("active");
+      document.getElementById("mainApp").classList.add("active");
+    } else {
+      status.innerHTML = "❌ Ваш ID відхилено адміністратором.";
+    }
+  }, 2000);
 };
 
 // === 📊 Графік ===
@@ -225,4 +217,4 @@ document.getElementById("resetSignalBtn").onclick=()=>{
 };
 </script>
 </body>
-</html>
+</html> смотри тут в коде есть ошибка, должно быть сначала введите пароль, потом уже доступ к сигналам, а тут нету его 
