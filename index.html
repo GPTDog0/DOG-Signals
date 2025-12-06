@@ -159,10 +159,9 @@ document.getElementById("sendIdBtn").onclick = () => {
 };
 
 
-
 // === 📊 Графік ===
-function tvSymbolFromPair(pair){ return `FX:${pair.replace('/','').toUpperCase()}`; }
-function tvIntervalFromTF(tf){ const map={'5s':'1','15s':'1','3m':'3','5m':'5','7m':'7'}; return map[tf]||'1'; }
+function tvSymbolFromPair(pair){ return `FX:${pair.replace('/', '').toUpperCase()}`; }
+function tvIntervalFromTF(tf){ const map={"5s":"1","15s":"1","3m":"3","5m":"5","7m":"7"}; return map[tf]||"1"; }
 function loadTradingView(pair, tf){
   const container = document.getElementById("tv_chart_container");
   container.innerHTML='';
@@ -191,65 +190,3 @@ function loadTradingView(pair, tf){
 function getRandomSignal(){ const entries=["UP ↑","DOWN ↓"]; return {entry:entries[Math.floor(Math.random()*entries.length)]}; }
 function getPrice(){ return (Math.random()*1.5+1).toFixed(5); }
 function computeResult(entryPrice, exitPrice, direction){
-  if(direction==="UP ↑") return exitPrice>entryPrice ? '+' : '-';
-  if(direction==="DOWN ↓") return exitPrice<entryPrice ? '+' : '-';
-  return '-';
-}
-function runSignal(direction, seconds, title){
-  const entryPrice=parseFloat(getPrice());
-  const endTime=new Date(Date.now()+seconds*1000);
-  function tick(){
-    const now=new Date();
-    const remaining=Math.max(0,Math.ceil((endTime-now)/1000));
-    const min=Math.floor(remaining/60);
-    const sec=remaining%60;
-    if(remaining<=0){
-      clearInterval(timerInterval);
-      const exitPrice=parseFloat(getPrice());
-      const r=computeResult(entryPrice,exitPrice,direction);
-      display.innerHTML+=`<div class="signal-line">${title}: ${direction}</div>
-        <div class="signal-line">${r==='+'?'<span class="result-plus">✅ + (прибуток)</span>':'<span class="result-dogon">❌ Догон</span>'}</div>`;
-      if(r==='-' && title==='Сигнал'){
-        display.innerHTML+=`<div class="signal-line result-load">⏳ Генерація догон...</div>`;
-        setTimeout(()=>{ runSignal(direction,120,'Догон'); },1500);
-      }
-    } else {
-      display.innerHTML=`<div class="signal-line">${title}: ${direction}</div>
-        <div class="signal-line">Таймер: ${min}:${sec<10?'0'+sec:sec}</div>`;
-    }
-  }
-  tick(); timerInterval=setInterval(tick,1000);
-}
-
-
-// === 🔘 Кнопки ===
-document.getElementById("getSignalBtn").onclick=()=>{
-  const signal=getRandomSignal();
-  const btnGet=document.getElementById("getSignalBtn");
-  const btnReset=document.getElementById("resetSignalBtn");
-  const pairSelect=document.getElementById("pairSelect");
-  const tfSelect=document.getElementById("tfSelect");
-  btnGet.disabled=true; pairSelect.disabled=true; tfSelect.disabled=true; btnReset.disabled=true;
-  display.innerHTML='<div class="signal-line result-load">⏳ Генерація сигналу...</div>';
-  setTimeout(()=>{
-    const tf=tfSelect.value;
-    const map={'5s':5,'15s':15,'3m':180,'5m':300,'7m':420};
-    runSignal(signal.entry,map[tf],'Сигнал');
-    loadTradingView(pairSelect.value, tf);
-    btnReset.disabled=false;
-  },1000);
-};
-
-document.getElementById("resetSignalBtn").onclick=()=>{
-  clearInterval(timerInterval);
-  display.innerHTML='';
-  document.getElementById("tv_chart_container").innerHTML='';
-  document.getElementById("getSignalBtn").disabled=false;
-  document.getElementById("pairSelect").disabled=false;
-  document.getElementById("tfSelect").disabled=false;
-  document.getElementById("resetSignalBtn").disabled=true;
-};
-</script>
-
-</body>
-</html>
