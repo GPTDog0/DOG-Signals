@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DOG Signals | Вхід по ID</title>
+<title>DOG Signals | Вхід по паролю → ID</title>
 <style>
 body {
   font-family: "Inter", sans-serif;
@@ -55,13 +55,21 @@ footer { font-size: 12px; color: #ff4444; opacity: 0.7; padding: 8px; }
 </head>
 <body>
 
-<!-- 🧩 ВХІД -->
+<!-- 🧩 ВХІД: спочатку ПАРОЛЬ, потім ID -->
 <div id="loginBox" class="active">
   <h1>🐶 DOG SIGNALS</h1>
-  <p>Введіть ваш ID для входу:</p>
-  <input type="text" id="userId" placeholder="Ваш ID">
-  <button id="sendIdBtn">Відправити</button>
-  <div id="loginStatus" style="margin-top:10px;color:#ffaaaa;"></div>
+  <p>Спочатку введіть пароль для доступу:</p>
+  <input type="password" id="userPassword" placeholder="Пароль">
+  <button id="checkPwdBtn">Перевірити пароль</button>
+  <div id="pwdStatus" style="margin-top:10px;color:#ffaaaa;"></div>
+
+  <!-- Блок ID буде показаний тільки після успішного пароля -->
+  <div id="idBlock" style="margin-top:12px; display:none;">
+    <p>Тепер введіть ваш ID:</p>
+    <input type="text" id="userId" placeholder="Ваш ID">
+    <button id="sendIdBtn">Відправити ID</button>
+    <div id="loginStatus" style="margin-top:10px;color:#ffaaaa;"></div>
+  </div>
 </div>
 
 <!-- 💹 ОСНОВНИЙ ІНТЕРФЕЙС -->
@@ -101,39 +109,57 @@ footer { font-size: 12px; color: #ff4444; opacity: 0.7; padding: 8px; }
 let timerInterval = null;
 const display = document.getElementById("signalDisplay");
 
-// === 💡 Логін по ID ===
-document.getElementById("sendIdBtn").onclick = () => {
-  const id = document.getElementById("userId").value.trim();
-  const status = document.getElementById("loginStatus");
+// === Конфіг: змініть пароль тут на свій (приклад) ===
+const HARDCODED_PASSWORD = 'DOG2025'; // ПРИКЛАД: змініть на свій механізм перевірки
 
-  if (!id) {
-    status.innerHTML = "⚠️ Введіть ваш ID!";
-    return;
-  }
-
-  // Симулюємо відправку ID на перевірку
-  status.innerHTML = "⏳ ID відправлено на перевірку...";
-  
-  // Тут в майбутньому буде реальна перевірка через Telegram / базу
-  setTimeout(() => {
-    // Імітація "схвалення"
-    const approved = true;
-
-    if (approved) {
-      localStorage.setItem("dog_user_id", id);
-      document.getElementById("loginBox").classList.remove("active");
-      document.getElementById("mainApp").classList.add("active");
+// === 💡 Логіка перевірки пароля ===
+document.getElementById('checkPwdBtn').onclick = () => {
+  const pwd = document.getElementById('userPassword').value;
+  const status = document.getElementById('pwdStatus');
+  if(!pwd){ status.innerText = '⚠️ Введіть пароль!'; return; }
+  status.innerText = '⏳ Перевірка пароля...';
+  setTimeout(()=>{
+    if(pwd === HARDCODED_PASSWORD){
+      status.innerHTML = '✅ Пароль вірний. Введіть ваш ID.';
+      document.getElementById('idBlock').style.display = 'block';
+      // зберігаємо тимчасовий маркер доступу
+      localStorage.setItem('dog_access_granted','true');
     } else {
-      status.innerHTML = "❌ Ваш ID відхилено адміністратором.";
+      status.innerHTML = '❌ Невірний пароль.';
     }
-  }, 2000);
+  },700);
+};
+
+// === 💡 Логін по ID (після пароля) ===
+document.getElementById('sendIdBtn').onclick = () => {
+  const id = document.getElementById('userId').value.trim();
+  const status = document.getElementById('loginStatus');
+
+  if(!id){ status.innerHTML = '⚠️ Введіть ваш ID!'; return; }
+
+  // Перевіряємо, чи був наданий пароль раніше
+  const access = localStorage.getItem('dog_access_granted');
+  if(!access){ status.innerHTML = '❌ Спочатку введіть правильний пароль.'; return; }
+
+  status.innerHTML = '⏳ ID відправлено на перевірку...';
+  setTimeout(()=>{
+    const approved = true; // тут - ваша логіка перевірки ID
+    if(approved){
+      localStorage.setItem('dog_user_id', id);
+      // приховуємо блок логіну і показуємо основний інтерфейс
+      document.getElementById('loginBox').classList.remove('active');
+      document.getElementById('mainApp').classList.add('active');
+    } else {
+      status.innerHTML = '❌ Ваш ID відхилено адміністратором.';
+    }
+  },1000);
 };
 
 // === 📊 Графік ===
 function tvSymbolFromPair(pair){ return `FX:${pair.replace('/','').toUpperCase()}`; }
 function tvIntervalFromTF(tf){ const map={'5s':'1','15s':'1','3m':'3','5m':'5','7m':'7'}; return map[tf]||'1'; }
 function loadTradingView(pair, tf){
-  const container = document.getElementById("tv_chart_container");
+  const container = document.getElementById('tv_chart_container');
   container.innerHTML='';
   try {
     new TradingView.widget({
