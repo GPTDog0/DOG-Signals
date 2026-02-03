@@ -40,8 +40,7 @@ button{
   color:#fff;
   cursor:pointer;
 }
-button:hover{transform:scale(1.05);}
-button:disabled{opacity:.5;cursor:not-allowed;}
+button:disabled{opacity:.5;}
 select,input{
   background:#110000;
   border:1px solid #330000;
@@ -55,7 +54,7 @@ select,input{
 #signals{display:none;}
 #signalDisplay,#otcSignalDisplay{
   font-size:20px;
-  min-height:90px;
+  min-height:100px;
   margin-top:15px;
 }
 #tv_chart_container{
@@ -106,14 +105,13 @@ select,input{
         <option>EUR/USD</option><option>GBP/USD</option><option>USD/JPY</option>
         <option>USD/CHF</option><option>AUD/USD</option><option>NZD/USD</option>
         <option>EUR/JPY</option><option>GBP/JPY</option><option>EUR/GBP</option>
-        <option>CAD/JPY</option><option>AUD/JPY</option><option>GBP/AUD</option>
-        <option>USD/CAD</option>
+        <option>CAD/JPY</option><option>AUD/JPY</option><option>GBP/AUD</option><option>USD/CAD</option>
       </select>
       <select id="tfSelect">
-        <option value="1">1M</option>
-        <option value="3">3M</option>
-        <option value="5">5M</option>
-        <option value="7">7M</option>
+        <option value="60">1M</option>
+        <option value="180">3M</option>
+        <option value="300">5M</option>
+        <option value="420">7M</option>
       </select>
     </div>
 
@@ -161,19 +159,17 @@ const VALID_KEY="DOG2025";
 openAuthBtn.onclick=()=>{
   authBlock.style.display="block";
   signals.style.display="none";
-  authMessage.textContent="";
-  accessKey.value="";
 };
 
 checkKeyBtn.onclick=()=>{
   if(accessKey.value.trim()===VALID_KEY){
-    authMessage.style.color="#4ade80";
-    authMessage.textContent="Доступ разрешён";
     authBlock.style.display="none";
     signals.style.display="block";
+    authMessage.textContent="✅ Доступ разрешён";
+    authMessage.style.color="#4ade80";
   }else{
+    authMessage.textContent="❌ Неверный ключ";
     authMessage.style.color="#ef4444";
-    authMessage.textContent="Неверный ключ";
   }
 };
 
@@ -196,42 +192,55 @@ function loadTV(pair,tf){
   new TradingView.widget({
     container_id:"tv_chart_container",
     symbol:"FX:"+pair.replace("/",""),
-    interval:tf,
+    interval:Math.max(1,tf/60),
     theme:"dark",
-    style:1,
+    hide_top_toolbar:true,
     width:"100%",
-    height:"100%",
-    hide_top_toolbar:true
+    height:"100%"
   });
 }
 
 function genSignal(){
-  return{
-    dir:Math.random()>0.5?"UP":"DOWN",
-    acc:(70+Math.random()*25).toFixed(1)
-  };
+  return{dir:Math.random()>0.5?"UP":"DOWN",acc:(70+Math.random()*25).toFixed(1)};
 }
 
-let timer=null;
+let timer=null, remaining=0, currentSignal=null;
+
+function startTimer(sec, display, onEnd){
+  remaining=sec;
+  timer=setInterval(()=>{
+    remaining--;
+    display();
+    if(remaining<=0){
+      clearInterval(timer);
+      onEnd();
+    }
+  },1000);
+}
 
 getSignalBtn.onclick=()=>{
   const pair=pairSelect.value;
-  const tf=tfSelect.value;
-  const s=genSignal();
-
+  const tf=+tfSelect.value;
+  currentSignal=genSignal();
   loadTV(pair,tf);
-
-  signalDisplay.innerHTML=
-    `<div style="font-size:26px;font-weight:700;animation:${s.dir==="UP"?"blinkUp":"blinkDown"} 1s infinite">
-      ${s.dir==="UP"?"📈 ВВЕРХ":"📉 ВНИЗ"}
-     </div>
-     <div>Точность: ${s.acc}%</div>`;
 
   getSignalBtn.disabled=true;
   resetSignalBtn.disabled=false;
+
+  startTimer(tf, ()=>{
+    signalDisplay.innerHTML=
+      `<div style="font-size:26px;font-weight:700;animation:${currentSignal.dir==="UP"?"blinkUp":"blinkDown"} 1s infinite">
+      ${currentSignal.dir==="UP"?"📈 ВВЕРХ":"📉 ВНИЗ"}
+      </div>
+      <div>Точность: ${currentSignal.acc}%</div>
+      <div>⏳ Осталось: ${remaining} сек</div>`;
+  }, ()=>{
+    signalDisplay.innerHTML+=`<div>⏱ Сигнал завершён</div>`;
+  });
 };
 
 resetSignalBtn.onclick=()=>{
+  clearInterval(timer);
   signalDisplay.innerHTML="";
   tv_chart_container.innerHTML="";
   getSignalBtn.disabled=false;
@@ -239,17 +248,25 @@ resetSignalBtn.onclick=()=>{
 };
 
 getOtcSignalBtn.onclick=()=>{
-  const s=genSignal();
-  otcSignalDisplay.innerHTML=
-    `<div style="font-size:26px;font-weight:700;animation:${s.dir==="UP"?"blinkUp":"blinkDown"} 1s infinite">
-      ${s.dir==="UP"?"📈 ВВЕРХ":"📉 ВНИЗ"}
-     </div>
-     <div>Точность: ${s.acc}%</div>`;
+  const tf=+otcTfSelect.value;
+  currentSignal=genSignal();
   getOtcSignalBtn.disabled=true;
   resetOtcSignalBtn.disabled=false;
+
+  startTimer(tf, ()=>{
+    otcSignalDisplay.innerHTML=
+      `<div style="font-size:26px;font-weight:700;animation:${currentSignal.dir==="UP"?"blinkUp":"blinkDown"} 1s infinite">
+      ${currentSignal.dir==="UP"?"📈 ВВЕРХ":"📉 ВНИЗ"}
+      </div>
+      <div>Точность: ${currentSignal.acc}%</div>
+      <div>⏳ Осталось: ${remaining} сек</div>`;
+  }, ()=>{
+    otcSignalDisplay.innerHTML+=`<div>⏱ Сигнал завершён</div>`;
+  });
 };
 
 resetOtcSignalBtn.onclick=()=>{
+  clearInterval(timer);
   otcSignalDisplay.innerHTML="";
   getOtcSignalBtn.disabled=false;
   resetOtcSignalBtn.disabled=true;
