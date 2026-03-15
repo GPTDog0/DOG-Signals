@@ -3,161 +3,105 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🐶 DOG SIGNALS TERMINAL</title>
-
+<title>🐶 DOG SIGNALS CYBERPUNK</title>
 <style>
 body{
-  font-family:Inter,sans-serif;
   margin:0;
-  color:#fff;
-  background:
-    radial-gradient(circle at 20% 20%,#220000 0%,transparent 40%),
-    radial-gradient(circle at 80% 0%,#300000 0%,transparent 35%),
-    #050505;
+  font-family:Inter,sans-serif;
   overflow-x:hidden;
+  background:#050005;
+  color:#fff;
 }
 
-.header{
+header{
   padding:30px;
-  font-size:26px;
+  text-align:center;
+  font-size:28px;
   font-weight:700;
   letter-spacing:2px;
-  background:rgba(20,0,0,.6);
-  backdrop-filter:blur(10px);
-  border-bottom:1px solid #330000;
-  text-align:center;
-  text-shadow:
-    0 0 10px #ff0000,
-    0 0 25px #ff0000;
+  text-shadow:0 0 10px #ff0080,0 0 20px #ff00c0;
 }
 
+/* интерактивный фон */
+#bgCanvas{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  z-index:-1;
+}
+
+/* кнопки и селекты */
 .controls{
-  display:flex;
-  flex-wrap:wrap;
-  gap:12px;
-  justify-content:center;
-  margin:20px;
+  display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin:20px;
 }
-
 button{
-  background:linear-gradient(180deg,#ff2a2a,#800000);
-  border:none;
   padding:12px 18px;
-  border-radius:12px;
-  color:#fff;
-  font-weight:600;
+  border:none;border-radius:12px;
   cursor:pointer;
+  font-weight:600;
+  color:#fff;
+  background:linear-gradient(180deg,#ff00aa,#800050);
+  box-shadow:0 0 15px rgba(255,0,200,.5);
   transition:.25s;
-  box-shadow:0 0 15px rgba(255,0,0,.4);
 }
-button:hover{
-  transform:translateY(-2px);
-  box-shadow:0 0 25px rgba(255,0,0,.8);
-}
-button:disabled{
-  opacity:.4;
-}
-
+button:hover{transform:translateY(-2px);box-shadow:0 0 25px rgba(255,0,200,.9);}
+button:disabled{opacity:.4;}
 select,input{
-  background:#0f0f0f;
-  border:1px solid #330000;
-  color:#ffb3b3;
-  padding:10px;
-  border-radius:10px;
+  padding:10px;border-radius:10px;border:1px solid #440044;background:#0f001f;color:#ff99cc;
 }
 
-.activeTab{
-  background:#ff0000!important;
-}
+/* активные вкладки */
+.activeTab{background:#ff00aa!important;}
 
-#signalDisplay,#otcSignalDisplay{
-  margin-top:20px;
-  min-height:140px;
-}
-
+/* карточки сигналов */
 .signalCard{
-  background:rgba(15,15,15,.75);
-  border:1px solid rgba(255,0,0,.2);
+  background:rgba(20,0,20,0.75);
+  border:1px solid rgba(255,0,200,.2);
   border-radius:20px;
   padding:25px;
   width:300px;
   margin:auto;
   backdrop-filter:blur(12px);
-  box-shadow:0 0 30px rgba(255,0,0,.25);
+  box-shadow:0 0 30px rgba(255,0,200,.3);
   transition:.3s;
+  text-align:center;
 }
-
 .signalArrow{
-  font-size:42px;
-  font-weight:700;
+  font-size:42px;font-weight:700;
 }
-
-.up{
-  color:#4ade80;
-  animation:upPulse 1s infinite;
-}
-
-.down{
-  color:#ef4444;
-  animation:downPulse 1s infinite;
-}
-
-@keyframes upPulse{
-  0%{transform:scale(1)}
-  50%{transform:scale(1.1)}
-  100%{transform:scale(1)}
-}
-
-@keyframes downPulse{
-  0%{transform:scale(1)}
-  50%{transform:scale(1.1)}
-  100%{transform:scale(1)}
-}
+.up{color:#4ade80;animation:upPulse 1s infinite;}
+.down{color:#ef4444;animation:downPulse 1s infinite;}
+@keyframes upPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+@keyframes downPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
 
 .loader{
-  width:45px;
-  height:45px;
-  border:4px solid #220000;
-  border-top:4px solid #ff0000;
-  border-radius:50%;
-  margin:auto;
+  width:45px;height:45px;
+  border:4px solid #220022;border-top:4px solid #ff00aa;
+  border-radius:50%;margin:auto;
   animation:spin 1s linear infinite;
 }
+@keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
 
-@keyframes spin{
-  0%{transform:rotate(0)}
-  100%{transform:rotate(360deg)}
-}
-
+/* график TradingView */
 #tv_chart_container{
-  width:94%;
-  max-width:450px;
-  height:320px;
-  margin:25px auto;
-  border-radius:14px;
-  border:1px solid #330000;
-  box-shadow:0 0 25px rgba(255,0,0,.2);
-  overflow:hidden;
+  width:94%;max-width:450px;height:320px;margin:25px auto;
+  border-radius:14px;border:1px solid #330033;overflow:hidden;
 }
 
-/* Скрываем сигналы до авторизации */
-#signals{
-  display:none;
-}
+/* скрываем сигналы до авторизации */
+#signals{display:none;}
 </style>
 </head>
-
 <body>
 
-<div class="header">
-  <h1>🐶 DOG SIGNALS TERMINAL</h1>
-</div>
+<canvas id="bgCanvas"></canvas>
+
+<header>🐶 DOG SIGNALS CYBERPUNK</header>
 
 <div class="controls">
   <button id="openAuthBtn">🔐 Ввести ключ доступа</button>
 </div>
 
-<!-- ПАРОЛЬ -->
 <div id="authBlock">
   <p>Введите ключ доступа:</p>
   <input id="accessKey" placeholder="Введите ключ">
@@ -166,7 +110,6 @@ select,input{
   <p id="authMessage"></p>
 </div>
 
-<!-- СИГНАЛЫ -->
 <div id="signals">
 
   <div class="controls">
@@ -174,55 +117,32 @@ select,input{
     <button id="otcBtn">📊 OTC рынок</button>
   </div>
 
-  <!-- CLASSIC -->
   <div id="classicMarket">
     <div class="controls">
       <select id="pairSelect">
         <option>EUR/USD</option><option>GBP/USD</option><option>USD/JPY</option>
-        <option>USD/CHF</option><option>AUD/USD</option><option>NZD/USD</option>
-        <option>EUR/JPY</option><option>GBP/JPY</option><option>EUR/GBP</option>
-        <option>CAD/JPY</option><option>AUD/JPY</option><option>GBP/AUD</option><option>USD/CAD</option>
       </select>
       <select id="tfSelect">
-        <option value="60">1M</option>
-        <option value="180">3M</option>
-        <option value="300">5M</option>
-        <option value="420">7M</option>
+        <option value="60">1M</option><option value="180">3M</option><option value="300">5M</option>
       </select>
     </div>
-
     <div class="controls">
       <button id="getSignalBtn">🔥 Получить сигнал</button>
       <button id="resetSignalBtn" disabled>♻ Сбросить</button>
     </div>
-
     <div id="signalDisplay"></div>
     <div id="tv_chart_container"></div>
   </div>
 
-  <!-- OTC -->
   <div id="otcMarket" style="display:none;">
     <div class="controls">
-      <select id="otcPairSelect">
-        <option>EUR/USD OTC</option><option>GBP/USD OTC</option>
-        <option>USD/JPY OTC</option><option>EUR/JPY OTC</option>
-        <option>AUD/USD OTC</option><option>USD/CAD OTC</option>
-      </select>
-      <select id="otcTfSelect">
-        <option value="5">5 сек</option>
-        <option value="10">10 сек</option>
-        <option value="30">30 сек</option>
-        <option value="60">1 мин</option>
-        <option value="120">2 мин</option>
-        <option value="300">5 мин</option>
-      </select>
+      <select id="otcPairSelect"><option>EUR/USD OTC</option></select>
+      <select id="otcTfSelect"><option value="60">1 мин</option></select>
     </div>
-
     <div class="controls">
       <button id="getOtcSignalBtn">⚡ Сигнал OTC</button>
       <button id="resetOtcSignalBtn" disabled>♻ Сбросить</button>
     </div>
-
     <div id="otcSignalDisplay"></div>
   </div>
 
@@ -230,141 +150,84 @@ select,input{
 
 <script src="https://s3.tradingview.com/tv.js"></script>
 <script>
+// ========= ЛОГИКА АВТОРИЗАЦИИ =========
 const VALID_KEY="DOG2025";
-
-openAuthBtn.onclick=()=>{
-  authBlock.style.display="block";
-  signals.style.display="none";
-};
-
+openAuthBtn.onclick=()=>{authBlock.style.display="block";signals.style.display="none";}
 checkKeyBtn.onclick=()=>{
   if(accessKey.value.trim()===VALID_KEY){
-    authBlock.style.display="none";
-    signals.style.display="block";
-    authMessage.textContent="✅ Доступ разрешён";
-    authMessage.style.color="#4ade80";
+    authBlock.style.display="none";signals.style.display="block";
+    authMessage.textContent="✅ Доступ разрешён";authMessage.style.color="#4ade80";
   }else{
-    authMessage.textContent="❌ Неверный ключ";
-    authMessage.style.color="#ef4444";
+    authMessage.textContent="❌ Неверный ключ";authMessage.style.color="#ef4444";
   }
 };
 
-classicBtn.onclick=()=>{
-  classicMarket.style.display="block";
-  otcMarket.style.display="none";
-  classicBtn.classList.add("activeTab");
-  otcBtn.classList.remove("activeTab");
-};
+// ========= ПЕРЕКЛЮЧЕНИЕ РЫНКОВ =========
+classicBtn.onclick=()=>{classicMarket.style.display="block";otcMarket.style.display="none";classicBtn.classList.add("activeTab");otcBtn.classList.remove("activeTab");}
+otcBtn.onclick=()=>{classicMarket.style.display="none";otcMarket.style.display="block";otcBtn.classList.add("activeTab");classicBtn.classList.remove("activeTab");}
 
-otcBtn.onclick=()=>{
-  classicMarket.style.display="none";
-  otcMarket.style.display="block";
-  otcBtn.classList.add("activeTab");
-  classicBtn.classList.remove("activeTab");
-};
-
+// ========= TRADINGVIEW =========
 function loadTV(pair,tf){
   tv_chart_container.innerHTML="";
-  new TradingView.widget({
-    container_id:"tv_chart_container",
-    symbol:"FX:"+pair.replace("/",""),
-    interval:Math.max(1,tf/60),
-    theme:"dark",
-    hide_top_toolbar:true,
-    width:"100%",
-    height:"100%"
-  });
+  new TradingView.widget({container_id:"tv_chart_container",symbol:"FX:"+pair.replace("/",""),interval:Math.max(1,tf/60),theme:"dark",hide_top_toolbar:true,width:"100%",height:"100%"});
 }
 
-function genSignal(){
-  return {dir:Math.random()>0.5?"UP":"DOWN", acc:(70+Math.random()*25).toFixed(1)};
-}
+// ========= ГЕНЕРАЦИЯ СИГНАЛА =========
+function genSignal(){return {dir:Math.random()>0.5?"UP":"DOWN", acc:(70+Math.random()*25).toFixed(1)};}
 
-let timer=null, remaining=0, currentSignal=null;
-
+let timer=null,remaining=0,currentSignal=null;
 function startTimer(sec, display, onEnd){
   remaining=sec;
-  timer=setInterval(()=>{
-    remaining--;
-    display();
-    if(remaining<=0){
-      clearInterval(timer);
-      onEnd();
-    }
-  },1000);
+  timer=setInterval(()=>{remaining--;display();if(remaining<=0){clearInterval(timer);onEnd();}},1000);
 }
 
-// CLASSIC SIGNAL
+// ========= CLASSIC SIGNAL =========
 getSignalBtn.onclick=()=>{
-  signalDisplay.innerHTML=`
-  <div class="signalCard">
-    <div class="loader"></div>
-    <p style="margin-top:10px">🐶 DOG AI анализирует рынок...</p>
-  </div>`;
-  
+  signalDisplay.innerHTML=`<div class="signalCard"><div class="loader"></div><p style="margin-top:10px">🐶 DOG AI анализирует рынок...</p></div>`;
   setTimeout(()=>{
-    const pair=pairSelect.value;
-    const tf=+tfSelect.value;
+    const pair=pairSelect.value,tf=+tfSelect.value;
     currentSignal=genSignal();
     loadTV(pair,tf);
-    getSignalBtn.disabled=true;
-    resetSignalBtn.disabled=false;
+    getSignalBtn.disabled=true;resetSignalBtn.disabled=false;
     startTimer(tf, ()=>{
-      signalDisplay.innerHTML=`
-      <div class="signalCard">
-        <div class="signalArrow ${currentSignal.dir==="UP"?"up":"down"}">
-        ${currentSignal.dir==="UP"?"📈 BUY":"📉 SELL"}</div>
-        <p>Accuracy: ${currentSignal.acc}%</p>
-        <p>⏳ ${remaining} sec</p>
-      </div>`;
-    }, ()=>{
-      signalDisplay.innerHTML+=`<p>Signal finished</p>`;
-    });
+      signalDisplay.innerHTML=`<div class="signalCard"><div class="signalArrow ${currentSignal.dir==="UP"?"up":"down"}">${currentSignal.dir==="UP"?"📈 BUY":"📉 SELL"}</div><p>Accuracy: ${currentSignal.acc}%</p><p>⏳ ${remaining} sec</p></div>`;
+    },()=>{signalDisplay.innerHTML+=`<p>Signal finished</p>`});
   },2000);
 };
+resetSignalBtn.onclick=()=>{clearInterval(timer);signalDisplay.innerHTML="";tv_chart_container.innerHTML="";getSignalBtn.disabled=false;resetSignalBtn.disabled=true;}
 
-resetSignalBtn.onclick=()=>{
-  clearInterval(timer);
-  signalDisplay.innerHTML="";
-  tv_chart_container.innerHTML="";
-  getSignalBtn.disabled=false;
-  resetSignalBtn.disabled=true;
-};
-
-// OTC SIGNAL
+// ========= OTC SIGNAL =========
 getOtcSignalBtn.onclick=()=>{
-  otcSignalDisplay.innerHTML=`
-  <div class="signalCard">
-    <div class="loader"></div>
-    <p style="margin-top:10px">🐶 DOG AI анализирует рынок OTC...</p>
-  </div>`;
-
+  otcSignalDisplay.innerHTML=`<div class="signalCard"><div class="loader"></div><p style="margin-top:10px">🐶 DOG AI анализирует рынок OTC...</p></div>`;
   setTimeout(()=>{
     const tf=+otcTfSelect.value;
     currentSignal=genSignal();
-    getOtcSignalBtn.disabled=true;
-    resetOtcSignalBtn.disabled=false;
+    getOtcSignalBtn.disabled=true;resetOtcSignalBtn.disabled=false;
     startTimer(tf, ()=>{
-      otcSignalDisplay.innerHTML=`
-      <div class="signalCard">
-        <div class="signalArrow ${currentSignal.dir==="UP"?"up":"down"}">
-        ${currentSignal.dir==="UP"?"📈 BUY":"📉 SELL"}</div>
-        <p>Accuracy: ${currentSignal.acc}%</p>
-        <p>⏳ ${remaining} sec</p>
-      </div>`;
-    }, ()=>{
-      otcSignalDisplay.innerHTML+=`<p>Signal finished</p>`;
-    });
+      otcSignalDisplay.innerHTML=`<div class="signalCard"><div class="signalArrow ${currentSignal.dir==="UP"?"up":"down"}">${currentSignal.dir==="UP"?"📈 BUY":"📉 SELL"}</div><p>Accuracy: ${currentSignal.acc}%</p><p>⏳ ${remaining} sec</p></div>`;
+    },()=>{otcSignalDisplay.innerHTML+=`<p>Signal finished</p>`});
   },2000);
 };
+resetOtcSignalBtn.onclick=()=>{clearInterval(timer);otcSignalDisplay.innerHTML="";getOtcSignalBtn.disabled=false;resetOtcSignalBtn.disabled=true;}
 
-resetOtcSignalBtn.onclick=()=>{
-  clearInterval(timer);
-  otcSignalDisplay.innerHTML="";
-  getOtcSignalBtn.disabled=false;
-  resetOtcSignalBtn.disabled=true;
-};
+// ========= ИНТЕРАКТИВНЫЙ ФОН =========
+const canvas=document.getElementById("bgCanvas"),ctx=canvas.getContext("2d");
+canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+let particles=[];
+for(let i=0;i<120;i++){particles.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,dx:(Math.random()-0.5)*1.2,dy:(Math.random()-0.5)*1.2,size:Math.random()*2+1})}
+function animateParticles(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  particles.forEach(p=>{
+    ctx.fillStyle="rgba(255,0,200,0.5)";
+    ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill();
+    p.x+=p.dx;p.y+=p.dy;
+    if(p.x<0)p.x=canvas.width;if(p.x>canvas.width)p.x=0;
+    if(p.y<0)p.y=canvas.height;if(p.y>canvas.height)p.y=0;
+  });
+  requestAnimationFrame(animateParticles);
+}
+animateParticles();
+window.onresize=()=>{canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
 </script>
-
 </body>
 </html>
