@@ -9,7 +9,7 @@ body{
   margin:0;
   font-family:Inter,sans-serif;
   overflow-x:hidden;
-  background:#050005;
+  background:#050500;
   color:#fff;
 }
 
@@ -19,7 +19,7 @@ header{
   font-size:28px;
   font-weight:700;
   letter-spacing:2px;
-  text-shadow:0 0 10px #ff0080,0 0 20px #ff00c0;
+  text-shadow:0 0 10px #00ff00,0 0 20px #ff0000;
 }
 
 /* интерактивный фон */
@@ -40,29 +40,29 @@ button{
   cursor:pointer;
   font-weight:600;
   color:#fff;
-  background:linear-gradient(180deg,#ff00aa,#800050);
-  box-shadow:0 0 15px rgba(255,0,200,.5);
+  background:linear-gradient(180deg,#00ff00,#004400);
+  box-shadow:0 0 15px rgba(0,255,0,.5);
   transition:.25s;
 }
-button:hover{transform:translateY(-2px);box-shadow:0 0 25px rgba(255,0,200,.9);}
+button:hover{transform:translateY(-2px);box-shadow:0 0 25px rgba(0,255,0,.9);}
 button:disabled{opacity:.4;}
 select,input{
-  padding:10px;border-radius:10px;border:1px solid #440044;background:#0f001f;color:#ff99cc;
+  padding:10px;border-radius:10px;border:1px solid #004400;background:#001100;color:#88ff88;
 }
 
 /* активные вкладки */
-.activeTab{background:#ff00aa!important;}
+.activeTab{background:#00ff00!important;}
 
 /* карточки сигналов */
 .signalCard{
-  background:rgba(20,0,20,0.75);
-  border:1px solid rgba(255,0,200,.2);
+  background:rgba(0,20,0,0.75);
+  border:1px solid rgba(0,255,0,.2);
   border-radius:20px;
   padding:25px;
   width:300px;
   margin:auto;
   backdrop-filter:blur(12px);
-  box-shadow:0 0 30px rgba(255,0,200,.3);
+  box-shadow:0 0 30px rgba(0,255,0,.3);
   transition:.3s;
   text-align:center;
 }
@@ -76,7 +76,7 @@ select,input{
 
 .loader{
   width:45px;height:45px;
-  border:4px solid #220022;border-top:4px solid #ff00aa;
+  border:4px solid #002200;border-top:4px solid #00ff00;
   border-radius:50%;margin:auto;
   animation:spin 1s linear infinite;
 }
@@ -85,7 +85,7 @@ select,input{
 /* график TradingView */
 #tv_chart_container{
   width:94%;max-width:450px;height:320px;margin:25px auto;
-  border-radius:14px;border:1px solid #330033;overflow:hidden;
+  border-radius:14px;border:1px solid #004400;overflow:hidden;
 }
 
 /* скрываем сигналы до авторизации */
@@ -111,7 +111,6 @@ select,input{
 </div>
 
 <div id="signals">
-
   <div class="controls">
     <button id="classicBtn" class="activeTab">💱 Обычный рынок</button>
     <button id="otcBtn">📊 OTC рынок</button>
@@ -145,43 +144,34 @@ select,input{
     </div>
     <div id="otcSignalDisplay"></div>
   </div>
-
 </div>
 
 <script src="https://s3.tradingview.com/tv.js"></script>
 <script>
-// ========= ЛОГИКА АВТОРИЗАЦИИ =========
 const VALID_KEY="DOG2025";
 openAuthBtn.onclick=()=>{authBlock.style.display="block";signals.style.display="none";}
 checkKeyBtn.onclick=()=>{
   if(accessKey.value.trim()===VALID_KEY){
     authBlock.style.display="none";signals.style.display="block";
     authMessage.textContent="✅ Доступ разрешён";authMessage.style.color="#4ade80";
-  }else{
-    authMessage.textContent="❌ Неверный ключ";authMessage.style.color="#ef4444";
-  }
+  }else{authMessage.textContent="❌ Неверный ключ";authMessage.style.color="#ef4444";}
 };
 
-// ========= ПЕРЕКЛЮЧЕНИЕ РЫНКОВ =========
 classicBtn.onclick=()=>{classicMarket.style.display="block";otcMarket.style.display="none";classicBtn.classList.add("activeTab");otcBtn.classList.remove("activeTab");}
 otcBtn.onclick=()=>{classicMarket.style.display="none";otcMarket.style.display="block";otcBtn.classList.add("activeTab");classicBtn.classList.remove("activeTab");}
 
-// ========= TRADINGVIEW =========
 function loadTV(pair,tf){
   tv_chart_container.innerHTML="";
   new TradingView.widget({container_id:"tv_chart_container",symbol:"FX:"+pair.replace("/",""),interval:Math.max(1,tf/60),theme:"dark",hide_top_toolbar:true,width:"100%",height:"100%"});
 }
 
-// ========= ГЕНЕРАЦИЯ СИГНАЛА =========
 function genSignal(){return {dir:Math.random()>0.5?"UP":"DOWN", acc:(70+Math.random()*25).toFixed(1)};}
-
 let timer=null,remaining=0,currentSignal=null;
 function startTimer(sec, display, onEnd){
   remaining=sec;
   timer=setInterval(()=>{remaining--;display();if(remaining<=0){clearInterval(timer);onEnd();}},1000);
 }
 
-// ========= CLASSIC SIGNAL =========
 getSignalBtn.onclick=()=>{
   signalDisplay.innerHTML=`<div class="signalCard"><div class="loader"></div><p style="margin-top:10px">🐶 DOG AI анализирует рынок...</p></div>`;
   setTimeout(()=>{
@@ -196,7 +186,6 @@ getSignalBtn.onclick=()=>{
 };
 resetSignalBtn.onclick=()=>{clearInterval(timer);signalDisplay.innerHTML="";tv_chart_container.innerHTML="";getSignalBtn.disabled=false;resetSignalBtn.disabled=true;}
 
-// ========= OTC SIGNAL =========
 getOtcSignalBtn.onclick=()=>{
   otcSignalDisplay.innerHTML=`<div class="signalCard"><div class="loader"></div><p style="margin-top:10px">🐶 DOG AI анализирует рынок OTC...</p></div>`;
   setTimeout(()=>{
@@ -210,15 +199,17 @@ getOtcSignalBtn.onclick=()=>{
 };
 resetOtcSignalBtn.onclick=()=>{clearInterval(timer);otcSignalDisplay.innerHTML="";getOtcSignalBtn.disabled=false;resetOtcSignalBtn.disabled=true;}
 
-// ========= ИНТЕРАКТИВНЫЙ ФОН =========
+// фон частицы красно-зеленые
 const canvas=document.getElementById("bgCanvas"),ctx=canvas.getContext("2d");
 canvas.width=window.innerWidth;canvas.height=window.innerHeight;
 let particles=[];
-for(let i=0;i<120;i++){particles.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,dx:(Math.random()-0.5)*1.2,dy:(Math.random()-0.5)*1.2,size:Math.random()*2+1})}
+for(let i=0;i<120;i++){
+  particles.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,dx:(Math.random()-0.5)*1.2,dy:(Math.random()-0.5)*1.2,size:Math.random()*2+1,color:Math.random()>0.5?"#00ff00":"#ff0000"})
+}
 function animateParticles(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
   particles.forEach(p=>{
-    ctx.fillStyle="rgba(255,0,200,0.5)";
+    ctx.fillStyle=p.color;
     ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill();
     p.x+=p.dx;p.y+=p.dy;
     if(p.x<0)p.x=canvas.width;if(p.x>canvas.width)p.x=0;
