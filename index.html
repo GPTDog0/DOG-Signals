@@ -12,7 +12,6 @@ body{
   background:#050500;
   color:#fff;
 }
-
 header{
   padding:30px;
   text-align:center;
@@ -21,39 +20,22 @@ header{
   letter-spacing:2px;
   text-shadow:0 0 10px #00ff00,0 0 20px #ff0000;
 }
-
-/* интерактивный фон */
 #bgCanvas{
   position:fixed;
-  top:0;left:0;
-  width:100%;height:100%;
-  z-index:-1;
+  top:0;left:0;width:100%;height:100%;z-index:-1;
 }
-
-/* кнопки и селекты */
 .controls{
   display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin:20px;
 }
 button{
-  padding:12px 18px;
-  border:none;border-radius:12px;
-  cursor:pointer;
-  font-weight:600;
-  color:#fff;
-  background:linear-gradient(180deg,#00ff00,#004400);
-  box-shadow:0 0 15px rgba(0,255,0,.5);
-  transition:.25s;
+  padding:12px 18px;border:none;border-radius:12px;cursor:pointer;
+  font-weight:600;color:#fff;background:linear-gradient(180deg,#00ff00,#004400);
+  box-shadow:0 0 15px rgba(0,255,0,.5);transition:.25s;
 }
 button:hover{transform:translateY(-2px);box-shadow:0 0 25px rgba(0,255,0,.9);}
 button:disabled{opacity:.4;}
-select,input{
-  padding:10px;border-radius:10px;border:1px solid #004400;background:#001100;color:#88ff88;
-}
-
-/* активные вкладки */
+select,input{padding:10px;border-radius:10px;border:1px solid #004400;background:#001100;color:#88ff88;}
 .activeTab{background:#00ff00!important;}
-
-/* карточки сигналов */
 .signalCard{
   background:rgba(0,20,0,0.75);
   border:1px solid rgba(0,255,0,.2);
@@ -66,64 +48,19 @@ select,input{
   transition:.3s;
   text-align:center;
 }
-.signalArrow{
-  font-size:42px;font-weight:700;
-}
+.signalArrow{font-size:42px;font-weight:700;}
 .up{color:#4ade80;animation:upPulse 1s infinite;}
 .down{color:#ef4444;animation:downPulse 1s infinite;}
 @keyframes upPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
 @keyframes downPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
-
-.loader{
-  width:45px;height:45px;
-  border:4px solid #002200;border-top:4px solid #00ff00;
-  border-radius:50%;margin:auto;
-  animation:spin 1s linear infinite;
-}
+.loader{width:45px;height:45px;border:4px solid #002200;border-top:4px solid #00ff00;border-radius:50%;margin:auto;animation:spin 1s linear infinite;}
 @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
-
-/* график TradingView */
-#tv_chart_container{
-  width:94%;max-width:450px;height:320px;margin:25px auto;
-  border-radius:14px;border:1px solid #004400;overflow:hidden;
-}
-
-/* блок статистики */
-#stats{
-  width:90%;max-width:450px;
-  margin:20px auto;
-  padding:15px;
-  border:1px solid #004400;
-  border-radius:14px;
-  background:rgba(0,20,0,0.6);
-  backdrop-filter:blur(8px);
-  text-align:center;
-}
-#stats p{margin:6px 0; font-weight:600;}
-
-/* новости */
-#newsTicker{
-  width:95%;max-width:500px;
-  margin:20px auto;
-  padding:10px;
-  border-radius:12px;
-  background:rgba(0,20,0,0.6);
-  border:1px solid #004400;
-  overflow:hidden;
-  white-space:nowrap;
-  box-sizing:border-box;
-}
-#newsTicker span{
-  display:inline-block;
-  padding-right:50px;
-  animation:scrollNews 20s linear infinite;
-}
-@keyframes scrollNews{
-  0%{transform:translateX(100%);}
-  100%{transform:translateX(-100%);}
-}
-
-/* скрываем сигналы до авторизации */
+#tv_chart_container{width:94%;max-width:450px;height:320px;margin:25px auto;border-radius:14px;border:1px solid #004400;overflow:hidden;}
+#stats{width:90%;max-width:450px;margin:20px auto;padding:15px;border:1px solid #004400;border-radius:14px;background:rgba(0,20,0,0.6);backdrop-filter:blur(8px);text-align:center;}
+#stats p{margin:6px 0;font-weight:600;}
+#newsTicker{width:95%;max-width:500px;margin:20px auto;padding:10px;border-radius:12px;background:rgba(0,20,0,0.6);border:1px solid #004400;overflow:hidden;white-space:nowrap;box-sizing:border-box;}
+#newsTicker span{display:inline-block;padding-right:50px;animation:scrollNews 20s linear infinite;}
+@keyframes scrollNews{0%{transform:translateX(100%);}100%{transform:translateX(-100%);}}
 #signals{display:none;}
 </style>
 </head>
@@ -151,13 +88,29 @@ select,input{
     <button id="otcBtn">📊 OTC рынок</button>
   </div>
 
+  <!-- CLASSIC MARKET -->
   <div id="classicMarket">
     <div class="controls">
       <select id="pairSelect">
-        <option>EUR/USD</option><option>GBP/USD</option><option>USD/JPY</option>
+        <option>EUR/USD</option>
+        <option>GBP/USD</option>
+        <option>USD/JPY</option>
+        <option>USD/CHF</option>
+        <option>AUD/USD</option>
+        <option>NZD/USD</option>
+        <option>EUR/JPY</option>
+        <option>GBP/JPY</option>
+        <option>EUR/GBP</option>
+        <option>CAD/JPY</option>
+        <option>AUD/JPY</option>
+        <option>GBP/AUD</option>
+        <option>USD/CAD</option>
       </select>
       <select id="tfSelect">
-        <option value="60">1M</option><option value="180">3M</option><option value="300">5M</option>
+        <option value="60">1M</option>
+        <option value="180">3M</option>
+        <option value="300">5M</option>
+        <option value="600">10M</option>
       </select>
     </div>
     <div class="controls">
@@ -168,10 +121,25 @@ select,input{
     <div id="tv_chart_container"></div>
   </div>
 
+  <!-- OTC MARKET -->
   <div id="otcMarket" style="display:none;">
     <div class="controls">
-      <select id="otcPairSelect"><option>EUR/USD OTC</option></select>
-      <select id="otcTfSelect"><option value="60">1 мин</option></select>
+      <select id="otcPairSelect">
+        <option>EUR/USD OTC</option>
+        <option>GBP/USD OTC</option>
+        <option>USD/JPY OTC</option>
+        <option>EUR/JPY OTC</option>
+        <option>AUD/USD OTC</option>
+        <option>USD/CAD OTC</option>
+      </select>
+      <select id="otcTfSelect">
+        <option value="5">5 сек</option>
+        <option value="10">10 сек</option>
+        <option value="30">30 сек</option>
+        <option value="60">1 мин</option>
+        <option value="120">2 мин</option>
+        <option value="300">5 мин</option>
+      </select>
     </div>
     <div class="controls">
       <button id="getOtcSignalBtn">⚡ Сигнал OTC</button>
@@ -215,10 +183,7 @@ function loadTV(pair,tf){
 
 function genSignal(){return {dir:Math.random()>0.5?"UP":"DOWN", acc:(70+Math.random()*25).toFixed(1)};}
 let timer=null,remaining=0,currentSignal=null;
-function startTimer(sec, display, onEnd){
-  remaining=sec;
-  timer=setInterval(()=>{remaining--;display();if(remaining<=0){clearInterval(timer);onEnd();}},1000);
-}
+function startTimer(sec, display, onEnd){remaining=sec;timer=setInterval(()=>{remaining--;display();if(remaining<=0){clearInterval(timer);onEnd();}},1000);}
 
 // Статистика
 let upCount=0,downCount=0;
