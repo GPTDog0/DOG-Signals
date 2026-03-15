@@ -88,6 +88,41 @@ select,input{
   border-radius:14px;border:1px solid #004400;overflow:hidden;
 }
 
+/* блок статистики */
+#stats{
+  width:90%;max-width:450px;
+  margin:20px auto;
+  padding:15px;
+  border:1px solid #004400;
+  border-radius:14px;
+  background:rgba(0,20,0,0.6);
+  backdrop-filter:blur(8px);
+  text-align:center;
+}
+#stats p{margin:6px 0; font-weight:600;}
+
+/* новости */
+#newsTicker{
+  width:95%;max-width:500px;
+  margin:20px auto;
+  padding:10px;
+  border-radius:12px;
+  background:rgba(0,20,0,0.6);
+  border:1px solid #004400;
+  overflow:hidden;
+  white-space:nowrap;
+  box-sizing:border-box;
+}
+#newsTicker span{
+  display:inline-block;
+  padding-right:50px;
+  animation:scrollNews 20s linear infinite;
+}
+@keyframes scrollNews{
+  0%{transform:translateX(100%);}
+  100%{transform:translateX(-100%);}
+}
+
 /* скрываем сигналы до авторизации */
 #signals{display:none;}
 </style>
@@ -144,6 +179,19 @@ select,input{
     </div>
     <div id="otcSignalDisplay"></div>
   </div>
+
+  <!-- Статистика сигналов -->
+  <div id="stats">
+    <p>UP сигналы: <span id="upCount">0</span></p>
+    <p>DOWN сигналы: <span id="downCount">0</span></p>
+    <p>Всего сигналов: <span id="totalCount">0</span></p>
+    <p>Точность (усл.): <span id="accuracy">0%</span></p>
+  </div>
+
+  <!-- Новости -->
+  <div id="newsTicker">
+    <span>📈 EUR/USD укрепляется | 📉 GBP/USD падает | ⚡ USD/JPY колеблется | 🔥 AUD/USD растет | 📰 NZD/USD стабильна</span>
+  </div>
 </div>
 
 <script src="https://s3.tradingview.com/tv.js"></script>
@@ -172,6 +220,19 @@ function startTimer(sec, display, onEnd){
   timer=setInterval(()=>{remaining--;display();if(remaining<=0){clearInterval(timer);onEnd();}},1000);
 }
 
+// Статистика
+let upCount=0,downCount=0;
+function updateStats(signal){
+  if(signal.dir==="UP") upCount++; else downCount++;
+  let total=upCount+downCount;
+  let acc=Math.round((upCount/(total||1))*100);
+  document.getElementById("upCount").textContent=upCount;
+  document.getElementById("downCount").textContent=downCount;
+  document.getElementById("totalCount").textContent=total;
+  document.getElementById("accuracy").textContent=acc+"%";
+}
+
+// Classic Signal
 getSignalBtn.onclick=()=>{
   signalDisplay.innerHTML=`<div class="signalCard"><div class="loader"></div><p style="margin-top:10px">🐶 DOG AI анализирует рынок...</p></div>`;
   setTimeout(()=>{
@@ -181,11 +242,13 @@ getSignalBtn.onclick=()=>{
     getSignalBtn.disabled=true;resetSignalBtn.disabled=false;
     startTimer(tf, ()=>{
       signalDisplay.innerHTML=`<div class="signalCard"><div class="signalArrow ${currentSignal.dir==="UP"?"up":"down"}">${currentSignal.dir==="UP"?"📈 BUY":"📉 SELL"}</div><p>Accuracy: ${currentSignal.acc}%</p><p>⏳ ${remaining} sec</p></div>`;
+      updateStats(currentSignal);
     },()=>{signalDisplay.innerHTML+=`<p>Signal finished</p>`});
   },2000);
 };
 resetSignalBtn.onclick=()=>{clearInterval(timer);signalDisplay.innerHTML="";tv_chart_container.innerHTML="";getSignalBtn.disabled=false;resetSignalBtn.disabled=true;}
 
+// OTC Signal
 getOtcSignalBtn.onclick=()=>{
   otcSignalDisplay.innerHTML=`<div class="signalCard"><div class="loader"></div><p style="margin-top:10px">🐶 DOG AI анализирует рынок OTC...</p></div>`;
   setTimeout(()=>{
@@ -194,6 +257,7 @@ getOtcSignalBtn.onclick=()=>{
     getOtcSignalBtn.disabled=true;resetOtcSignalBtn.disabled=false;
     startTimer(tf, ()=>{
       otcSignalDisplay.innerHTML=`<div class="signalCard"><div class="signalArrow ${currentSignal.dir==="UP"?"up":"down"}">${currentSignal.dir==="UP"?"📈 BUY":"📉 SELL"}</div><p>Accuracy: ${currentSignal.acc}%</p><p>⏳ ${remaining} sec</p></div>`;
+      updateStats(currentSignal);
     },()=>{otcSignalDisplay.innerHTML+=`<p>Signal finished</p>`});
   },2000);
 };
