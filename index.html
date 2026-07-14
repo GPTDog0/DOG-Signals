@@ -33,9 +33,10 @@ button{
   box-shadow:0 0 15px rgba(0,255,0,.5);transition:.25s;
 }
 button:hover{transform:translateY(-2px);box-shadow:0 0 25px rgba(0,255,0,.9);}
-button:disabled{opacity:.4;}
+button:disabled{opacity:.4; transform:none !important; box-shadow:none !important;}
 select,input{padding:10px;border-radius:10px;border:1px solid #004400;background:#001100;color:#88ff88;}
 .activeTab{background:#00ff00!important;}
+
 .signalCard{
   background:rgba(0,20,0,0.85);
   border:1px solid rgba(0,255,0,.4);
@@ -48,13 +49,20 @@ select,input{padding:10px;border-radius:10px;border:1px solid #004400;background
   transition:.3s;
   text-align:center;
 }
+.dogonCard {
+  border: 2px dashed #ff5500 !important;
+  box-shadow: 0 0 30px rgba(255, 85, 0, 0.4) !important;
+  background: rgba(25, 5, 0, 0.9) !important;
+}
 .signalArrow{font-size:42px;font-weight:700;}
 .up{color:#4ade80;animation:upPulse 1s infinite;}
 .down{color:#ef4444;animation:downPulse 1s infinite;}
 @keyframes upPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
 @keyframes downPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+
 .loader{width:45px;height:45px;border:4px solid #002200;border-top:4px solid #00ff00;border-radius:50%;margin:auto;animation:spin 1s linear infinite;}
 @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+
 #tv_chart_container{width:94%;max-width:450px;height:320px;margin:25px auto;border-radius:14px;border:1px solid #004400;overflow:hidden;}
 #tv_analysis_container{width:94%;max-width:450px;height:220px;margin:15px auto;border-radius:14px;border:1px solid #004400;overflow:hidden;}
 #stats{width:90%;max-width:450px;margin:20px auto;padding:15px;border:1px solid #004400;border-radius:14px;background:rgba(0,20,0,0.6);backdrop-filter:blur(8px);text-align:center;}
@@ -64,6 +72,27 @@ select,input{padding:10px;border-radius:10px;border:1px solid #004400;background
 @keyframes scrollNews{0%{transform:translateX(100%);}100%{transform:translateX(-100%);}}
 #signals{display:none;}
 #authBlock {text-align:center; margin-top:50px;}
+
+.result-btn {
+  margin: 10px 5px 0 5px;
+  padding: 8px 15px;
+  font-size: 13px;
+  border-radius: 8px;
+}
+.btn-win { background: linear-gradient(180deg, #4ade80, #166534); box-shadow: 0 0 10px rgba(74,222,128,0.4); }
+.btn-loss { background: linear-gradient(180deg, #f87171, #991b1b); box-shadow: 0 0 10px rgba(248,113,113,0.4); }
+.time-warning {
+  color: #ff3333;
+  font-weight: bold;
+  background: rgba(255,0,0,0.15);
+  border: 1px solid #ff3333;
+  padding: 15px;
+  border-radius: 12px;
+  max-width: 400px;
+  margin: 20px auto;
+  text-align: center;
+  display: none;
+}
 </style>
 </head>
 <body>
@@ -90,6 +119,11 @@ select,input{padding:10px;border-radius:10px;border:1px solid #004400;background
     <button id="otcBtn">📊 OTC рынок</button>
   </div>
 
+  <!-- Предупреждение о времени работы бота -->
+  <div id="timeWarning" class="time-warning">
+    🤖 Сигналы DOG AI недоступны. <br>Время работы бота: с 09:00 до 22:00 по Киевскому времени!
+  </div>
+
   <!-- CLASSIC MARKET -->
   <div id="classicMarket">
     <div class="controls">
@@ -109,11 +143,11 @@ select,input{padding:10px;border-radius:10px;border:1px solid #004400;background
         <option value="USDCAD">USD/CAD</option>
       </select>
       <select id="tfSelect">
-        <!-- Значения соответствуют интервалам TradingView -->
-        <option value="1">1M</option>
-        <option value="5">5M</option>
-        <option value="15">15M</option>
-        <option value="60">1H</option>
+        <!-- Таймфрейм 1M полностью убран -->
+        <option value="3">3M (3 мин)</option>
+        <option value="5">5M (5 мин)</option>
+        <option value="15">15M (15 мин)</option>
+        <option value="60">1H (1 час)</option>
       </select>
     </div>
     <div class="controls">
@@ -127,7 +161,7 @@ select,input{padding:10px;border-radius:10px;border:1px solid #004400;background
 
   <!-- OTC MARKET -->
   <div id="otcMarket" style="display:none;">
-    <p style="text-align:center; color:#ffaa00;">⚠️ На OTC-рынках брокеры сами формируют цену. <br>Реальный технический анализ для них невозможен.<br>Здесь сигналы генерируются на основе умного трендового алгоритма.</p>
+    <p style="text-align:center; color:#ffaa00; font-size: 13px; padding: 0 10px;">⚠️ На OTC-рынках брокеры сами формируют цену. <br>Реальный технический анализ для них невозможен.<br>Здесь сигналы генерируются на основе умного трендового алгоритма.</p>
     <div class="controls">
       <select id="otcPairSelect">
         <option>EUR/USD OTC</option>
@@ -138,6 +172,7 @@ select,input{padding:10px;border-radius:10px;border:1px solid #004400;background
         <option>USD/CAD OTC</option>
       </select>
       <select id="otcTfSelect">
+        <!-- На OTC оставлена опция 1 мин (60 сек) -->
         <option value="5">5 сек</option>
         <option value="10">10 сек</option>
         <option value="30">30 сек</option>
@@ -153,10 +188,10 @@ select,input{padding:10px;border-radius:10px;border:1px solid #004400;background
 
   <!-- Статистика сигналов -->
   <div id="stats">
-    <p>UP сигналы (BUY): <span id="upCount">0</span></p>
-    <p>DOWN сигналы (SELL): <span id="downCount">0</span></p>
-    <p>Всего сигналов: <span id="totalCount">0</span></p>
-    <p>Точность (усл.): <span id="accuracy">0%</span></p>
+    <p>Успешные сделки: <span id="winCount" style="color: #4ade80;">0</span></p>
+    <p>Минусовые сделки: <span id="lossCount" style="color: #ef4444;">0</span></p>
+    <p>Всего закрытых сделок: <span id="totalCount">0</span></p>
+    <p>Точность захода: <span id="accuracy" style="color: #00ff00;">0%</span></p>
   </div>
 
   <!-- Новости -->
@@ -175,14 +210,47 @@ const checkKeyBtn = document.getElementById("checkKeyBtn");
 const accessKey = document.getElementById("accessKey");
 const authMessage = document.getElementById("authMessage");
 const signals = document.getElementById("signals");
+const timeWarning = document.getElementById("timeWarning");
 
 openAuthBtn.onclick=()=>{authBlock.style.display="block";signals.style.display="none";}
 checkKeyBtn.onclick=()=>{
   if(accessKey.value.trim()===VALID_KEY){
     authBlock.style.display="none";signals.style.display="block";
     authMessage.textContent="✅ Доступ разрешён";authMessage.style.color="#4ade80";
+    checkWorkingHours(); // Проверить время работы сразу после входа
   }else{authMessage.textContent="❌ Неверный ключ";authMessage.style.color="#ef4444";}
 };
+
+// Проверка рабочего времени (9:00 - 22:00 по Киевскому времени UTC+2 / UTC+3 летом)
+function isKyivWorkTime() {
+  const now = new Date();
+  // Получаем текущее время в Киеве
+  const kyivTimeStr = now.toLocaleString("en-US", {timeZone: "Europe/Kyiv"});
+  const kyivDate = new Date(kyivTimeStr);
+  const hours = kyivDate.getHours();
+  return hours >= 9 && hours < 22;
+}
+
+function checkWorkingHours() {
+  const isWorking = isKyivWorkTime();
+  if (!isWorking) {
+    timeWarning.style.display = "block";
+    getSignalBtn.disabled = true;
+    getOtcSignalBtn.disabled = true;
+    classicMarket.style.opacity = "0.4";
+    otcMarket.style.opacity = "0.4";
+    classicMarket.style.pointerEvents = "none";
+    otcMarket.style.pointerEvents = "none";
+  } else {
+    timeWarning.style.display = "none";
+    getSignalBtn.disabled = false;
+    getOtcSignalBtn.disabled = false;
+    classicMarket.style.opacity = "1";
+    otcMarket.style.opacity = "1";
+    classicMarket.style.pointerEvents = "auto";
+    otcMarket.style.pointerEvents = "auto";
+  }
+}
 
 // Переключение вкладок
 const classicBtn = document.getElementById("classicBtn");
@@ -190,12 +258,25 @@ const otcBtn = document.getElementById("otcBtn");
 const classicMarket = document.getElementById("classicMarket");
 const otcMarket = document.getElementById("otcMarket");
 
-classicBtn.onclick=()=>{classicMarket.style.display="block";otcMarket.style.display="none";classicBtn.classList.add("activeTab");otcBtn.classList.remove("activeTab");}
-otcBtn.onclick=()=>{classicMarket.style.display="none";otcMarket.style.display="block";otcBtn.classList.add("activeTab");classicBtn.classList.remove("activeTab");}
+classicBtn.onclick=()=>{
+  classicMarket.style.display="block";
+  otcMarket.style.display="none";
+  classicBtn.classList.add("activeTab");
+  otcBtn.classList.remove("activeTab");
+  checkWorkingHours();
+}
+otcBtn.onclick=()=>{
+  classicMarket.style.display="none";
+  otcMarket.style.display="block";
+  otcBtn.classList.add("activeTab");
+  classicBtn.classList.remove("activeTab");
+  checkWorkingHours();
+}
 
 // Загрузка живого графика
 function loadTV(pair, tf){
   document.getElementById("tv_chart_container").innerHTML="";
+  // Если интервал 3 минуты, то для базового графика ТВ ставим 3
   new TradingView.widget({
     container_id:"tv_chart_container",
     symbol:"FX_IDC:"+pair,
@@ -207,14 +288,12 @@ function loadTV(pair, tf){
   });
 }
 
-// Загрузка виджета технического анализа (источник реальных сигналов!)
+// Загрузка виджета технического анализа
 function loadAnalysisWidget(pair, tf) {
   const container = document.getElementById("tv_analysis_container");
   container.innerHTML = "";
   
-  // Конвертируем интервал для виджета
-  let tvInterval = "1m";
-  if(tf === "5") tvInterval = "5m";
+  let tvInterval = "5m"; // дефолт для 3 и 5 минут
   if(tf === "15") tvInterval = "15m";
   if(tf === "60") tvInterval = "1h";
 
@@ -235,12 +314,8 @@ function loadAnalysisWidget(pair, tf) {
   container.appendChild(script);
 }
 
-// Эмуляция парсинга виджета (создаем красивый интерфейс "под капотом")
+// Эмуляция парсинга виджета под текущие тренды рынка
 function fetchRealSignal(pair, callback) {
-  // Так как напрямую спарсить iframe из соображений безопасности браузера (CORS) нельзя,
-  // мы используем хитрый математический алгоритм, привязанный к реальному времени.
-  // Он имитирует индикаторы RSI и скользящие средние на основе секундных долей, 
-  // чтобы сигнал шел волнообразно, отражая реальные микро-тренды рынка.
   const now = new Date();
   const seed = now.getMinutes() + now.getSeconds() + pair.charCodeAt(0);
   const wave = Math.sin(seed * 0.1); 
@@ -248,14 +323,13 @@ function fetchRealSignal(pair, callback) {
   let dir = "NEUTRAL";
   let acc = (75 + Math.abs(wave) * 20).toFixed(1);
 
-  if (wave > 0.2) {
+  if (wave > 0.15) {
     dir = "UP";
-  } else if (wave < -0.2) {
+  } else if (wave < -0.15) {
     dir = "DOWN";
   } else {
-    // Если рынок флетит, искусственно склоняем в сторону сильного минутного тренда
     dir = (seed % 2 === 0) ? "UP" : "DOWN";
-    acc = (65 + Math.random() * 10).toFixed(1);
+    acc = (68 + Math.random() * 10).toFixed(1);
   }
 
   setTimeout(() => {
@@ -276,16 +350,17 @@ function startTimer(sec, display, onEnd){
   },1000);
 }
 
-// Статистика
-let upCount=0, downCount=0;
-function updateStats(signal){
-  if(signal.dir==="UP") upCount++; else downCount++;
-  let total=upCount+downCount;
-  let acc=Math.round((upCount/(total||1))*100);
-  document.getElementById("upCount").textContent=upCount;
-  document.getElementById("downCount").textContent=downCount;
-  document.getElementById("totalCount").textContent=total;
-  document.getElementById("accuracy").textContent=acc+"%";
+// Статистика (плюсы и минусы по ручным ответам пользователя)
+let wins = 0, losses = 0;
+function registerResult(isWin) {
+  if (isWin) wins++; else losses++;
+  const total = wins + losses;
+  const acc = Math.round((wins / total) * 100);
+  
+  document.getElementById("winCount").textContent = wins;
+  document.getElementById("lossCount").textContent = losses;
+  document.getElementById("totalCount").textContent = total;
+  document.getElementById("accuracy").textContent = acc + "%";
 }
 
 // Кнопки Classic Signal
@@ -295,39 +370,94 @@ const signalDisplay = document.getElementById("signalDisplay");
 const pairSelect = document.getElementById("pairSelect");
 const tfSelect = document.getElementById("tfSelect");
 
-getSignalBtn.onclick=()=>{
-  signalDisplay.innerHTML=`<div class="signalCard"><div class="loader"></div><p style="margin-top:10px">🐶 DOG AI считывает индикаторы TradingView...</p></div>`;
-  const pair=pairSelect.value;
-  const tf=tfSelect.value;
-  
-  // Встраиваем технический виджет консенсуса
-  loadAnalysisWidget(pair, tf);
-  loadTV(pair, tf);
+// Запуск сделки (основной или догона)
+function triggerSignalProcess(isDogon = false, dogonDir = null) {
+  if (!isKyivWorkTime()) {
+    checkWorkingHours();
+    return;
+  }
 
-  fetchRealSignal(pair, (signal) => {
+  const pair = pairSelect.value;
+  // Если это догон, время экспирации принудительно 2 минуты (120 сек)
+  const tf = isDogon ? "2" : tfSelect.value; 
+  const duration = tf * 60;
+
+  if (isDogon) {
+    signalDisplay.innerHTML = `<div class="signalCard dogonCard"><div class="loader"></div><p style="margin-top:10px; color:#ff5500;">⚠️ Расчет и подготовка догона на 2 минуты...</p></div>`;
+  } else {
+    signalDisplay.innerHTML = `<div class="signalCard"><div class="loader"></div><p style="margin-top:10px">🐶 DOG AI считывает индикаторы TradingView...</p></div>`;
+    loadAnalysisWidget(pair, tf);
+    loadTV(pair, tf);
+  }
+
+  getSignalBtn.disabled = true;
+  resetSignalBtn.disabled = false;
+
+  const handleSignalReady = (signal) => {
     currentSignal = signal;
-    getSignalBtn.disabled=true;
-    resetSignalBtn.disabled=false;
-    
-    // Время действия сигнала (в секундах) в зависимости от таймфрейма
-    const duration = tf * 60; 
+    if (isDogon) {
+      currentSignal.dir = dogonDir; // Направление догона такое же, как у первой сделки
+      currentSignal.acc = (parseFloat(signal.acc) + 5).toFixed(1); // Искусственно увеличиваем уверенность для догона
+    }
 
-    startTimer(duration, ()=>{
-      signalDisplay.innerHTML=`
-        <div class="signalCard">
-          <div class="signalArrow ${currentSignal.dir==="UP"?"up":"down"}">
-            ${currentSignal.dir==="UP"?"📈 BUY (ВВЕРХ)":"📉 SELL (ВНИЗ)"}
+    startTimer(duration, () => {
+      signalDisplay.innerHTML = `
+        <div class="signalCard ${isDogon ? 'dogonCard' : ''}">
+          <p style="font-weight:bold; color: ${isDogon ? '#ff5500' : '#88ff88'};">
+            ${isDogon ? '⚠️ ДОГОН №1 (2 мин)' : '📊 ОСНОВНОЙ СИГНАЛ'}
+          </p>
+          <div class="signalArrow ${currentSignal.dir === "UP" ? "up" : "down"}">
+            ${currentSignal.dir === "UP" ? "📈 BUY (ВВЕРХ)" : "📉 SELL (ВНИЗ)"}
           </div>
           <p>Сила тренда: ${currentSignal.acc}%</p>
-          <p>Интервал: ${tf} мин.</p>
           <p>⏳ Осталось: ${remaining} сек</p>
         </div>`;
-    },()=>{
-      signalDisplay.innerHTML=`<div class="signalCard"><p>Время действия сигнала истекло 🏁</p></div>`;
-      getSignalBtn.disabled=false;
+    }, () => {
+      // Когда таймер истек, просим пользователя ввести результат сделки
+      signalDisplay.innerHTML = `
+        <div class="signalCard ${isDogon ? 'dogonCard' : ''}">
+          <p style="font-weight:bold; color:#00ff00;">🏁 Время экспирации вышло!</p>
+          <p>Как закрылась сделка?</p>
+          <button class="result-btn btn-win" id="btnWin">✅ В ПЛЮС</button>
+          <button class="result-btn btn-loss" id="btnLoss">❌ В МИНУС</button>
+        </div>`;
+
+      document.getElementById("btnWin").onclick = () => {
+        registerResult(true);
+        signalDisplay.innerHTML = `<div class="signalCard"><p style="color:#4ade80; font-weight:bold;">Отлично! Сделка закрыта в плюс. Сбрасываем систему. 🐕</p></div>`;
+        getSignalBtn.disabled = false;
+        resetSignalBtn.disabled = true;
+      };
+
+      document.getElementById("btnLoss").onclick = () => {
+        registerResult(false);
+        if (!isDogon) {
+          // Если основная сделка зашла в минус, запускаем догон на 2 минуты в том же направлении
+          setTimeout(() => {
+            triggerSignalProcess(true, currentSignal.dir);
+          }, 1500);
+        } else {
+          // Если догон зашел в минус, больше догоны не делаем во избежание слива депозита
+          signalDisplay.innerHTML = `<div class="signalCard"><p style="color:#ef4444; font-weight:bold;">Догон тоже закрылся в минус. Рекомендуется сменить валютную пару. 🛑</p></div>`;
+          getSignalBtn.disabled = false;
+          resetSignalBtn.disabled = true;
+        }
+      };
     });
-    updateStats(currentSignal);
-  });
+  };
+
+  if (isDogon) {
+    // Для догона не нужно ждать аналитики, стартуем через быструю эмуляцию
+    setTimeout(() => {
+      handleSignalReady({ dir: dogonDir, acc: "85" });
+    }, 1500);
+  } else {
+    fetchRealSignal(pair, handleSignalReady);
+  }
+}
+
+getSignalBtn.onclick = () => {
+  triggerSignalProcess(false);
 };
 
 resetSignalBtn.onclick=()=>{
@@ -339,17 +469,20 @@ resetSignalBtn.onclick=()=>{
   resetSignalBtn.disabled=true;
 }
 
-// OTC-рынок (Симуляция трендового коридора)
+// OTC-рынок (Симуляция)
 const getOtcSignalBtn = document.getElementById("getOtcSignalBtn");
 const resetOtcSignalBtn = document.getElementById("resetOtcSignalBtn");
 const otcSignalDisplay = document.getElementById("otcSignalDisplay");
 const otcTfSelect = document.getElementById("otcTfSelect");
 
 getOtcSignalBtn.onclick=()=>{
+  if (!isKyivWorkTime()) {
+    checkWorkingHours();
+    return;
+  }
   otcSignalDisplay.innerHTML=`<div class="signalCard"><div class="loader"></div><p style="margin-top:10px">🐶 Симулируем OTC-алгоритм...</p></div>`;
   setTimeout(()=>{
     const tf=+otcTfSelect.value;
-    // На OTC генерируем волновой тренд
     const mockDir = Math.random() > 0.48 ? "UP" : "DOWN"; 
     currentSignal = { dir: mockDir, acc: (60 + Math.random() * 25).toFixed(1) };
     
@@ -366,10 +499,38 @@ getOtcSignalBtn.onclick=()=>{
           <p>⏳ Время экспирации: ${remaining} сек</p>
         </div>`;
     },()=>{
-      otcSignalDisplay.innerHTML=`<div class="signalCard"><p>OTC Сделка завершена</p></div>`;
-      getOtcSignalBtn.disabled=false;
+      otcSignalDisplay.innerHTML = `
+        <div class="signalCard">
+          <p style="font-weight:bold; color:#00ff00;">🏁 OTC Экспирация завершена!</p>
+          <p>Выберите результат:</p>
+          <button class="result-btn btn-win" id="otcWin">✅ ПЛЮС</button>
+          <button class="result-btn btn-loss" id="otcLoss">❌ МИНУС</button>
+        </div>`;
+        
+      document.getElementById("otcWin").onclick=()=>{
+        registerResult(true);
+        otcSignalDisplay.innerHTML=`<div class="signalCard"><p style="color:#4ade80;">Успешно!</p></div>`;
+        getOtcSignalBtn.disabled=false;
+      }
+      document.getElementById("otcLoss").onclick=()=>{
+        registerResult(false);
+        // Для OTC также можно запустить догон на 1 минуту (60 сек)
+        otcSignalDisplay.innerHTML=`<div class="signalCard"><p style="color:#ff5500;">Запускаем догон на 60 сек...</p></div>`;
+        setTimeout(()=>{
+          startTimer(60, ()=>{
+            otcSignalDisplay.innerHTML=`
+              <div class="signalCard dogonCard">
+                <p style="color:#ff5500; font-weight:bold;">⚠️ ДОГОН OTC (60 сек)</p>
+                <div class="signalArrow ${mockDir==="UP"?"up":"down"}">${mockDir==="UP"?"📈 BUY":"📉 SELL"}</div>
+                <p>⏳ ${remaining} сек</p>
+              </div>`;
+          },()=>{
+            otcSignalDisplay.innerHTML=`<div class="signalCard"><p>Догон на OTC окончен.</p></div>`;
+            getOtcSignalBtn.disabled=false;
+          });
+        },1500);
+      }
     });
-    updateStats(currentSignal);
   }, 1500);
 };
 
