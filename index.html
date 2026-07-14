@@ -302,6 +302,14 @@ select:focus {
             <option value="USDCHF">USD/CHF</option>
             <option value="AUDUSD">AUD/USD</option>
             <option value="NZDUSD">NZD/USD</option>
+            <option value="USDCAD">USD/CAD</option>
+            <option value="EURGBP">EUR/GBP</option>
+            <option value="EURJPY">EUR/JPY</option>
+            <option value="GBPJPY">GBP/JPY</option>
+            <option value="AUDJPY">AUD/JPY</option>
+            <option value="GBPAUD">GBP/AUD</option>
+            <option value="CADJPY">CAD/JPY</option>
+            <option value="CHFJPY">CHF/JPY</option>
           </select>
 
           <label style="color: var(--text-muted); font-size:12px; display:block; margin-bottom:5px;">ТАЙМФРЕЙМ СДЕЛКИ</label>
@@ -321,9 +329,14 @@ select:focus {
         <div id="otcMarket" style="display: none;">
           <label style="color: var(--text-muted); font-size:12px; display:block; margin-bottom:5px;">OTC СЕГМЕНТ</label>
           <select id="otcPairSelect">
-            <option>EUR/USD OTC</option>
-            <option>GBP/USD OTC</option>
-            <option>USD/JPY OTC</option>
+            <option value="EURUSD">EUR/USD OTC</option>
+            <option value="GBPUSD">GBP/USD OTC</option>
+            <option value="USDJPY">USD/JPY OTC</option>
+            <option value="EURJPY">EUR/JPY OTC</option>
+            <option value="USDCHF">USD/CHF OTC</option>
+            <option value="USDCAD">USD/CAD OTC</option>
+            <option value="AUDUSD">AUD/USD OTC</option>
+            <option value="GBPJPY">GBP/JPY OTC</option>
           </select>
 
           <label style="color: var(--text-muted); font-size:12px; display:block; margin-bottom:5px;">ТАЙМФРЕЙМ СДЕЛКИ (OTC)</label>
@@ -477,29 +490,59 @@ function registerResult(isWin) {
 let timer = null;
 let remaining = 0;
 
-// Расчет времени окончания (например, во сколько минут закроется сделка)
+// Расчет времени окончания без миллисекунд и секунд (Четкий формат "HH:MM")
 function getTargetTimeString(durationSeconds) {
   const now = new Date();
   const kyivTimeStr = now.toLocaleString("en-US", {timeZone: "Europe/Kyiv"});
   const targetDate = new Date(new Date(kyivTimeStr).getTime() + durationSeconds * 1000);
-  return targetDate.toLocaleTimeString("ru-RU", {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+  
+  // Форматируем время в Четкий вид HH:MM без секунд
+  return targetDate.toLocaleTimeString("ru-RU", {hour: '2-digit', minute:'2-digit'});
+}
+
+// Получение реальной базовой цены по паре (генерация близких к реальности котировок)
+function getBaseAssetPrice(pair) {
+  const prices = {
+    "EURUSD": 1.08520,
+    "GBPUSD": 1.26410,
+    "USDJPY": 151.240,
+    "USDCHF": 0.88710,
+    "AUDUSD": 0.65430,
+    "NZDUSD": 0.60250,
+    "USDCAD": 1.35620,
+    "EURGBP": 0.85840,
+    "EURJPY": 164.120,
+    "GBPJPY": 191.200,
+    "AUDJPY": 98.950,
+    "GBPAUD": 1.93200,
+    "CADJPY": 111.450,
+    "CHFJPY": 170.400
+  };
+  const base = prices[pair] || 1.00000;
+  const dev = (Math.random() - 0.5) * (base * 0.0015);
+  return base + dev;
 }
 
 // Симуляция живого движения цены для принятия решения
-function runPriceTracking(direction, durationSec, onFinished) {
-  let initialPrice = 1.08530; // Базовая цена для симуляции
+function runPriceTracking(pair, direction, durationSec, onFinished) {
+  let initialPrice = getBaseAssetPrice(pair); 
   let currentPrice = initialPrice;
   let elapsed = 0;
+  const isJpy = pair.includes("JPY");
 
   timer = setInterval(() => {
     elapsed++;
-    // Имитируем колебания котировок
-    const change = (Math.random() - 0.5) * 0.00015;
-    // Добавляем трендовое смещение в зависимости от направления сигнала
-    const trendBias = (direction === "UP" ? 0.00002 : -0.00002);
+    
+    // Плавный генератор тиков
+    const tickDirection = Math.random() > 0.49 ? 1 : -1;
+    const sizeMultiplier = isJpy ? 0.015 : 0.00012;
+    const change = tickDirection * Math.random() * sizeMultiplier;
+    
+    // Смещение в сторону сигнала
+    const trendBias = (direction === "UP" ? 0.00002 : -0.00002) * (isJpy ? 100 : 1);
     currentPrice += change + trendBias;
 
-    const displayPrice = currentPrice.toFixed(5);
+    const displayPrice = currentPrice.toFixed(isJpy ? 3 : 5);
     const difference = currentPrice - initialPrice;
     const isCurrentlyWin = direction === "UP" ? difference > 0 : difference < 0;
 
@@ -543,7 +586,7 @@ function startSignalProcess(isDogon = false, forcedDir = null, otcMode = false) 
   const display = otcMode ? document.getElementById("otcSignalDisplay") : document.getElementById("signalDisplay");
 
   const pair = pairSelectEl.value;
-  // Догон принудительно длится 2 минуты (120 секунд)
+  // Догон принудительно длится 2 минуты
   const durationMinutes = isDogon ? 2 : parseInt(tfSelectEl.value);
   const durationSeconds = durationMinutes * 60;
   
@@ -581,13 +624,13 @@ function startSignalProcess(isDogon = false, forcedDir = null, otcMode = false) 
           <span id="priceDiff" style="font-size:11.5px; font-weight:bold;">Оценка состояния...</span>
         </div>
         <p style="font-size:14px; margin: 5px 0; color: var(--text-muted);">
-          Открыть сделку строго до: <strong style="color:#fff;">${targetTime}</strong>
+          Закрытие сделки в: <strong style="color:#fff;">${targetTime}</strong>
         </p>
         <p style="font-size:14px; margin: 5px 0; color: var(--text-muted);">Точность анализа: ${acc}%</p>
         <div style="font-size: 24px; font-weight:bold; margin-top:10px; color: var(--accent-gold);" id="timerText">0:00</div>
       </div>`;
 
-    runPriceTracking(direction, durationSeconds, (isWin) => {
+    runPriceTracking(pair, direction, durationSeconds, (isWin) => {
       registerResult(isWin);
 
       if (isWin) {
@@ -643,7 +686,7 @@ document.getElementById("resetOtcSignalBtn").onclick = () => {
   document.getElementById("resetOtcSignalBtn").disabled = true;
 };
 
-// Задний фон (профессиональный темный хай-тек)
+// Задний фон
 const canvas=document.getElementById("bgCanvas"),ctx=canvas.getContext("2d");
 canvas.width=window.innerWidth;canvas.height=window.innerHeight;
 let particles=[];
