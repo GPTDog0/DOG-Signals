@@ -54,20 +54,41 @@ header {
   gap: 20px;
 }
 
-/* Auth Block */
+/* Welcome & Auth Block */
 #authBlock {
-  max-width: 400px;
-  margin: 100px auto;
+  max-width: 450px;
+  margin: 60px auto;
   padding: 30px;
   background: var(--panel-bg);
   border: 1px solid var(--border-color);
   border-radius: 16px;
   text-align: center;
   box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  backdrop-filter: blur(12px);
+}
+
+.partner-id-box {
+  background: rgba(255, 183, 3, 0.08);
+  border: 1px dashed var(--accent-gold);
+  padding: 12px;
+  border-radius: 8px;
+  font-family: monospace;
+  font-size: 18px;
+  color: var(--accent-gold);
+  margin: 15px 0;
+  font-weight: bold;
+}
+
+.auth-instruction {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 20px;
+  text-align: left;
 }
 
 input {
-  width: 80%;
+  width: 85%;
   padding: 12px;
   border-radius: 8px;
   border: 1px solid rgba(255,255,255,0.1);
@@ -77,6 +98,7 @@ input {
   text-align: center;
   outline: none;
   transition: 0.3s;
+  margin-bottom: 15px;
 }
 input:focus {
   border-color: var(--accent-gold);
@@ -105,6 +127,16 @@ button:disabled {
   cursor: not-allowed;
 }
 
+.btn-secondary {
+  background: transparent;
+  border: 1px solid var(--accent-gold);
+  color: var(--accent-gold);
+  margin-left: 10px;
+}
+.btn-secondary:hover {
+  background: rgba(255, 183, 3, 0.1);
+}
+
 /* Dashboard Panels */
 .dashboard-grid {
   display: grid;
@@ -124,24 +156,6 @@ button:disabled {
   padding: 24px;
   backdrop-filter: blur(12px);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-}
-
-/* Tabs */
-.tabs {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-.tab-btn {
-  background: rgba(255,255,255,0.05);
-  color: var(--text-muted);
-  border: 1px solid rgba(255,255,255,0.05);
-  flex: 1;
-}
-.tab-btn.activeTab {
-  background: rgba(255, 183, 3, 0.1) !important;
-  color: var(--accent-gold) !important;
-  border: 1px solid var(--accent-gold) !important;
 }
 
 /* Signal Card */
@@ -280,13 +294,30 @@ select:focus {
 <header>🐕 DOG ANALYTICS PRO</header>
 
 <div class="container">
-  <!-- Auth Block -->
+  <!-- Auth & Welcome Block -->
   <div id="authBlock">
-    <h3 style="margin-top:0; color: var(--accent-gold);">SYSTEM ACCESS</h3>
-    <p style="color: var(--text-muted); font-size:14px;">Введите лицензионный ключ доступа</p>
-    <input id="accessKey" type="password" placeholder="••••••••">
-    <br><br>
-    <button id="checkKeyBtn">VERIFY SYSTEM</button>
+    <h3 style="margin-top:0; color: var(--accent-gold); letter-spacing: 1px;">ДОБРО ПОЖАЛОВАТЬ В DOG AI</h3>
+    <p style="color: var(--text-muted); font-size:14px; margin-bottom:5px;">Для получения доступа к сигналам зарегистрируйтесь:</p>
+    
+    <!-- Сгенерированный ID клиента -->
+    <div class="partner-id-box" id="partnerIdDisplay">ID-XXXXX</div>
+    
+    <div class="auth-instruction">
+      <strong>⚠️ Инструкция по активации:</strong><br>
+      1. Скопируйте ваш уникальный ID партнера выше.<br>
+      2. Отправьте его нашему менеджеру в Telegram, чтобы получить ключ активации.<br>
+      3. Введите полученный ключ в поле ниже для разблокировки терминала.
+    </div>
+
+    <input id="accessKey" type="password" placeholder="Введите ключ доступа">
+    <br>
+    <div style="display: flex; justify-content: center; width: 100%; gap: 10px;">
+      <button id="checkKeyBtn" style="flex: 1;">АКТИВИРОВАТЬ</button>
+      <!-- Замени href на ссылку на свой Telegram аккаунт или бота -->
+      <a href="https://t.me/your_telegram_username" target="_blank" style="flex: 1; text-decoration: none;">
+        <button type="button" class="btn-secondary" style="width: 100%; margin: 0;">МЕНЕДЖЕР ✉</button>
+      </a>
+    </div>
     <p id="authMessage" style="margin-top:15px; font-weight:600;"></p>
   </div>
 
@@ -294,11 +325,6 @@ select:focus {
   <div id="signals" style="display: none;">
     <div class="time-warning" id="timeWarning">
       🔴 СИСТЕМА ВНЕ РАБОЧЕГО ДИАПАЗОНА. РАБОТА С 09:00 ДО 22:00 ПО КИЕВУ.
-    </div>
-
-    <div class="tabs">
-      <button id="classicBtn" class="tab-btn activeTab">💱 CLASSIC ASSETS</button>
-      <button id="otcBtn" class="tab-btn">📊 OTC INTERFACE</button>
     </div>
 
     <div class="dashboard-grid">
@@ -338,33 +364,6 @@ select:focus {
           <div style="display:flex; gap:10px; margin-top:20px;">
             <button id="getSignalBtn" style="flex:2;">ГЕНЕРИРОВАТЬ СИГНАЛ</button>
             <button id="resetSignalBtn" style="flex:1; background:transparent; border:1px solid rgba(255,255,255,0.1); color:#fff;" disabled>RESET</button>
-          </div>
-        </div>
-
-        <!-- OTC Market Interface -->
-        <div id="otcMarket" style="display: none;">
-          <label style="color: var(--text-muted); font-size:12px; display:block; margin-bottom:5px;">OTC СЕГМЕНТ</label>
-          <select id="otcPairSelect">
-            <option value="EURUSD">EUR/USD OTC</option>
-            <option value="GBPUSD">GBP/USD OTC</option>
-            <option value="USDJPY">USD/JPY OTC</option>
-            <option value="EURJPY">EUR/JPY OTC</option>
-            <option value="USDCHF">USD/CHF OTC</option>
-            <option value="USDCAD">USD/CAD OTC</option>
-            <option value="AUDUSD">AUD/USD OTC</option>
-            <option value="GBPJPY">GBP/JPY OTC</option>
-          </select>
-
-          <label style="color: var(--text-muted); font-size:12px; display:block; margin-bottom:5px;">ТАЙМФРЕЙМ СДЕЛКИ (OTC)</label>
-          <select id="otcTfSelect">
-            <option value="1">1 Минута (1M)</option>
-            <option value="3">3 Минуты (3M)</option>
-            <option value="5">5 Минут (5M)</option>
-          </select>
-
-          <div style="display:flex; gap:10px; margin-top:20px;">
-            <button id="getOtcSignalBtn" style="flex:2;">АНАЛИЗ OTC</button>
-            <button id="resetOtcSignalBtn" style="flex:1; background:transparent; border:1px solid rgba(255,255,255,0.1); color:#fff;" disabled>RESET</button>
           </div>
         </div>
 
@@ -413,6 +412,14 @@ const accessKey = document.getElementById("accessKey");
 const authMessage = document.getElementById("authMessage");
 const signals = document.getElementById("signals");
 const timeWarning = document.getElementById("timeWarning");
+const partnerIdDisplay = document.getElementById("partnerIdDisplay");
+
+// Генерация случайного ID партнера при загрузке страницы
+function generatePartnerID() {
+  const randNum = Math.floor(10000 + Math.random() * 90000);
+  partnerIdDisplay.textContent = `ID-${randNum}`;
+}
+generatePartnerID();
 
 checkKeyBtn.onclick = () => {
   if (accessKey.value.trim() === VALID_KEY) {
@@ -420,7 +427,7 @@ checkKeyBtn.onclick = () => {
     signals.style.display = "block";
     checkWorkingHours();
   } else {
-    authMessage.textContent = "❌ ЛИЦЕНЗИЯ НЕ НАЙДЕНА";
+    authMessage.textContent = "❌ КЛЮЧ НЕАКТИВЕН ИЛИ ВВЕДЕН НЕВЕРНО";
     authMessage.style.color = "var(--accent-red)";
   }
 };
@@ -439,29 +446,10 @@ function checkWorkingHours() {
   if (!isWorking) {
     timeWarning.style.display = "block";
     document.getElementById("getSignalBtn").disabled = true;
-    document.getElementById("getOtcSignalBtn").disabled = true;
   } else {
     timeWarning.style.display = "none";
     document.getElementById("getSignalBtn").disabled = false;
-    document.getElementById("getOtcSignalBtn").disabled = false;
   }
-}
-
-// Переключение вкладок
-const classicBtn = document.getElementById("classicBtn");
-const otcBtn = document.getElementById("otcBtn");
-const classicMarket = document.getElementById("classicMarket");
-const otcMarket = document.getElementById("otcMarket");
-
-classicBtn.onclick = () => {
-  classicMarket.style.display="block"; otcMarket.style.display="none";
-  classicBtn.classList.add("activeTab"); otcBtn.classList.remove("activeTab");
-  checkWorkingHours();
-}
-otcBtn.onclick = () => {
-  classicMarket.style.display="none"; otcMarket.style.display="block";
-  otcBtn.classList.add("activeTab"); classicBtn.classList.remove("activeTab");
-  checkWorkingHours();
 }
 
 // Загрузка TradingView
@@ -511,11 +499,9 @@ function startPrecisionTimer(durationMinutes, onFinished) {
   const durationMs = durationMinutes * 60 * 1000;
   const targetTimeMs = startTimeMs + durationMs;
 
-  // Рассчитываем точное локальное время закрытия для отображения (HH:MM)
   const targetDate = new Date(targetTimeMs);
   const targetTimeStr = targetDate.toLocaleTimeString("ru-RU", {hour: '2-digit', minute:'2-digit'});
 
-  // Отображаем расчетное время в элементе
   const targetTimeEl = document.getElementById("targetTimeText");
   if (targetTimeEl) targetTimeEl.textContent = targetTimeStr;
 
@@ -537,7 +523,7 @@ function startPrecisionTimer(durationMinutes, onFinished) {
       clearInterval(timer);
       onFinished();
     }
-  }, 250); // Частое обновление предотвращает любые лаги и рассинхроны
+  }, 250);
 }
 
 // Получение реальной базовой цены по паре
@@ -572,14 +558,14 @@ function runVisualPrice(pair) {
 }
 
 // Логика запуска сделки
-function startSignalProcess(isDogon = false, forcedDir = null, otcMode = false) {
+function startSignalProcess(isDogon = false, forcedDir = null) {
   if (!isKyivWorkTime()) { checkWorkingHours(); return; }
 
-  const pairSelectEl = otcMode ? document.getElementById("otcPairSelect") : document.getElementById("pairSelect");
-  const tfSelectEl = otcMode ? document.getElementById("otcTfSelect") : document.getElementById("tfSelect");
-  const getBtn = otcMode ? document.getElementById("getOtcSignalBtn") : document.getElementById("getSignalBtn");
-  const resetBtn = otcMode ? document.getElementById("resetOtcSignalBtn") : document.getElementById("resetSignalBtn");
-  const display = otcMode ? document.getElementById("otcSignalDisplay") : document.getElementById("signalDisplay");
+  const pairSelectEl = document.getElementById("pairSelect");
+  const tfSelectEl = document.getElementById("tfSelect");
+  const getBtn = document.getElementById("getSignalBtn");
+  const resetBtn = document.getElementById("resetSignalBtn");
+  const display = document.getElementById("signalDisplay");
 
   const pair = pairSelectEl.value;
   
@@ -595,12 +581,11 @@ function startSignalProcess(isDogon = false, forcedDir = null, otcMode = false) 
       <p style="color: var(--text-muted); font-size:13px;">${isDogon ? 'РАСЧЕТ СТРАТЕГИЧЕСКОГО ДОГОНА...' : 'СКАНИРОВАНИЕ ИНДИКАТОРОВ ТЕХ. АНАЛИЗА...'}</p>
     </div>`;
 
-  if (!isDogon && !otcMode) {
+  if (!isDogon) {
     loadAnalysisWidget(pair, tfSelectEl.value);
     loadTV(pair, tfSelectEl.value);
   }
 
-  // Саму сделку выплевываем быстро (за 1 сек вместо 2), чтобы минимизировать рассинхрон при долгом ожидании
   setTimeout(() => {
     let direction = forcedDir || (Math.random() > 0.49 ? "UP" : "DOWN");
     let acc = (72 + Math.random() * 21).toFixed(1);
@@ -656,7 +641,7 @@ function startSignalProcess(isDogon = false, forcedDir = null, otcMode = false) 
         registerResult(false);
         if (!isDogon) {
           // Если основная сделка зашла в минус, мгновенно запускаем догон на 2 минуты в том же направлении
-          startSignalProcess(true, direction, otcMode);
+          startSignalProcess(true, direction);
         } else {
           // Если догон зашел в минус — останавливаем цикл
           display.innerHTML = `
@@ -674,8 +659,7 @@ function startSignalProcess(isDogon = false, forcedDir = null, otcMode = false) 
 }
 
 // Привязка событий к кнопкам запуска
-document.getElementById("getSignalBtn").onclick = () => startSignalProcess(false, null, false);
-document.getElementById("getOtcSignalBtn").onclick = () => startSignalProcess(false, null, true);
+document.getElementById("getSignalBtn").onclick = () => startSignalProcess(false, null);
 
 document.getElementById("resetSignalBtn").onclick = () => {
   clearInterval(timer);
@@ -685,14 +669,6 @@ document.getElementById("resetSignalBtn").onclick = () => {
   document.getElementById("tv_analysis_container").innerHTML = "";
   document.getElementById("getSignalBtn").disabled = false;
   document.getElementById("resetSignalBtn").disabled = true;
-};
-
-document.getElementById("resetOtcSignalBtn").onclick = () => {
-  clearInterval(timer);
-  if (priceSimInterval) clearInterval(priceSimInterval);
-  document.getElementById("otcSignalDisplay").innerHTML = "";
-  document.getElementById("getOtcSignalBtn").disabled = false;
-  document.getElementById("resetOtcSignalBtn").disabled = true;
 };
 
 // Задний фон
