@@ -54,56 +54,6 @@ header {
   gap: 20px;
 }
 
-/* Welcome & Auth Block */
-#authBlock {
-  max-width: 450px;
-  margin: 60px auto;
-  padding: 30px;
-  background: var(--panel-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 16px;
-  text-align: center;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-  backdrop-filter: blur(12px);
-}
-
-.partner-id-box {
-  background: rgba(255, 183, 3, 0.08);
-  border: 1px dashed var(--accent-gold);
-  padding: 12px;
-  border-radius: 8px;
-  font-family: monospace;
-  font-size: 18px;
-  color: var(--accent-gold);
-  margin: 15px 0;
-  font-weight: bold;
-}
-
-.auth-instruction {
-  font-size: 13px;
-  color: var(--text-muted);
-  line-height: 1.5;
-  margin-bottom: 20px;
-  text-align: left;
-}
-
-input {
-  width: 85%;
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.1);
-  background: #111317;
-  color: #fff;
-  font-size: 16px;
-  text-align: center;
-  outline: none;
-  transition: 0.3s;
-  margin-bottom: 15px;
-}
-input:focus {
-  border-color: var(--accent-gold);
-}
-
 /* Buttons styling */
 button {
   padding: 12px 24px;
@@ -125,16 +75,6 @@ button:disabled {
   transform: none !important;
   box-shadow: none !important;
   cursor: not-allowed;
-}
-
-.btn-secondary {
-  background: transparent;
-  border: 1px solid var(--accent-gold);
-  color: var(--accent-gold);
-  margin-left: 10px;
-}
-.btn-secondary:hover {
-  background: rgba(255, 183, 3, 0.1);
 }
 
 /* Dashboard Panels */
@@ -294,35 +234,8 @@ select:focus {
 <header>🐕 DOG ANALYTICS PRO</header>
 
 <div class="container">
-  <!-- Auth & Welcome Block -->
-  <div id="authBlock">
-    <h3 style="margin-top:0; color: var(--accent-gold); letter-spacing: 1px;">ДОБРО ПОЖАЛОВАТЬ В DOG AI</h3>
-    <p style="color: var(--text-muted); font-size:14px; margin-bottom:5px;">Для получения доступа к сигналам зарегистрируйтесь:</p>
-    
-    <!-- Сгенерированный ID клиента -->
-    <div class="partner-id-box" id="partnerIdDisplay">ID-XXXXX</div>
-    
-    <div class="auth-instruction">
-      <strong>⚠️ Инструкция по активации:</strong><br>
-      1. Скопируйте ваш уникальный ID партнера выше.<br>
-      2. Отправьте его нашему менеджеру в Telegram, чтобы получить ключ активации.<br>
-      3. Введите полученный ключ в поле ниже для разблокировки терминала.
-    </div>
-
-    <input id="accessKey" type="password" placeholder="Введите ключ доступа">
-    <br>
-    <div style="display: flex; justify-content: center; width: 100%; gap: 10px;">
-      <button id="checkKeyBtn" style="flex: 1;">АКТИВИРОВАТЬ</button>
-      <!-- Замени href на ссылку на свой Telegram аккаунт или бота -->
-      <a href="https://t.me/your_telegram_username" target="_blank" style="flex: 1; text-decoration: none;">
-        <button type="button" class="btn-secondary" style="width: 100%; margin: 0;">МЕНЕДЖЕР ✉</button>
-      </a>
-    </div>
-    <p id="authMessage" style="margin-top:15px; font-weight:600;"></p>
-  </div>
-
   <!-- Main System -->
-  <div id="signals" style="display: none;">
+  <div id="signals">
     <div class="time-warning" id="timeWarning">
       🔴 СИСТЕМА ВНЕ РАБОЧЕГО ДИАПАЗОНА. РАБОТА С 09:00 ДО 22:00 ПО КИЕВУ.
     </div>
@@ -405,32 +318,7 @@ select:focus {
 
 <script src="https://s3.tradingview.com/tv.js"></script>
 <script>
-const VALID_KEY = "DOG2025";
-const authBlock = document.getElementById("authBlock");
-const checkKeyBtn = document.getElementById("checkKeyBtn");
-const accessKey = document.getElementById("accessKey");
-const authMessage = document.getElementById("authMessage");
-const signals = document.getElementById("signals");
 const timeWarning = document.getElementById("timeWarning");
-const partnerIdDisplay = document.getElementById("partnerIdDisplay");
-
-// Генерация случайного ID партнера при загрузке страницы
-function generatePartnerID() {
-  const randNum = Math.floor(10000 + Math.random() * 90000);
-  partnerIdDisplay.textContent = `ID-${randNum}`;
-}
-generatePartnerID();
-
-checkKeyBtn.onclick = () => {
-  if (accessKey.value.trim() === VALID_KEY) {
-    authBlock.style.display = "none";
-    signals.style.display = "block";
-    checkWorkingHours();
-  } else {
-    authMessage.textContent = "❌ КЛЮЧ НЕАКТИВЕН ИЛИ ВВЕДЕН НЕВЕРНО";
-    authMessage.style.color = "var(--accent-red)";
-  }
-};
 
 // Проверка рабочего времени по Киеву (09:00 - 22:00)
 function isKyivWorkTime() {
@@ -451,6 +339,7 @@ function checkWorkingHours() {
     document.getElementById("getSignalBtn").disabled = false;
   }
 }
+checkWorkingHours();
 
 // Загрузка TradingView
 function loadTV(pair, tf){
@@ -493,23 +382,26 @@ function registerResult(isWin) {
 
 let timer = null;
 
-// Расчет точного времени окончания и запуск идеального обратного отсчета
-function startPrecisionTimer(durationMinutes, onFinished) {
-  const startTimeMs = Date.now();
-  const durationMs = durationMinutes * 60 * 1000;
-  const targetTimeMs = startTimeMs + durationMs;
+// Точнейший расчет времени экспирации (Четко HH:MM на основе текущей минуты + таймфрейм)
+function getExactTargetTime(durationMinutes) {
+  const now = new Date();
+  // Высчитываем целевое время на основе системного времени устройства пользователя
+  const targetDate = new Date(now.getTime() + durationMinutes * 60 * 1000);
+  
+  // Возвращаем объект со строкой формата HH:MM и точным timestamp окончания для таймера
+  return {
+    timeString: targetDate.toLocaleTimeString("ru-RU", {hour: '2-digit', minute:'2-digit'}),
+    targetTimestamp: targetDate.getTime()
+  };
+}
 
-  const targetDate = new Date(targetTimeMs);
-  const targetTimeStr = targetDate.toLocaleTimeString("ru-RU", {hour: '2-digit', minute:'2-digit'});
-
-  const targetTimeEl = document.getElementById("targetTimeText");
-  if (targetTimeEl) targetTimeEl.textContent = targetTimeStr;
-
+// Умный таймер: синхронизирован с миллисекундами системы
+function startPrecisionTimer(targetTimestamp, onFinished) {
   if (timer) clearInterval(timer);
 
   timer = setInterval(() => {
     const nowMs = Date.now();
-    const remainingMs = targetTimeMs - nowMs;
+    const remainingMs = targetTimestamp - nowMs;
     const remainingSec = Math.max(0, Math.ceil(remainingMs / 1000));
 
     const timerText = document.getElementById("timerText");
@@ -586,9 +478,13 @@ function startSignalProcess(isDogon = false, forcedDir = null) {
     loadTV(pair, tfSelectEl.value);
   }
 
+  // Сделка генерируется за 1 секунду для минимального рассинхрона
   setTimeout(() => {
     let direction = forcedDir || (Math.random() > 0.49 ? "UP" : "DOWN");
     let acc = (72 + Math.random() * 21).toFixed(1);
+
+    // Рассчитываем точное конечное время
+    const targetTimeData = getExactTargetTime(durationMinutes);
 
     display.innerHTML = `
       <div class="signalCard active-trade ${isDogon ? 'dogon-active' : ''}">
@@ -602,7 +498,7 @@ function startSignalProcess(isDogon = false, forcedDir = null) {
           Текущая цена: <span id="livePriceTracker">Загрузка...</span>
         </div>
         <p style="font-size:14px; margin: 5px 0; color: var(--text-muted);">
-          Закрытие сделки в: <strong style="color:#fff;" id="targetTimeText">--:--</strong>
+          Закрытие сделки строго в: <strong style="color:#fff;">${targetTimeData.timeString}</strong>
         </p>
         <p style="font-size:14px; margin: 5px 0; color: var(--text-muted);">Точность анализа: ${acc}%</p>
         <div style="font-size: 24px; font-weight:bold; margin-top:10px; color: var(--accent-gold);" id="timerText">0:00</div>
@@ -610,8 +506,8 @@ function startSignalProcess(isDogon = false, forcedDir = null) {
 
     runVisualPrice(pair);
 
-    // Запуск точнейшего системного таймера
-    startPrecisionTimer(durationMinutes, () => {
+    // Запуск точнейшего таймера с нулевым отставанием
+    startPrecisionTimer(targetTimeData.targetTimestamp, () => {
       if (priceSimInterval) clearInterval(priceSimInterval);
       
       // По истечении времени запрашиваем реальный результат у трейдера
